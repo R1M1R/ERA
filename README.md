@@ -53,6 +53,35 @@ Linux/macOS: use `scripts/start-local.sh` and `make dev-infra`.
 
 See **[backend/README_DEPLOY.md](backend/README_DEPLOY.md)** for the full Ubuntu + Docker + Nginx guide.
 
+### Quick path (3 commands on server)
+
+```bash
+# 1. Bootstrap backend
+bash scripts/server-first-deploy.sh
+
+# 2. Nginx + TLS (replace domains and email)
+sudo bash scripts/setup-nginx.sh \
+  --api-domain api.your-domain.com \
+  --frontend-domain your-domain.com \
+  --email you@example.com
+
+# 3. Deploy frontend from GitHub Actions
+# Actions → Deploy Frontend → set VITE_API_URL=https://api.your-domain.com
+```
+
+### Generate production `.env` locally (Windows)
+
+```powershell
+.\scripts\generate-prod-env.ps1 -ApiDomain api.your-domain.com -FrontendDomain your-domain.com -OpenAiKey sk-...
+# Copy .env.production.generated to server as ~/ERA/.env
+```
+
+### Alternative: Vercel for frontend only
+
+1. Import repo in Vercel, set root directory to `frontend`
+2. Add env var `VITE_API_URL=https://api.your-domain.com`
+3. Deploy — `frontend/vercel.json` handles SPA routing
+
 ```bash
 git clone https://github.com/R1M1R/ERA.git
 cd ERA

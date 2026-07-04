@@ -1,0 +1,56 @@
+name: Deploy Frontend
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: "Production API URL (VITE_API_URL)"
+        required: true
+        default: "https://api.your-domain.com"
+
+jobs:
+  deploy:
+    if: github.repository == 'R1M1R/ERA'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          VITE_API_URL: ${{ inputs.api_url }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload build to server
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "frontend/dist/*"
+          target: "/tmp/era-frontend-dist"
+          strip_components: 2
+
+      - name: Install static files and reload Nginx
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -eu
+            sudo mkdir -p /var/www/era-frontend
+            sudo rsync -av --delete /tmp/era-frontend-dist/ /var/www/era-frontend/
+            sudo nginx -t
+            sudo systemctl reload nginx
+            echo "Frontend deployed to /var/www/era-frontend"

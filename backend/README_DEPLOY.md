@@ -190,6 +190,26 @@ Repository: [https://github.com/R1M1R/ERA](https://github.com/R1M1R/ERA)
 |---|---|---|
 | `CI` | push / PR to `main` | Backend import check, compose validation, frontend build |
 | `Deploy Backend` | manual (`workflow_dispatch`) | SSH deploy to production server |
+| `Deploy Frontend` | manual (`workflow_dispatch`) | Build SPA and rsync to `/var/www/era-frontend` |
+
+### Generate production secrets locally
+
+```bash
+bash scripts/generate-prod-env.sh \
+  --api-domain api.your-domain.com \
+  --frontend-domain your-domain.com \
+  --openai-key sk-...
+# Copy .env.production.generated to the server as ~/ERA/.env
+```
+
+### Configure Nginx + TLS in one step
+
+```bash
+sudo bash scripts/setup-nginx.sh \
+  --api-domain api.your-domain.com \
+  --frontend-domain your-domain.com \
+  --email you@example.com
+```
 
 ### Configure production deploy secrets
 
