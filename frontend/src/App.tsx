@@ -8,6 +8,7 @@ import { GenerationProgress } from './components/GenerationProgress'
 import { useArtifacts } from './hooks/useArtifacts'
 import { useDecoder } from './hooks/useDecoder'
 import { useGeneration } from './hooks/useGeneration'
+import { resolveArtifactImageUrl } from './lib/api'
 
 function App() {
   const [galleryRefreshKey, setGalleryRefreshKey] = useState(0)
@@ -18,6 +19,20 @@ function App() {
   const generation = useGeneration(refreshGallery)
   const gallery = useArtifacts({ refreshKey: galleryRefreshKey })
   const decoder = useDecoder()
+
+  const verifyGalleryImage = useCallback(
+    async (imageUrl: string) => {
+      const response = await fetch(resolveArtifactImageUrl(imageUrl))
+      if (!response.ok) {
+        throw new Error('Failed to load artifact image.')
+      }
+      const blob = await response.blob()
+      const file = new File([blob], 'era-artifact.png', { type: blob.type || 'image/png' })
+      decoder.selectFile(file)
+      document.getElementById('decoder-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    },
+    [decoder],
+  )
 
   return (
     <div className="mx-auto min-h-screen max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
@@ -47,6 +62,9 @@ function App() {
           error={gallery.error}
           onPageChange={gallery.setPage}
           onReload={gallery.reload}
+          onVerifyImage={(imageUrl) => {
+            void verifyGalleryImage(imageUrl)
+          }}
         />
 
         <DecoderSection

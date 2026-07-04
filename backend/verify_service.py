@@ -6,6 +6,7 @@ from io import BytesIO
 
 from PIL import Image
 
+from backend.presentation import presentation_riddle
 from backend.repository import get_artifact_by_authenticity_hash
 from backend.steganography import (
     SteganographyError,
@@ -43,11 +44,13 @@ async def verify_artifact_image(image_bytes: bytes) -> dict[str, str | bool | No
             "detail": str(exc),
         }
 
+    display_text = presentation_riddle(payload.text)
+
     if payload.authenticity_hash != expected_hash:
         return {
             "status": "fake",
             "message": "Fake / Corrupted Data",
-            "text": payload.text,
+            "text": display_text,
             "authenticity_hash": payload.authenticity_hash,
             "verified": False,
             "detail": "Embedded authenticity hash does not match server recomputation.",
@@ -58,7 +61,7 @@ async def verify_artifact_image(image_bytes: bytes) -> dict[str, str | bool | No
         return {
             "status": "fake",
             "message": "Fake / Corrupted Data",
-            "text": payload.text,
+            "text": display_text,
             "authenticity_hash": payload.authenticity_hash,
             "verified": False,
             "detail": "Authenticity hash was not found in the ERA archive.",
@@ -67,7 +70,7 @@ async def verify_artifact_image(image_bytes: bytes) -> dict[str, str | bool | No
     return {
         "status": "authentic",
         "message": "Подлинный артефакт",
-        "text": payload.text,
+        "text": display_text,
         "authenticity_hash": payload.authenticity_hash,
         "verified": True,
         "detail": None,

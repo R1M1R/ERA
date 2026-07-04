@@ -10,6 +10,7 @@ interface GallerySectionProps {
   error: string | null
   onPageChange: (page: number) => void
   onReload: () => void
+  onVerifyImage?: (imageUrl: string) => void
 }
 
 function formatCreatedAt(value: string): string {
@@ -28,6 +29,7 @@ export function GallerySection({
   error,
   onPageChange,
   onReload,
+  onVerifyImage,
 }: GallerySectionProps) {
   return (
     <section className="panel">
@@ -106,6 +108,15 @@ export function GallerySection({
                 >
                   Download PNG
                 </a>
+                {onVerifyImage ? (
+                  <button
+                    type="button"
+                    className="btn-primary inline-flex w-full justify-center"
+                    onClick={() => onVerifyImage(artifact.image_url)}
+                  >
+                    Verify in Decoder
+                  </button>
+                ) : null}
               </div>
             </article>
           ))}

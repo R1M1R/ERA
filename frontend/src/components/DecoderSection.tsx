@@ -60,7 +60,7 @@ export function DecoderSection({
   })
 
   return (
-    <section className="panel">
+    <section className="panel" id="decoder-section">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h2 className="font-display text-2xl text-parchment-50">Interactive decoder</h2>

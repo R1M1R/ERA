@@ -130,6 +130,11 @@ export function GenerationProgress({
                 <pre className="max-h-64 overflow-auto whitespace-pre-wrap font-mono text-sm leading-relaxed text-parchment-100">
                   {status.result.riddle ?? status.result.embedded_text ?? 'Riddle embedded successfully.'}
                 </pre>
+                {status.result.answer ? (
+                  <p className="mt-3 rounded-lg border border-parchment-500/20 bg-parchment-500/5 px-3 py-2 text-sm text-parchment-200">
+                    <span className="font-semibold text-parchment-400">Answer:</span> {status.result.answer}
+                  </p>
+                ) : null}
                 {imageSrc ? (
                   <a
                     href={imageSrc}
