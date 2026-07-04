@@ -102,7 +102,8 @@ Vercel → Render API → Neon Postgres + Upstash Redis + Render Celery worker
 |---|---|
 | **DEPLOY.bat** | Постоянный production (Render + Vercel) |
 | **SHARE.bat** | Публичная ссылка (Cloudflare Tunnel) |
-| **GO.bat** | Локальный запуск + проверка |
+| `setup-keys.ps1` | Автонастройка всех ключей в `.env` |
+| **GO.bat** | Ключи + запуск + проверка |
 | `restart-era.ps1` | Перезапуск стека |
 | `start-standalone.ps1` | Запуск без Docker (SQLite) |
 | `e2e-standalone.ps1` | Полный E2E тест standalone |
