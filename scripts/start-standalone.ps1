@@ -105,6 +105,12 @@ Write-Host ""
 Write-Host "Generate works without OpenAI (demo mode) and without Docker."
 Write-Host ""
 
+if (-not $SkipFrontend -and (Test-ApiHealthy) -and (Test-PortListening -Port 5173)) {
+    Start-Process "http://localhost:5173" | Out-Null
+    Write-Host "[ERA] Opened http://localhost:5173 in your browser."
+    Write-Host ""
+}
+
 if ($RunE2E) {
     & (Join-Path $PSScriptRoot "e2e-standalone.ps1")
 }

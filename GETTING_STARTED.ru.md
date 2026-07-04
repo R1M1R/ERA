@@ -92,6 +92,7 @@ Vercel → Render API → Neon Postgres + Upstash Redis + Render Celery worker
 
 | Скрипт | Назначение |
 |---|---|
+| `verify-product.ps1` | Полная проверка (E2E + build) |
 | `run-product.ps1` | Запуск + E2E (полный продукт без Docker) |
 | `start-standalone.ps1` | Запуск без Docker (SQLite) |
 | `e2e-standalone.ps1` | Полный E2E тест standalone |
