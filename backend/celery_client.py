@@ -10,6 +10,8 @@ from pathlib import Path
 from celery import Celery
 from dotenv import load_dotenv
 
+from backend.runtime import is_standalone_mode
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -17,8 +19,14 @@ if str(PROJECT_ROOT) not in sys.path:
 load_dotenv(PROJECT_ROOT / ".env")
 load_dotenv()
 
-REDIS_URL = os.getenv("CELERY_BROKER_URL") or os.getenv("REDIS_URL", "redis://localhost:6379/0")
-RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", REDIS_URL)
+if is_standalone_mode():
+    for key in ("CELERY_BROKER_URL", "CELERY_RESULT_BACKEND", "REDIS_URL"):
+        os.environ.pop(key, None)
+    REDIS_URL = "memory://"
+    RESULT_BACKEND = "cache+memory://"
+else:
+    REDIS_URL = os.getenv("CELERY_BROKER_URL") or os.getenv("REDIS_URL", "redis://localhost:6379/0")
+    RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", REDIS_URL)
 
 celery_app = Celery(
     "era_worker",
@@ -37,7 +45,12 @@ celery_conf: dict = {
     "imports": ("worker.tasks",),
 }
 
-if REDIS_URL.startswith("rediss://"):
+if is_standalone_mode():
+    celery_conf["broker_url"] = REDIS_URL
+    celery_conf["result_backend"] = RESULT_BACKEND
+    celery_conf["task_always_eager"] = True
+    celery_conf["task_store_eager_result"] = True
+elif REDIS_URL.startswith("rediss://"):
     celery_conf["broker_use_ssl"] = {"ssl_cert_reqs": ssl.CERT_NONE}
     celery_conf["redis_backend_use_ssl"] = {"ssl_cert_reqs": ssl.CERT_NONE}
 

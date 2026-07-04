@@ -85,6 +85,14 @@ jobs:
           print("pipeline result serialization ok")
           PY
 
+      - name: E2E standalone mode (SQLite + in-process Celery)
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          ERA_STANDALONE: "true"
+          ERA_DEMO_MODE: "true"
+          ERA_SERVER_SALT: ci-test-salt
+        run: python backend/scripts/e2e_standalone.py
+
       - name: Verify PaaS artifact model
         working-directory: backend
         env:

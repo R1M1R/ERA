@@ -34,6 +34,7 @@ frontend/.env.local
 .DS_Store
 Thumbs.db
 
-# Local deploy state (never commit)
+# Standalone SQLite (local, no Docker)
+backend/era_standalone.db
 .oci-deploy.local.json
 paas-env-checklist.txt

@@ -64,8 +64,10 @@ class HistoryRiddle:
     riddle: str
     answer: str
 
-    def embedding_text(self) -> str:
-        """Return the text that should be hidden inside the steganographic image."""
+    def embedding_text(self, *, artifact_id: str | None = None) -> str:
+        """Return the text hidden inside the steganographic image."""
+        if artifact_id:
+            return f"{self.riddle}\n#era:{artifact_id}"
         return self.riddle
 
 

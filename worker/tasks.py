@@ -46,9 +46,9 @@ def encode_riddle_into_artifact(riddle: HistoryRiddle, artifact_id: str) -> dict
 
     generator = SteganographyGenerator()
     image_path, authenticity_hash = generator.encode_authenticated_text_to_image(
-        riddle.embedding_text(),
+        riddle.embedding_text(artifact_id=artifact_id),
         output_path,
-        seed=riddle.riddle,
+        seed=f"{riddle.riddle}:{artifact_id}",
     )
 
     image_bytes = image_path.read_bytes()
@@ -72,7 +72,7 @@ def build_pipeline_result(
         "task_id": artifact_id,
         "riddle": riddle.riddle,
         "answer": riddle.answer,
-        "embedded_text": riddle.embedding_text(),
+        "embedded_text": riddle.embedding_text(artifact_id=artifact_id),
         "status": "completed",
         "database_record": db_record,
         "artifact_id": artifact["artifact_id"],

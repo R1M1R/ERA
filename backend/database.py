@@ -11,12 +11,20 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
+from backend.runtime import (
+    is_standalone_mode,
+    standalone_async_database_url,
+    standalone_sync_database_url,
+)
+
 DEFAULT_ASYNC_DATABASE_URL = "postgresql+asyncpg://era:era_secret@localhost:5432/era_db"
 DEFAULT_SYNC_DATABASE_URL = "postgresql+psycopg2://era:era_secret@localhost:5432/era_db"
 
 
 def resolve_async_database_url() -> str:
     """Return the async SQLAlchemy URL used by FastAPI."""
+    if is_standalone_mode():
+        return standalone_async_database_url()
     url = os.getenv("DATABASE_URL", DEFAULT_ASYNC_DATABASE_URL)
     if url.startswith("postgresql://"):
         return url.replace("postgresql://", "postgresql+asyncpg://", 1)
@@ -27,6 +35,8 @@ def resolve_async_database_url() -> str:
 
 def resolve_sync_database_url() -> str:
     """Return the sync SQLAlchemy URL used by Celery workers."""
+    if is_standalone_mode():
+        return standalone_sync_database_url()
     explicit = os.getenv("DATABASE_URL_SYNC")
     if explicit:
         return explicit
@@ -41,7 +51,7 @@ class Base(DeclarativeBase):
 
 async_engine: AsyncEngine = create_async_engine(
     resolve_async_database_url(),
-    pool_pre_ping=True,
+    pool_pre_ping=not is_standalone_mode(),
     future=True,
 )
 AsyncSessionLocal = async_sessionmaker(
@@ -53,7 +63,8 @@ AsyncSessionLocal = async_sessionmaker(
 
 sync_engine: Engine = create_engine(
     resolve_sync_database_url(),
-    pool_pre_ping=True,
+    pool_pre_ping=not is_standalone_mode(),
+    connect_args={"check_same_thread": False} if is_standalone_mode() else {},
     future=True,
 )
 SyncSessionLocal = sessionmaker(

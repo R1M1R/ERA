@@ -27,18 +27,22 @@ ERA/
 
 ## Quick start (local development)
 
-**[GETTING_STARTED.ru.md](GETTING_STARTED.ru.md)** — полный гайд на русском.
+**Без Docker** (рекомендуется):
 
 ```powershell
-.\scripts\ensure-docker.ps1          # запустить Docker Desktop
-.\scripts\start-era-local.ps1 -All   # Docker + API + Frontend
-.\scripts\smoke-test.ps1             # проверка
+.\scripts\run-product.ps1
+# или только запуск: .\scripts\start-standalone.ps1
 ```
 
-- Frontend: http://localhost:5173 (индикатор API в шапке)
-- API: http://127.0.0.1:8000/health
+**С Docker:**
 
-Linux/macOS: `scripts/start-local.sh` and `make dev-infra`.
+```powershell
+.\scripts\ensure-docker.ps1
+.\scripts\start-era-local.ps1 -All
+.\scripts\smoke-test.ps1
+```
+
+**[GETTING_STARTED.ru.md](GETTING_STARTED.ru.md)** — полный гайд.
 
 ## Production deployment
 

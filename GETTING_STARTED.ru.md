@@ -1,6 +1,25 @@
 # ERA — Быстрый старт
 
-## Локальная разработка (Windows)
+# Локальная разработка (Windows)
+
+## Вариант A — без Docker (рекомендуется)
+
+Работает сразу: SQLite + demo-загадки + Celery in-process. Docker не нужен.
+
+```powershell
+.\scripts\start-standalone.ps1
+```
+
+E2E тест (API должен быть запущен):
+
+```powershell
+.\scripts\e2e-standalone.ps1
+```
+
+- **Frontend:** http://localhost:5173  
+- **API:** http://127.0.0.1:8000/health  
+
+## Вариант B — с Docker
 
 ### 1. Требования
 
@@ -73,7 +92,10 @@ Vercel → Render API → Neon Postgres + Upstash Redis + Render Celery worker
 
 | Скрипт | Назначение |
 |---|---|
-| `start-era-local.ps1 -All` | Локальный запуск |
+| `run-product.ps1` | Запуск + E2E (полный продукт без Docker) |
+| `start-standalone.ps1` | Запуск без Docker (SQLite) |
+| `e2e-standalone.ps1` | Полный E2E тест standalone |
+| `start-era-local.ps1 -All` | Локальный запуск с Docker |
 | `smoke-test.ps1` | Проверка API и frontend |
 | `deploy-all-oci.ps1` | Полный деплой на Oracle |
 | `setup-github-actions.ps1` | Секреты для CI/CD |
@@ -85,8 +107,8 @@ Vercel → Render API → Neon Postgres + Upstash Redis + Render Celery worker
 
 | Проблема | Решение |
 |---|---|
-| Docker pipe error | `.\scripts\ensure-docker.ps1` |
-| API offline (красный) | Запустите `.\scripts\start-era-local.ps1 -All` |
+| Docker pipe error | `.\scripts\ensure-docker.ps1` или используйте `.\scripts\start-standalone.ps1` |
+| API offline (красный) | Запустите `.\scripts\start-standalone.ps1` или `.\scripts\start-era-local.ps1 -All` |
 | API degraded (жёлтый) | Postgres/Redis не запущены — `docker compose up -d postgres redis celery-worker` |
 | Generate не работает | Celery в Docker + `ERA_DEMO_MODE=true` или реальный `OPENAI_API_KEY` |
 | CORS ошибка | Добавьте origin фронтенда в `CORS_ORIGINS` |
