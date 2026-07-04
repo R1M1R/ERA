@@ -1,6 +1,5 @@
 param(
-    [switch]$SkipVerify,
-    [switch]$SkipBrowser
+    [switch]$SkipVerify
 )
 
 $ErrorActionPreference = "Stop"
@@ -23,14 +22,11 @@ Stop-PortListener -Port 8000
 Stop-PortListener -Port 5173
 Start-Sleep -Seconds 2
 
-$startArgs = @("-File", (Join-Path $PSScriptRoot "start-standalone.ps1"))
-if ($SkipBrowser) { $startArgs += "-SkipFrontend" }
-
-& powershell -NoProfile -ExecutionPolicy Bypass @startArgs
+& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "start-standalone.ps1")
 
 if (-not $SkipVerify) {
     Write-Host ""
     Write-Host "[ERA] Running product verification..."
-    Start-Sleep -Seconds 6
+    Start-Sleep -Seconds 8
     & (Join-Path $PSScriptRoot "verify-product.ps1")
 }

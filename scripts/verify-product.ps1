@@ -13,20 +13,25 @@ Write-Host ""
 & $venvPython (Join-Path $Root "backend\scripts\e2e_standalone.py") --api-url $ApiUrl
 
 function Test-FrontendProxy {
-    param([string]$FrontendUrl = "http://localhost:5173")
+    param(
+        [string]$FrontendUrl = "http://localhost:5173",
+        [int]$WaitSec = 45
+    )
     Write-Host -NoNewline "[ERA] Frontend proxy ($FrontendUrl/health) ... "
-    try {
-        $health = Invoke-RestMethod -Uri "$FrontendUrl/health" -TimeoutSec 10
-        if ($health.status -eq "ok") {
-            Write-Host "OK"
-            return $true
+    $deadline = (Get-Date).AddSeconds($WaitSec)
+    while ((Get-Date) -lt $deadline) {
+        try {
+            $health = Invoke-RestMethod -Uri "$FrontendUrl/health" -TimeoutSec 5
+            if ($health.status -eq "ok") {
+                Write-Host "OK"
+                return $true
+            }
+        } catch {
+            Start-Sleep -Seconds 2
         }
-        Write-Host "FAIL (status=$($health.status))"
-        return $false
-    } catch {
-        Write-Host "SKIP ($($_.Exception.Message))"
-        return $true
     }
+    Write-Host "FAIL (frontend not ready in ${WaitSec}s)"
+    return $false
 }
 
 $proxyOk = Test-FrontendProxy
