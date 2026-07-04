@@ -10,6 +10,8 @@
 .\scripts\start-standalone.ps1
 ```
 
+Или двойной клик по **`ERA.bat`** в корне проекта.
+
 E2E тест (API должен быть запущен):
 
 ```powershell
@@ -62,6 +64,12 @@ ERA_SERVER_SALT=любой-длинный-секрет
 
 **[deploy/paas/README.md](deploy/paas/README.md)** — Render + Neon + Upstash + Vercel.
 
+```powershell
+.\scripts\deploy-paas.ps1
+```
+
+Мастер откроет страницы регистрации и создаст `paas-env-checklist.txt`.
+
 ```text
 Vercel → Render API → Neon Postgres + Upstash Redis + Render Celery worker
 ```
@@ -98,9 +106,11 @@ Vercel → Render API → Neon Postgres + Upstash Redis + Render Celery worker
 | `e2e-standalone.ps1` | Полный E2E тест standalone |
 | `start-era-local.ps1 -All` | Локальный запуск с Docker |
 | `smoke-test.ps1` | Проверка API и frontend |
+| `deploy-paas.ps1` | Мастер публичного деплоя (Neon/Render/Vercel) |
+| `verify-paas.ps1 -FullE2E` | Полный E2E на production API |
 | `deploy-all-oci.ps1` | Полный деплой на Oracle |
 | `setup-github-actions.ps1` | Секреты для CI/CD |
-| `verify-deployment.ps1` | Проверка production |
+| `verify-deployment.ps1` | Проверка Oracle production |
 
 ---
 

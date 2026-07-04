@@ -1,4 +1,4 @@
-"""End-to-end test for ERA standalone mode (SQLite + in-process Celery)."""
+"""End-to-end API test for ERA (standalone or production PaaS)."""
 
 from __future__ import annotations
 
@@ -12,11 +12,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-os.environ["ERA_STANDALONE"] = "true"
-os.environ["ERA_DEMO_MODE"] = "true"
-os.environ.setdefault("ERA_SERVER_SALT", "e2e-standalone-salt")
-for key in ("CELERY_BROKER_URL", "CELERY_RESULT_BACKEND", "REDIS_URL"):
-    os.environ.pop(key, None)
+
+def configure_standalone_env() -> None:
+    os.environ["ERA_STANDALONE"] = "true"
+    os.environ["ERA_DEMO_MODE"] = "true"
+    os.environ.setdefault("ERA_SERVER_SALT", "e2e-standalone-salt")
+    for key in ("CELERY_BROKER_URL", "CELERY_RESULT_BACKEND", "REDIS_URL"):
+        os.environ.pop(key, None)
 
 
 def _url(base_url: str, path: str) -> str:
@@ -35,37 +37,48 @@ def _wait_for_health(client, base_url: str, timeout_sec: int) -> dict:
     last_error: Exception | None = None
     while time.time() < deadline:
         try:
-            response = _request(client, "GET", "/health", base_url, timeout=5)
+            response = _request(client, "GET", "/health", base_url, timeout=15)
             if response.status_code == 200:
                 payload = response.json()
                 if payload.get("status") == "ok":
                     return payload
         except Exception as exc:  # noqa: BLE001
             last_error = exc
-        time.sleep(1)
+        time.sleep(2)
     raise RuntimeError(f"API health check failed: {last_error}")
 
 
-def run_e2e(client, *, base_url: str = "") -> None:
-    health = _wait_for_health(client, base_url, timeout_sec=30)
-    assert health.get("standalone_mode") is True, health
-    assert health.get("demo_mode") is True, health
-    print("  health ... OK")
+def run_e2e(client, *, base_url: str = "", production: bool = False) -> None:
+    health_timeout = 120 if production else 30
+    health = _wait_for_health(client, base_url, timeout_sec=health_timeout)
 
-    generate_response = _request(client, "POST", "/generate", base_url, timeout=120)
+    if production:
+        assert health.get("status") == "ok", health
+        print(
+            f"  health ... OK (demo={health.get('demo_mode')}, "
+            f"db={health.get('checks', {}).get('database')}, "
+            f"redis={health.get('checks', {}).get('redis')})"
+        )
+    else:
+        assert health.get("standalone_mode") is True, health
+        assert health.get("demo_mode") is True, health
+        print("  health ... OK")
+
+    generate_timeout = 180 if production else 120
+    generate_response = _request(client, "POST", "/generate", base_url, timeout=generate_timeout)
     assert generate_response.status_code == 202, generate_response.text
     task_id = generate_response.json()["task_id"]
     print(f"  generate ... OK (task_id={task_id})")
 
     status_payload = None
-    deadline = time.time() + 90
-    while time.time() < deadline:
+    poll_deadline = time.time() + (180 if production else 90)
+    while time.time() < poll_deadline:
         status_response = _request(client, "GET", f"/status/{task_id}", base_url, timeout=30)
         assert status_response.status_code == 200, status_response.text
         status_payload = status_response.json()
         if status_payload["status"] in {"completed", "failed"}:
             break
-        time.sleep(1)
+        time.sleep(2)
 
     assert status_payload is not None
     assert status_payload["status"] == "completed", status_payload.get("error")
@@ -79,7 +92,7 @@ def run_e2e(client, *, base_url: str = "") -> None:
     public_hash = gallery["items"][0]["public_hash"]
     print(f"  gallery ... OK (total={gallery['total']})")
 
-    image_response = _request(client, "GET", f"/artifacts/{public_hash}/image", base_url, timeout=30)
+    image_response = _request(client, "GET", f"/artifacts/{public_hash}/image", base_url, timeout=60)
     assert image_response.status_code == 200, image_response.text
     image_bytes = image_response.content
 
@@ -100,26 +113,38 @@ def run_e2e(client, *, base_url: str = "") -> None:
     assert verify.get("verified") is True, verify
     print("  verify ... OK")
 
+    label = "production" if production else "standalone"
     print("")
-    print("[ERA] E2E standalone test PASSED - product is fully working.")
+    print(f"[ERA] E2E {label} test PASSED - product is fully working.")
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="ERA standalone end-to-end test")
+    parser = argparse.ArgumentParser(description="ERA end-to-end API test")
     parser.add_argument(
         "--api-url",
         default="",
-        help="Optional running API base URL. If omitted, uses in-process TestClient.",
+        help="Running API base URL. If omitted, uses in-process TestClient (standalone).",
+    )
+    parser.add_argument(
+        "--production",
+        action="store_true",
+        help="Production/PaaS mode: longer timeouts, no standalone assertions.",
     )
     args = parser.parse_args()
 
-    print("[ERA] E2E standalone test")
+    label = "production" if args.production else "standalone"
+    print(f"[ERA] E2E {label} test")
+
     if args.api_url:
         import httpx
 
         with httpx.Client() as client:
-            run_e2e(client, base_url=args.api_url.rstrip("/"))
+            run_e2e(client, base_url=args.api_url.rstrip("/"), production=args.production)
     else:
+        if args.production:
+            raise SystemExit("--production requires --api-url")
+
+        configure_standalone_env()
         from starlette.testclient import TestClient
 
         backend_dir = PROJECT_ROOT / "backend"
@@ -129,7 +154,7 @@ def main() -> None:
         from main import app  # noqa: E402
 
         with TestClient(app) as client:
-            run_e2e(client)
+            run_e2e(client, production=False)
 
 
 if __name__ == "__main__":
