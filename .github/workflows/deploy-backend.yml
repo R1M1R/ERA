@@ -20,7 +20,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             set -eu
-            cd ~/ERA
+            INSTALL_DIR="${INSTALL_DIR:-$HOME/ERA}"
+            if [ ! -d "$INSTALL_DIR/.git" ]; then
+              echo "Repository not found at $INSTALL_DIR"
+              echo "Run scripts/server-first-deploy.sh on the server first."
+              exit 1
+            fi
+            cd "$INSTALL_DIR"
             git pull origin main
             docker compose --env-file .env -f backend/production.docker-compose.yml up -d --build
             docker compose --env-file .env -f backend/production.docker-compose.yml ps

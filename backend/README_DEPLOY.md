@@ -40,6 +40,18 @@ cd ERA
 
 Replace the GitHub URL with your actual repository.
 
+**Shortcut:** run the bootstrap script (installs Docker if missing, clones repo, starts stack):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/R1M1R/ERA/main/scripts/server-first-deploy.sh | bash
+```
+
+Or from a local clone:
+
+```bash
+bash scripts/server-first-deploy.sh
+```
+
 ---
 
 ## 4. Create production environment variables on the server
