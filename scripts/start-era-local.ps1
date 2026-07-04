@@ -36,6 +36,14 @@ if (-not (Test-Path (Join-Path $Root ".env"))) {
 }
 
 if (Test-Command "docker") {
+    & (Join-Path $PSScriptRoot "ensure-docker.ps1") | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[ERA] Start Docker Desktop manually, then re-run this script."
+        if (-not $InfraOnly) {
+            Write-Host "[ERA] You can still start API/Frontend, but generation requires Docker infra."
+        }
+    }
+
     Write-Host "[ERA] Starting PostgreSQL + Redis + Celery..."
     Push-Location $Root
     $composeResult = docker compose --env-file .env up -d postgres redis celery-worker 2>&1

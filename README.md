@@ -27,34 +27,18 @@ ERA/
 
 ## Quick start (local development)
 
-```powershell
-# 1. Copy env and install deps
-cp .env.example .env
-
-# 2. Start infra
-.\scripts\start-local.ps1
-
-# 3. Backend API (new terminal)
-cd backend
-$env:PYTHONPATH="c:\path\to\ERA"
-.\venv\Scripts\uvicorn main:app --reload --host 127.0.0.1 --port 8000
-
-# 4. Celery (new terminal)
-$env:PYTHONPATH="c:\path\to\ERA"
-backend\venv\Scripts\celery -A worker.celery_app worker --loglevel=info
-
-# 5. Frontend (new terminal)
-cd frontend && npm run dev
-```
-
-Linux/macOS: use `scripts/start-local.sh` and `make dev-infra`.
-
-Windows quick start:
+**[GETTING_STARTED.ru.md](GETTING_STARTED.ru.md)** — полный гайд на русском.
 
 ```powershell
-.\scripts\start-era-local.ps1 -All    # Docker + API + Frontend
-.\scripts\smoke-test.ps1              # verify everything works
+.\scripts\ensure-docker.ps1          # запустить Docker Desktop
+.\scripts\start-era-local.ps1 -All   # Docker + API + Frontend
+.\scripts\smoke-test.ps1             # проверка
 ```
+
+- Frontend: http://localhost:5173 (индикатор API в шапке)
+- API: http://127.0.0.1:8000/health
+
+Linux/macOS: `scripts/start-local.sh` and `make dev-infra`.
 
 ## Production deployment
 
