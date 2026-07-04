@@ -1,7 +1,9 @@
-.PHONY: dev-infra dev-api dev-worker dev-frontend build-frontend prod-config prod-up
+.PHONY: dev-infra dev-api dev-worker dev-frontend build-frontend prod-config prod-up prod-config-oci
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 export PYTHONPATH := $(ROOT)
+
+COMPOSE_OCI := -f backend/production.docker-compose.yml -f deploy/oracle-cloud/compose.override.yml
 
 dev-infra:
 	docker compose --env-file $(ROOT)/.env up -d postgres redis
@@ -23,3 +25,6 @@ prod-config:
 
 prod-up:
 	docker compose --env-file $(ROOT)/.env -f backend/production.docker-compose.yml up -d --build
+
+prod-config-oci:
+	docker compose --env-file $(ROOT)/.env $(COMPOSE_OCI) config

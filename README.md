@@ -49,6 +49,12 @@ cd frontend && npm run dev
 
 Linux/macOS: use `scripts/start-local.sh` and `make dev-infra`.
 
+Windows quick start:
+
+```powershell
+.\scripts\start-era-local.ps1
+```
+
 ## Production deployment
 
 See **[backend/README_DEPLOY.md](backend/README_DEPLOY.md)** for the full Ubuntu + Docker + Nginx guide.
@@ -90,9 +96,8 @@ Full guide: **[deploy/oracle-cloud/README.md](deploy/oracle-cloud/README.md)**
 # Full deploy in one command (IP-only, no domain):
 .\scripts\deploy-all-oci.ps1 -ServerIp YOUR_IP -IpOnly -OpenAiKey sk-...
 
-# Or step by step:
-.\scripts\oracle-cloud-prep.ps1
-.\scripts\upload-to-oci.ps1 -ServerIp YOUR_IP -RunBootstrap
+# Checklist: deploy/oracle-cloud/CHECKLIST.md
+# GitHub Actions secrets: .\scripts\setup-github-actions.ps1 -ServerIp YOUR_IP
 ```
 
 ```bash

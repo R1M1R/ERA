@@ -1,4 +1,8 @@
-# ERA на Oracle Cloud Always Free
+# ERA → Oracle Cloud: чеклист деплоя
+
+Краткий чеклист: **[CHECKLIST.md](CHECKLIST.md)**
+
+---
 
 Пошаговый деплой backend + frontend на **бесплатный** VPS Oracle Cloud (Ampere A1 ARM).
 

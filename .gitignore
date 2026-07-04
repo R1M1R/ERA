@@ -34,5 +34,5 @@ frontend/.env.local
 .DS_Store
 Thumbs.db
 
-# Docker local overrides
-docker-compose.override.yml
+# Local deploy state (never commit)
+.oci-deploy.local.json
