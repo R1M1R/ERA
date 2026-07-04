@@ -1,53 +1,92 @@
 import { getApiBaseUrl } from '../lib/api'
-import { useApiHealth } from '../hooks/useApiHealth'
+import type { ApiHealthState } from '../hooks/useApiHealth'
+import { useI18n } from '../hooks/useI18n'
+import type { TranslationKey } from '../lib/i18n'
 
-const STATUS_LABEL = {
-  checking: 'Checking API…',
-  ok: 'API online',
-  degraded: 'API degraded',
-  down: 'API offline',
-} as const
-
-const STATUS_CLASS = {
+const STATUS_CLASS: Record<ApiHealthState, string> = {
   checking: 'bg-parchment-500',
   ok: 'bg-emerald-500',
   degraded: 'bg-amber-500',
   down: 'bg-red-500',
-} as const
+}
 
-export function AppHeader() {
-  const { state: apiHealth, demoMode, standaloneMode } = useApiHealth()
+interface AppHeaderProps {
+  artifactTotal: number
+  apiHealth: ApiHealthState
+  demoMode: boolean
+  standaloneMode: boolean
+}
+
+export function AppHeader({ artifactTotal, apiHealth, demoMode, standaloneMode }: AppHeaderProps) {
+  const { t, locale, setLocale } = useI18n()
+
+  const statusKey: TranslationKey =
+    apiHealth === 'ok'
+      ? 'apiOnline'
+      : apiHealth === 'down'
+        ? 'apiOffline'
+        : apiHealth === 'degraded'
+          ? 'apiDegraded'
+          : 'apiChecking'
 
   return (
-    <header className="mb-10 text-center">
+    <header className="mb-2 text-center">
+      <div className="mb-4 flex justify-end">
+        <button
+          type="button"
+          className="rounded-lg border border-archive-600 bg-archive-800 px-3 py-1 text-xs font-medium text-parchment-300 transition hover:border-parchment-500/40"
+          onClick={() => setLocale(locale === 'ru' ? 'en' : 'ru')}
+          aria-label="Toggle language"
+        >
+          {t('lang')}
+        </button>
+      </div>
+
       <p className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-parchment-500">
-        ERA Archive
+        {t('archive')}
       </p>
-      <h1 className="font-display text-4xl font-semibold text-parchment-50 sm:text-5xl">
-        Steganographic Historical Artifacts
+      <h1 className="font-display text-4xl font-semibold tracking-tight text-parchment-50 sm:text-5xl lg:text-6xl">
+        <span className="bg-gradient-to-r from-parchment-100 via-parchment-300 to-parchment-500 bg-clip-text text-transparent">
+          {t('title')}
+        </span>
       </h1>
       <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-parchment-200/80 sm:text-base">
-        Generate pixel artifacts with hidden chronicles, monitor the AI pipeline in real time,
-        and decode recovered images with a local Canvas steganography engine.
+        {t('subtitle')}
       </p>
-      <p className="mt-3 flex flex-wrap items-center justify-center gap-2 font-mono text-xs text-archive-600">
+
+      <div className="mx-auto mt-6 flex max-w-3xl flex-wrap items-center justify-center gap-3">
+        <div className="panel flex min-w-[7rem] flex-col items-center px-5 py-3">
+          <span className="font-display text-2xl font-semibold text-parchment-100">{artifactTotal}</span>
+          <span className="text-[10px] uppercase tracking-wider text-parchment-500">{t('artifacts')}</span>
+        </div>
+        <div className="panel flex min-w-[7rem] flex-col items-center px-5 py-3">
+          <span className="font-display text-2xl font-semibold text-emerald-300">LSB</span>
+          <span className="text-[10px] uppercase tracking-wider text-parchment-500">{t('steganography')}</span>
+        </div>
+        <div className="panel flex min-w-[7rem] flex-col items-center px-5 py-3">
+          <span className="font-display text-2xl font-semibold text-parchment-100">SHA</span>
+          <span className="text-[10px] uppercase tracking-wider text-parchment-500">{t('verification')}</span>
+        </div>
+      </div>
+
+      <p className="mt-5 flex flex-wrap items-center justify-center gap-2 font-mono text-xs text-archive-600">
         <span
-          className={`inline-block h-2 w-2 rounded-full ${STATUS_CLASS[apiHealth]}`}
+          className={`inline-block h-2 w-2 rounded-full ${STATUS_CLASS[apiHealth]} ${apiHealth === 'ok' ? 'animate-pulse-slow' : ''}`}
           aria-hidden="true"
         />
-        <span>{STATUS_LABEL[apiHealth]}</span>
+        <span>{t(statusKey)}</span>
         {standaloneMode ? (
           <span className="rounded-full border border-archive-600 bg-archive-800 px-2 py-0.5 text-[10px] uppercase tracking-wider text-parchment-400">
-            Standalone
+            {t('standalone')}
           </span>
         ) : null}
         {demoMode ? (
           <span className="rounded-full border border-parchment-500/30 bg-parchment-500/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-parchment-300">
-            Demo
+            {t('demoAi')}
           </span>
         ) : null}
         <span className="text-parchment-500">·</span>
-        <span>{getApiBaseUrl()}</span>
+        <span>{getApiBaseUrl() || 'local proxy'}</span>
       </p>
     </header>
   )

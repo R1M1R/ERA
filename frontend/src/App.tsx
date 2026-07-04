@@ -1,44 +1,88 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { GenerateSection } from './components/GenerateSection'
 import { AppHeader } from './components/AppHeader'
 import { DecoderSection } from './components/DecoderSection'
 import { GallerySection } from './components/GallerySection'
 import { GenerationProgress } from './components/GenerationProgress'
+import { AppFooter } from './components/AppFooter'
+import { SectionNav } from './components/SectionNav'
+import { Toast } from './components/Toast'
+import { useI18n } from './hooks/useI18n'
 import { useArtifacts } from './hooks/useArtifacts'
 import { useDecoder } from './hooks/useDecoder'
 import { useApiHealth } from './hooks/useApiHealth'
 import { useGeneration } from './hooks/useGeneration'
 import { resolveArtifactImageUrl } from './lib/api'
 
+interface ToastState {
+  message: string
+  variant: 'success' | 'error' | 'info'
+}
+
 function App() {
+  const { t } = useI18n()
   const [galleryRefreshKey, setGalleryRefreshKey] = useState(0)
+  const [toast, setToast] = useState<ToastState | null>(null)
+
   const refreshGallery = useCallback(() => {
     setGalleryRefreshKey((value) => value + 1)
   }, [])
 
-  const generation = useGeneration(refreshGallery)
+  const showToast = useCallback((message: string, variant: ToastState['variant'] = 'success') => {
+    setToast({ message, variant })
+    window.setTimeout(() => setToast(null), 5000)
+  }, [])
+
+  const onGenerationCompleted = useCallback(() => {
+    refreshGallery()
+    showToast(t('toastSealed'))
+    window.setTimeout(() => {
+      document.getElementById('gallery-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 400)
+  }, [refreshGallery, showToast, t])
+
+  const generation = useGeneration(onGenerationCompleted)
   const gallery = useArtifacts({ refreshKey: galleryRefreshKey })
   const decoder = useDecoder()
   const apiHealth = useApiHealth()
 
   const verifyGalleryImage = useCallback(
     async (imageUrl: string) => {
-      const response = await fetch(resolveArtifactImageUrl(imageUrl))
-      if (!response.ok) {
-        throw new Error('Failed to load artifact image.')
+      try {
+        const response = await fetch(resolveArtifactImageUrl(imageUrl))
+        if (!response.ok) {
+          throw new Error('Failed to load artifact image.')
+        }
+        const blob = await response.blob()
+        const file = new File([blob], 'era-artifact.png', { type: blob.type || 'image/png' })
+        decoder.selectFile(file)
+        document.getElementById('decoder-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        showToast(t('toastDecoder'), 'info')
+      } catch (loadError) {
+        const message = loadError instanceof Error ? loadError.message : 'Failed to load image.'
+        showToast(message, 'error')
       }
-      const blob = await response.blob()
-      const file = new File([blob], 'era-artifact.png', { type: blob.type || 'image/png' })
-      decoder.selectFile(file)
-      document.getElementById('decoder-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     },
-    [decoder],
+    [decoder, showToast, t],
   )
 
+  useEffect(() => {
+    if (generation.taskId) {
+      document.getElementById('pipeline-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [generation.taskId])
+
   return (
-    <div className="mx-auto min-h-screen max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-      <AppHeader />
+    <div className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <AppHeader
+        artifactTotal={gallery.total}
+        apiHealth={apiHealth.state}
+        demoMode={apiHealth.demoMode}
+        standaloneMode={apiHealth.standaloneMode}
+      />
+
+      <SectionNav />
 
       <main className="grid gap-8">
         <GenerateSection
@@ -81,6 +125,12 @@ function App() {
           onReset={decoder.reset}
         />
       </main>
+
+      <AppFooter />
+
+      {toast ? (
+        <Toast message={toast.message} variant={toast.variant} onDismiss={() => setToast(null)} />
+      ) : null}
     </div>
   )
 }

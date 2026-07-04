@@ -15,6 +15,23 @@
   ::selection {
     @apply bg-parchment-500/30 text-parchment-50;
   }
+
+  * {
+    scroll-behavior: smooth;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-archive-600;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-archive-950;
+  }
 }
 
 @layer components {
@@ -23,11 +40,15 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-xl bg-parchment-500 px-5 py-2.5 text-sm font-semibold text-archive-950 transition hover:bg-parchment-400 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-xl bg-parchment-500 px-5 py-2.5 text-sm font-semibold text-archive-950 transition hover:bg-parchment-400 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-xl border border-archive-600 bg-archive-800 px-5 py-2.5 text-sm font-medium text-parchment-100 transition hover:border-parchment-500/50 hover:bg-archive-700 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-xl border border-archive-600 bg-archive-800 px-5 py-2.5 text-sm font-medium text-parchment-100 transition hover:border-parchment-500/50 hover:bg-archive-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-glow {
+    @apply shadow-glow hover:shadow-[0_0_50px_rgba(207,140,63,0.25)];
   }
 
   .input-field {

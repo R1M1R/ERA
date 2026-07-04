@@ -1,0 +1,86 @@
+export type Locale = 'en' | 'ru'
+
+const translations = {
+  en: {
+    archive: 'ERA Archive',
+    title: 'Steganographic Historical Artifacts',
+    subtitle:
+      'AI-crafted riddles sealed inside procedural PNG artifacts. Generate, explore the gallery, and verify authenticity with server-side steganography.',
+    artifacts: 'Artifacts',
+    steganography: 'Steganography',
+    verification: 'Verification',
+    apiOnline: 'API online',
+    apiOffline: 'API offline',
+    apiChecking: 'Checking API…',
+    apiDegraded: 'API degraded',
+    standalone: 'Standalone',
+    demoAi: 'Demo AI',
+    navGenerate: 'Generate',
+    navPipeline: 'Pipeline',
+    navGallery: 'Gallery',
+    navDecoder: 'Decoder',
+    generateTitle: 'Autonomous generation',
+    generateDesc:
+      'The AI orchestrator crafts a historical riddle, embeds it via LSB steganography, and publishes the artifact to the archive.',
+    generateReady: 'Ready. Press Generate or hit',
+    generateOffline: 'API offline — run GO.bat or .\\scripts\\restart-era.ps1',
+    generateBtn: 'Generate new artifact',
+    generateQueueing: 'Queueing…',
+    pipelineTitle: 'Generation pipeline',
+    pipelineIdle: 'Start generation to watch the pipeline.',
+    galleryTitle: 'Gallery',
+    galleryEmpty: 'The archive is empty',
+    galleryEmptyHint: 'Generate your first artifact to populate the gallery.',
+    decoderTitle: 'Interactive decoder',
+    footerLocal: 'Local',
+    footerCloud: 'Cloud 24/7',
+    footerGithub: 'GitHub',
+    lang: 'RU',
+    toastSealed: 'Artifact sealed and added to the gallery.',
+    toastDecoder: 'Image loaded into decoder.',
+  },
+  ru: {
+    archive: 'Архив ERA',
+    title: 'Стеганографические исторические артефакты',
+    subtitle:
+      'ИИ создаёт исторические загадки и запечатывает их в PNG через LSB-стеганографию. Генерируйте, просматривайте галерею и проверяйте подлинность на сервере.',
+    artifacts: 'Артефакты',
+    steganography: 'Стеганография',
+    verification: 'Верификация',
+    apiOnline: 'API онлайн',
+    apiOffline: 'API офлайн',
+    apiChecking: 'Проверка API…',
+    apiDegraded: 'API деградирован',
+    standalone: 'Автономный',
+    demoAi: 'Демо ИИ',
+    navGenerate: 'Генерация',
+    navPipeline: 'Пайплайн',
+    navGallery: 'Галерея',
+    navDecoder: 'Декодер',
+    generateTitle: 'Автономная генерация',
+    generateDesc:
+      'ИИ-оркестратор создаёт историческую загадку, встраивает её через LSB и публикует артефакт в архив.',
+    generateReady: 'Готово. Нажмите «Сгенерировать» или клавишу',
+    generateOffline: 'API офлайн — запустите GO.bat или .\\scripts\\restart-era.ps1',
+    generateBtn: 'Сгенерировать артефакт',
+    generateQueueing: 'В очереди…',
+    pipelineTitle: 'Пайплайн генерации',
+    pipelineIdle: 'Запустите генерацию, чтобы наблюдать пайплайн.',
+    galleryTitle: 'Галерея',
+    galleryEmpty: 'Архив пуст',
+    galleryEmptyHint: 'Создайте первый артефакт, чтобы заполнить галерею.',
+    decoderTitle: 'Интерактивный декодер',
+    footerLocal: 'Локально',
+    footerCloud: 'Облако 24/7',
+    footerGithub: 'GitHub',
+    lang: 'EN',
+    toastSealed: 'Артефакт запечатан и добавлен в галерею.',
+    toastDecoder: 'Изображение загружено в декодер.',
+  },
+} as const
+
+export type TranslationKey = keyof typeof translations.en
+
+export function translate(locale: Locale, key: TranslationKey): string {
+  return translations[locale][key]
+}

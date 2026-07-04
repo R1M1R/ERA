@@ -1,3 +1,7 @@
+import { useEffect } from 'react'
+
+import { useI18n } from '../hooks/useI18n'
+
 interface GenerateSectionProps {
   isSubmitting: boolean
   isApiReady: boolean
@@ -6,15 +10,30 @@ interface GenerateSectionProps {
 }
 
 export function GenerateSection({ isSubmitting, isApiReady, error, onSubmit }: GenerateSectionProps) {
+  const { t } = useI18n()
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === 'g' && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        const target = event.target as HTMLElement
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+          return
+        }
+        if (isApiReady && !isSubmitting) {
+          void onSubmit()
+        }
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [isApiReady, isSubmitting, onSubmit])
+
   return (
-    <section className="panel">
+    <section className="panel animate-fade-in-up" id="generate-section">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h2 className="font-display text-2xl text-parchment-50">Autonomous generation</h2>
-          <p className="mt-1 text-sm text-parchment-200/70">
-            The AI orchestrator creates a historical riddle, seals it inside a procedural artifact,
-            and publishes it to the archive gallery.
-          </p>
+          <h2 className="font-display text-2xl text-parchment-50">{t('generateTitle')}</h2>
+          <p className="mt-1 text-sm text-parchment-200/70">{t('generateDesc')}</p>
         </div>
         <span className="rounded-full border border-parchment-500/30 bg-parchment-500/10 px-3 py-1 text-xs font-medium text-parchment-300">
           POST /generate
@@ -23,12 +42,14 @@ export function GenerateSection({ isSubmitting, isApiReady, error, onSubmit }: G
 
       {isApiReady ? (
         <p className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-          Product ready — click Generate to create your first artifact (~5 seconds in demo mode).
+          <span className="font-semibold">{t('generateReady')}</span>{' '}
+          <kbd className="rounded border border-emerald-500/40 bg-emerald-500/20 px-1.5 py-0.5 font-mono text-xs">
+            G
+          </kbd>
         </p>
       ) : (
         <p className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
-          API offline — run <span className="font-mono">GO.bat</span> or{' '}
-          <span className="font-mono">.\scripts\restart-era.ps1</span>
+          {t('generateOffline')}
         </p>
       )}
 
@@ -38,8 +59,20 @@ export function GenerateSection({ isSubmitting, isApiReady, error, onSubmit }: G
         </p>
       ) : null}
 
-      <button type="button" className="btn-primary" disabled={isSubmitting || !isApiReady} onClick={() => void onSubmit()}>
-        {isSubmitting ? 'Queueing artifact...' : 'Generate new artifact'}
+      <button
+        type="button"
+        className="btn-primary btn-glow min-w-[12rem]"
+        disabled={isSubmitting || !isApiReady}
+        onClick={() => void onSubmit()}
+      >
+        {isSubmitting ? (
+          <span className="flex items-center gap-2">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-archive-950/30 border-t-archive-950" />
+            {t('generateQueueing')}
+          </span>
+        ) : (
+          t('generateBtn')
+        )}
       </button>
     </section>
   )
