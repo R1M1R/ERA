@@ -86,6 +86,14 @@ sudo bash scripts/setup-nginx.sh \
 
 Full guide: **[deploy/oracle-cloud/README.md](deploy/oracle-cloud/README.md)**
 
+```powershell
+# Windows: prepare SSH key + .env + OCI instructions
+.\scripts\oracle-cloud-prep.ps1
+
+# After VM is running:
+.\scripts\upload-to-oci.ps1 -ServerIp YOUR_IP -RunBootstrap
+```
+
 ```bash
 # On OCI Ubuntu instance after creating VM.Standard.A1.Flex:
 git clone https://github.com/R1M1R/ERA.git ~/ERA

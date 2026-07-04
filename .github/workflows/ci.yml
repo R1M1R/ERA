@@ -61,6 +61,9 @@ jobs:
       - name: Validate production compose file
         run: docker compose -f backend/production.docker-compose.yml config
 
+      - name: Validate Oracle Cloud compose overlay
+        run: docker compose -f backend/production.docker-compose.yml -f deploy/oracle-cloud/compose.override.yml config
+
   frontend:
     runs-on: ubuntu-latest
     steps:
