@@ -8,14 +8,16 @@ from fastapi import FastAPI, File, HTTPException, Query, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(PROJECT_ROOT / ".env")
+load_dotenv()
+
 from celery_client import celery_app
 from config import get_cors_origins
 from database import init_database
 from repository import get_artifact_by_public_hash, list_artifacts
 from schemas import ArtifactListResponse, GenerateResponse, TaskStatusResponse, VerifyResponse
 from verify_service import verify_artifact_image
-
-load_dotenv()
 
 
 @asynccontextmanager

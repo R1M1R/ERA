@@ -6,6 +6,20 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  POSTGRES_USER: era
+  POSTGRES_PASSWORD: era_ci_secret
+  POSTGRES_DB: era_db
+  DATABASE_URL: postgresql+asyncpg://era:era_ci_secret@postgres:5432/era_db
+  DATABASE_URL_SYNC: postgresql+psycopg2://era:era_ci_secret@postgres:5432/era_db
+  REDIS_URL: redis://redis:6379/0
+  CELERY_BROKER_URL: redis://redis:6379/0
+  CELERY_RESULT_BACKEND: redis://redis:6379/0
+  OPENAI_API_KEY: sk-ci-test-key
+  OPENAI_MODEL: gpt-4o-mini
+  ERA_SERVER_SALT: ci-test-salt
+  CORS_ORIGINS: http://localhost:5173
+
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -22,16 +36,27 @@ jobs:
         run: pip install -r backend/requirements.txt
 
       - name: Verify backend imports
+        working-directory: backend
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: python -c "from main import app; print(app.version)"
+
+      - name: Test steganography roundtrip
+        working-directory: backend
         env:
           PYTHONPATH: ${{ github.workspace }}
           ERA_SERVER_SALT: ci-test-salt
-          DATABASE_URL: postgresql+asyncpg://era:era@localhost:5432/era_db
-          DATABASE_URL_SYNC: postgresql+psycopg2://era:era@localhost:5432/era_db
-          REDIS_URL: redis://localhost:6379/0
-          CELERY_BROKER_URL: redis://localhost:6379/0
-          CELERY_RESULT_BACKEND: redis://localhost:6379/0
-          OPENAI_API_KEY: sk-test
-        run: python -c "from backend.main import app; print(app.version)"
+        run: |
+          python - <<'PY'
+          from steganography import SteganographyGenerator, compute_authenticity_hash
+          gen = SteganographyGenerator(64, 64)
+          path, auth_hash = gen.encode_authenticated_text_to_image("CI riddle", "artifacts/ci-test.png")
+          payload = gen.decode_authenticated_payload(path)
+          assert payload.text == "CI riddle"
+          assert payload.authenticity_hash == auth_hash
+          assert compute_authenticity_hash("CI riddle") == auth_hash
+          print("steganography ok")
+          PY
 
       - name: Validate production compose file
         run: docker compose -f backend/production.docker-compose.yml config
