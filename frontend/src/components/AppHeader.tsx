@@ -16,7 +16,7 @@ const STATUS_CLASS = {
 } as const
 
 export function AppHeader() {
-  const apiHealth = useApiHealth()
+  const { state: apiHealth, demoMode, standaloneMode } = useApiHealth()
 
   return (
     <header className="mb-10 text-center">
@@ -30,12 +30,22 @@ export function AppHeader() {
         Generate pixel artifacts with hidden chronicles, monitor the AI pipeline in real time,
         and decode recovered images with a local Canvas steganography engine.
       </p>
-      <p className="mt-3 flex items-center justify-center gap-2 font-mono text-xs text-archive-600">
+      <p className="mt-3 flex flex-wrap items-center justify-center gap-2 font-mono text-xs text-archive-600">
         <span
           className={`inline-block h-2 w-2 rounded-full ${STATUS_CLASS[apiHealth]}`}
           aria-hidden="true"
         />
         <span>{STATUS_LABEL[apiHealth]}</span>
+        {standaloneMode ? (
+          <span className="rounded-full border border-archive-600 bg-archive-800 px-2 py-0.5 text-[10px] uppercase tracking-wider text-parchment-400">
+            Standalone
+          </span>
+        ) : null}
+        {demoMode ? (
+          <span className="rounded-full border border-parchment-500/30 bg-parchment-500/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-parchment-300">
+            Demo
+          </span>
+        ) : null}
         <span className="text-parchment-500">·</span>
         <span>{getApiBaseUrl()}</span>
       </p>

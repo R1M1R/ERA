@@ -61,13 +61,39 @@ Get-Content '$envFile' | ForEach-Object { if (`$_ -match '^\s*([^#][^=]+)=(.*)$'
 .\venv\Scripts\uvicorn main:app --reload --host 127.0.0.1 --port 8000
 "@
 
-Write-Host "[ERA] Starting API..."
-Start-DevWindow -Title "ERA API (Standalone)" -Command $apiCmd
-Start-Sleep -Seconds 4
+function Test-ApiHealthy {
+    param([string]$ApiUrl = "http://127.0.0.1:8000")
+    try {
+        $health = Invoke-RestMethod -Uri "$ApiUrl/health" -TimeoutSec 3
+        return $health.status -eq "ok"
+    } catch {
+        return $false
+    }
+}
+
+function Test-PortListening {
+    param([int]$Port)
+    return [bool](netstat -ano | findstr "LISTENING" | findstr ":$Port ")
+}
+
+$apiAlreadyRunning = Test-ApiHealthy
+$frontendAlreadyRunning = Test-PortListening -Port 5173
+
+if ($apiAlreadyRunning) {
+    Write-Host "[ERA] API already running at http://127.0.0.1:8000"
+} else {
+    Write-Host "[ERA] Starting API..."
+    Start-DevWindow -Title "ERA API (Standalone)" -Command $apiCmd
+    Start-Sleep -Seconds 4
+}
 
 if (-not $SkipFrontend) {
-    $feCmd = "cd '$($Root.Path)\frontend'; npm run dev"
-    Start-DevWindow -Title "ERA Frontend" -Command $feCmd
+    if ($frontendAlreadyRunning) {
+        Write-Host "[ERA] Frontend already running at http://localhost:5173"
+    } else {
+        $feCmd = "cd '$($Root.Path)\frontend'; npm run dev"
+        Start-DevWindow -Title "ERA Frontend" -Command $feCmd
+    }
 }
 
 Write-Host ""
