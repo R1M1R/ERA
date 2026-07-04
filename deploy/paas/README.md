@@ -103,6 +103,15 @@ curl -X POST https://era-api.onrender.com/generate
 
 См. [`.env.paas.example`](../../.env.paas.example) в корне репозитория.
 
+### Windows: подготовка env
+
+```powershell
+.\scripts\paas-prep.ps1
+# → создаёт paas-env-checklist.txt для вставки в Render + Vercel
+```
+
+Чеклист: [CHECKLIST.md](CHECKLIST.md)
+
 ---
 
 ## Альтернативы

@@ -52,6 +52,13 @@ Vercel (frontend) → Render (API + Celery) → Neon (Postgres) + Upstash (Redis
 
 Quick start: connect repo to Render Blueprint (`render.yaml`), then Vercel with `VITE_API_URL`.
 
+```powershell
+.\scripts\paas-prep.ps1    # generate env checklist for Render + Vercel
+.\scripts\verify-paas.ps1 -ApiUrl https://era-api.onrender.com
+```
+
+Checklist: [deploy/paas/CHECKLIST.md](deploy/paas/CHECKLIST.md)
+
 ## Production — Oracle Cloud (бесплатно)
 
 See **[backend/README_DEPLOY.md](backend/README_DEPLOY.md)** for the full Ubuntu + Docker + Nginx guide.

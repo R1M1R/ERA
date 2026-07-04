@@ -49,6 +49,13 @@ Vercel → Render API → Neon Postgres + Upstash Redis + Render Celery worker
 
 Шаблон env: `.env.paas.example`
 
+```powershell
+.\scripts\paas-prep.ps1
+.\scripts\verify-paas.ps1 -ApiUrl https://era-api.onrender.com
+```
+
+Чеклист: [deploy/paas/CHECKLIST.md](deploy/paas/CHECKLIST.md)
+
 ---
 
 ## Production — Oracle Cloud (VPS)

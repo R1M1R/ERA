@@ -15,4 +15,7 @@ COPY worker /app/worker
 ENV PYTHONPATH=/app
 WORKDIR /app
 
-CMD ["celery", "-A", "worker.celery_app", "worker", "--loglevel=info", "--concurrency=2"]
+RUN chmod +x /app/worker/docker-entrypoint.sh
+
+ENTRYPOINT ["/app/worker/docker-entrypoint.sh"]
+CMD ["celery", "-A", "worker.celery_app", "worker", "--loglevel=info", "--concurrency=1"]

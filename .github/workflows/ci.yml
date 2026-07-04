@@ -58,6 +58,26 @@ jobs:
           print("steganography ok")
           PY
 
+      - name: Verify PaaS artifact model
+        working-directory: backend
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python - <<'PY'
+          from models import Artifact
+          assert "image_bytes" in Artifact.__table__.columns
+          print("paas image_bytes column ok")
+          PY
+
+      - name: Validate render.yaml
+        run: |
+          python -c "
+          import pathlib
+          text = pathlib.Path('render.yaml').read_text()
+          assert 'era-api' in text and 'era-celery' in text
+          print('render.yaml ok')
+          "
+
       - name: Validate production compose file
         run: docker compose -f backend/production.docker-compose.yml config
 

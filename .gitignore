@@ -36,3 +36,4 @@ Thumbs.db
 
 # Local deploy state (never commit)
 .oci-deploy.local.json
+paas-env-checklist.txt
