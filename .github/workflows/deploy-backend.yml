@@ -1,0 +1,27 @@
+name: Deploy Backend
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    if: github.repository == 'R1M1R/ERA'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -eu
+            cd ~/ERA
+            git pull origin main
+            docker compose --env-file .env -f backend/production.docker-compose.yml up -d --build
+            docker compose --env-file .env -f backend/production.docker-compose.yml ps
+            curl -fsS http://127.0.0.1:8000/health

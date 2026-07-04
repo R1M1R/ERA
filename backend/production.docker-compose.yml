@@ -50,7 +50,7 @@ services:
     container_name: era-api
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       PYTHONPATH: /app
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
@@ -61,6 +61,7 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY is required}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
       ERA_SERVER_SALT: ${ERA_SERVER_SALT:?ERA_SERVER_SALT is required}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
     volumes:
       - artifacts_data:/app/backend/artifacts
     depends_on:

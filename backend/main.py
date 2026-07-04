@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
 from celery_client import celery_app
+from config import get_cors_origins
 from database import init_database
 from repository import get_artifact_by_public_hash, list_artifacts
 from schemas import ArtifactListResponse, GenerateResponse, TaskStatusResponse, VerifyResponse
@@ -30,12 +31,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-CORS_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:4173",
-    "http://127.0.0.1:4173",
-]
+CORS_ORIGINS = get_cors_origins()
 
 app.add_middleware(
     CORSMiddleware,
