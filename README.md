@@ -27,11 +27,10 @@ ERA/
 
 ## Quick start (local development)
 
-**Без Docker** (рекомендуется):
+**Без Docker** (рекомендуется) — двойной клик **`GO.bat`** или:
 
 ```powershell
-.\scripts\run-product.ps1
-# или только запуск: .\scripts\start-standalone.ps1
+.\scripts\restart-era.ps1
 ```
 
 **С Docker:**

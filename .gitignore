@@ -38,3 +38,4 @@ Thumbs.db
 backend/era_standalone.db
 .oci-deploy.local.json
 paas-env-checklist.txt
+tools/cloudflared.exe

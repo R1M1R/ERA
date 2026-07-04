@@ -17,7 +17,25 @@ function Find-Cloudflared {
     $wingetPath = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links\cloudflared.exe"
     if (Test-Path $wingetPath) { return $wingetPath }
 
+    $programFiles = Join-Path ${env:ProgramFiles} "Cloudflare\cloudflared\cloudflared.exe"
+    if (Test-Path $programFiles) { return $programFiles }
+
+    $portable = Join-Path $Root "tools\cloudflared.exe"
+    if (Test-Path $portable) { return $portable }
+
     return $null
+}
+
+function Install-PortableCloudflared {
+    $toolsDir = Join-Path $Root "tools"
+    $target = Join-Path $toolsDir "cloudflared.exe"
+    if (Test-Path $target) { return $target }
+
+    New-Item -ItemType Directory -Force -Path $toolsDir | Out-Null
+    $url = "https://github.com/cloudflare/cloudflared/releases/download/2026.6.1/cloudflared-windows-amd64.exe"
+    Write-Host "[ERA] Downloading portable cloudflared..."
+    Invoke-WebRequest -Uri $url -OutFile $target -UseBasicParsing
+    return $target
 }
 
 Write-Host ""
@@ -36,12 +54,18 @@ if (-not $SkipStart) {
 
 $cloudflared = Find-Cloudflared
 if (-not $cloudflared) {
-    Write-Host "[ERA] cloudflared not found. Attempting install via winget..."
+    Write-Host "[ERA] cloudflared not found. Downloading portable binary..."
     try {
-        winget install --id Cloudflare.cloudflared -e --accept-source-agreements --accept-package-agreements
-        $cloudflared = Find-Cloudflared
+        $cloudflared = Install-PortableCloudflared
     } catch {
-        Write-Host "[ERA] Auto-install failed: $($_.Exception.Message)"
+        Write-Host "[ERA] Portable download failed: $($_.Exception.Message)"
+        Write-Host "[ERA] Trying winget install..."
+        try {
+            winget install --id Cloudflare.cloudflared -e --accept-source-agreements --accept-package-agreements
+            $cloudflared = Find-Cloudflared
+        } catch {
+            Write-Host "[ERA] winget failed: $($_.Exception.Message)"
+        }
     }
 }
 

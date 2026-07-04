@@ -7,6 +7,7 @@ import { GallerySection } from './components/GallerySection'
 import { GenerationProgress } from './components/GenerationProgress'
 import { useArtifacts } from './hooks/useArtifacts'
 import { useDecoder } from './hooks/useDecoder'
+import { useApiHealth } from './hooks/useApiHealth'
 import { useGeneration } from './hooks/useGeneration'
 import { resolveArtifactImageUrl } from './lib/api'
 
@@ -19,6 +20,7 @@ function App() {
   const generation = useGeneration(refreshGallery)
   const gallery = useArtifacts({ refreshKey: galleryRefreshKey })
   const decoder = useDecoder()
+  const apiHealth = useApiHealth()
 
   const verifyGalleryImage = useCallback(
     async (imageUrl: string) => {
@@ -41,6 +43,7 @@ function App() {
       <main className="grid gap-8">
         <GenerateSection
           isSubmitting={generation.isSubmitting}
+          isApiReady={apiHealth.state === 'ok'}
           error={generation.error}
           onSubmit={generation.submit}
         />
