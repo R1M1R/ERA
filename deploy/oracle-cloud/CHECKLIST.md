@@ -19,6 +19,13 @@
 
 ## B. Windows (PowerShell, папка ERA)
 
+- [ ] Локально протестировано:
+
+```powershell
+.\scripts\start-era-local.ps1 -All
+.\scripts\smoke-test.ps1
+```
+
 - [ ] OpenAI API key готов
 - [ ] Полный деплой:
 

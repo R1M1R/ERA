@@ -52,7 +52,8 @@ Linux/macOS: use `scripts/start-local.sh` and `make dev-infra`.
 Windows quick start:
 
 ```powershell
-.\scripts\start-era-local.ps1
+.\scripts\start-era-local.ps1 -All    # Docker + API + Frontend
+.\scripts\smoke-test.ps1              # verify everything works
 ```
 
 ## Production deployment
