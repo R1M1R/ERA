@@ -22,10 +22,36 @@ function Read-EnvValue([string]$Path, [string]$Key) {
     return ($line.Line -split "=", 2)[1].Trim()
 }
 
+function Write-Utf8NoBom([string]$Path, [string]$Content) {
+    $utf8 = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($Path, $Content, $utf8)
+}
+
+function Read-SecretsFile([string]$Path) {
+    $result = @{}
+    if (-not (Test-Path $Path)) { return $result }
+    Get-Content $Path | ForEach-Object {
+        if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
+            $result[$matches[1].Trim()] = $matches[2].Trim()
+        }
+    }
+    return $result
+}
+
 Write-Host "[ERA] Setting up environment keys..."
 Write-Host ""
 
+$secretsFile = Join-Path $Root ".secrets.local"
+$secrets = Read-SecretsFile $secretsFile
+if (Test-Path $secretsFile) {
+    Write-Host "  Loading keys from .secrets.local"
+}
+
 $systemOpenAi = $env:OPENAI_API_KEY
+if (-not $OpenAiKey -and $secrets["OPENAI_API_KEY"]) {
+    $OpenAiKey = $secrets["OPENAI_API_KEY"]
+    Write-Host "  Found OPENAI_API_KEY in .secrets.local"
+}
 if (-not $OpenAiKey -and $systemOpenAi) {
     $OpenAiKey = $systemOpenAi
     Write-Host "  Found OPENAI_API_KEY in system environment"
@@ -49,7 +75,7 @@ if ($OpenAiKey -and $OpenAiKey -notmatch "^(sk-your-|sk-ci-test)") {
 }
 
 $envContent = @"
-# ERA — auto-configured by setup-keys.ps1 ($(Get-Date -Format 'yyyy-MM-dd HH:mm'))
+# ERA - auto-configured by setup-keys.ps1 ($(Get-Date -Format 'yyyy-MM-dd HH:mm'))
 # Local: GO.bat | Production: DEPLOY.bat
 
 ERA_STANDALONE=true
@@ -60,13 +86,13 @@ OPENAI_MODEL=gpt-4o-mini
 ERA_SERVER_SALT=$salt
 
 # Not used in standalone (SQLite + in-process Celery):
-# DATABASE_URL / REDIS_URL / CELERY_* — only for Docker or PaaS
+# DATABASE_URL / REDIS_URL / CELERY_* - only for Docker or PaaS
 
 # Production (Render): set via paas-prep.ps1
 # CORS_ORIGINS=https://your-app.vercel.app
 "@
 
-Set-Content -Path $envFile -Value $envContent -Encoding UTF8
+Write-Utf8NoBom $envFile $envContent
 Write-Host "  Wrote $envFile"
 
 $frontendContent = @"
@@ -75,7 +101,7 @@ $frontendContent = @"
 VITE_API_URL=
 "@
 
-Set-Content -Path $frontendEnv -Value $frontendContent -Encoding UTF8
+Write-Utf8NoBom $frontendEnv $frontendContent
 Write-Host "  Wrote $frontendEnv"
 
 Write-Host ""
