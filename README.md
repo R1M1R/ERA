@@ -82,6 +82,17 @@ sudo bash scripts/setup-nginx.sh \
 2. Add env var `VITE_API_URL=https://api.your-domain.com`
 3. Deploy — `frontend/vercel.json` handles SPA routing
 
+### Oracle Cloud Always Free (recommended $0 VPS)
+
+Full guide: **[deploy/oracle-cloud/README.md](deploy/oracle-cloud/README.md)**
+
+```bash
+# On OCI Ubuntu instance after creating VM.Standard.A1.Flex:
+git clone https://github.com/R1M1R/ERA.git ~/ERA
+# copy .env to ~/ERA/.env first
+bash ~/ERA/scripts/oracle-cloud-bootstrap.sh
+```
+
 ```bash
 git clone https://github.com/R1M1R/ERA.git
 cd ERA

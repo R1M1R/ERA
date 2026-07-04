@@ -223,6 +223,10 @@ In GitHub → **Settings → Secrets and variables → Actions**, add:
 
 Then run **Actions → Deploy Backend → Run workflow**.
 
+### Oracle Cloud Always Free
+
+See **[deploy/oracle-cloud/README.md](../deploy/oracle-cloud/README.md)** for VM.Standard.A1.Flex setup, OCI Security Lists, iptables fix, and zero-cost deployment.
+
 ---
 
 ## 9. Useful operational commands

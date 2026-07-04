@@ -5,6 +5,24 @@ set -euo pipefail
 
 REPO_URL="${REPO_URL:-https://github.com/R1M1R/ERA.git}"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/ERA}"
+USE_OCI_PROFILE=false
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --oci) USE_OCI_PROFILE=true; shift ;;
+    -h|--help)
+      echo "Usage: $0 [--oci]"
+      exit 0
+      ;;
+    *) echo "Unknown option: $1"; exit 1 ;;
+  esac
+done
+
+COMPOSE_ARGS=(--env-file .env -f backend/production.docker-compose.yml)
+if [ "$USE_OCI_PROFILE" = true ]; then
+  COMPOSE_ARGS+=(-f deploy/oracle-cloud/compose.override.yml)
+  echo "[ERA] Using Oracle Cloud resource profile (2 Gunicorn workers, Celery concurrency 1)."
+fi
 
 echo "[ERA] Checking Docker..."
 if ! command -v docker >/dev/null 2>&1; then
@@ -38,7 +56,7 @@ if [ ! -f .env ]; then
 fi
 
 echo "[ERA] Building and starting production stack..."
-docker compose --env-file .env -f backend/production.docker-compose.yml up -d --build
+docker compose "${COMPOSE_ARGS[@]}" up -d --build
 
 echo "[ERA] Waiting for API health..."
 for i in $(seq 1 30); do
@@ -53,5 +71,5 @@ for i in $(seq 1 30); do
 done
 
 echo "[ERA] API did not become healthy in time. Check logs:"
-echo "  docker compose --env-file .env -f backend/production.docker-compose.yml logs api"
+echo "  docker compose ${COMPOSE_ARGS[*]} logs api"
 exit 1

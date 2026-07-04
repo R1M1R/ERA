@@ -1,0 +1,39 @@
+# OCI overlay — lighter resource profile for Always Free Ampere A1.
+#
+# Usage from repo root:
+#   docker compose --env-file .env \
+#     -f backend/production.docker-compose.yml \
+#     -f deploy/oracle-cloud/compose.override.yml \
+#     up -d --build
+
+services:
+  api:
+    command:
+      [
+        "gunicorn",
+        "main:app",
+        "-k",
+        "uvicorn.workers.UvicornWorker",
+        "-b",
+        "0.0.0.0:8000",
+        "-w",
+        "2",
+        "--timeout",
+        "120",
+        "--access-logfile",
+        "-",
+        "--error-logfile",
+        "-",
+      ]
+
+  celery-worker:
+    command:
+      [
+        "celery",
+        "-A",
+        "worker.celery_app",
+        "worker",
+        "--loglevel=info",
+        "--concurrency",
+        "1",
+      ]

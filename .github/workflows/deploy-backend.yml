@@ -2,6 +2,12 @@ name: Deploy Backend
 
 on:
   workflow_dispatch:
+    inputs:
+      oci_profile:
+        description: "Use Oracle Cloud resource profile (lighter Gunicorn/Celery)"
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   deploy:
@@ -23,11 +29,15 @@ jobs:
             INSTALL_DIR="${INSTALL_DIR:-$HOME/ERA}"
             if [ ! -d "$INSTALL_DIR/.git" ]; then
               echo "Repository not found at $INSTALL_DIR"
-              echo "Run scripts/server-first-deploy.sh on the server first."
+              echo "Run scripts/oracle-cloud-bootstrap.sh on the server first."
               exit 1
             fi
             cd "$INSTALL_DIR"
             git pull origin main
-            docker compose --env-file .env -f backend/production.docker-compose.yml up -d --build
-            docker compose --env-file .env -f backend/production.docker-compose.yml ps
+            COMPOSE_ARGS="--env-file .env -f backend/production.docker-compose.yml"
+            if [ "${{ inputs.oci_profile }}" = "true" ]; then
+              COMPOSE_ARGS="$COMPOSE_ARGS -f deploy/oracle-cloud/compose.override.yml"
+            fi
+            docker compose $COMPOSE_ARGS up -d --build
+            docker compose $COMPOSE_ARGS ps
             curl -fsS http://127.0.0.1:8000/health
