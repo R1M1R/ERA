@@ -24,15 +24,16 @@ Write-Host "[ERA] Local development launcher"
 Write-Host ""
 
 if (-not (Test-Path (Join-Path $Root ".env"))) {
-    Write-Host "[ERA] No .env found. Copying from .env.example..."
-    Copy-Item (Join-Path $Root ".env.example") (Join-Path $Root ".env")
-    $example = Get-Content (Join-Path $Root ".env.example") -Raw
-    $local = $example `
-        -replace "replace-with-strong-password", "era_secret" `
-        -replace "@postgres:", "@localhost:" `
-        -replace "redis://redis:", "redis://localhost:"
-    Set-Content (Join-Path $Root ".env") $local -Encoding UTF8
-    Write-Host "[ERA] Created .env with localhost defaults. Set OPENAI_API_KEY for generation."
+    Write-Host "[ERA] No .env found."
+    $localExample = Join-Path $Root ".env.local.example"
+    if (Test-Path $localExample) {
+        Copy-Item $localExample (Join-Path $Root ".env")
+        Write-Host "[ERA] Created .env from .env.local.example (localhost defaults)."
+    } else {
+        Copy-Item (Join-Path $Root ".env.example") (Join-Path $Root ".env")
+        Write-Host "[ERA] Created .env from .env.example. Set OPENAI_API_KEY before generating."
+    }
+    Write-Host "[ERA] Edit .env and set OPENAI_API_KEY for artifact generation."
 }
 
 if (Test-Command "docker") {
@@ -71,6 +72,11 @@ if (Test-Command "docker") {
         }
         if ($ready) {
             Write-Host "[ERA] Infra is healthy."
+            try {
+                & (Join-Path $PSScriptRoot "init-local-db.ps1")
+            } catch {
+                Write-Host "[ERA] DB init skipped or failed: $($_.Exception.Message)"
+            }
         } else {
             Write-Host "[ERA] Infra still starting - check: docker compose ps"
         }

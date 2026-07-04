@@ -11,9 +11,10 @@
 ### 2. Запуск одной командой
 
 ```powershell
-.\scripts\ensure-docker.ps1          # если Docker не запущен
-.\scripts\start-era-local.ps1 -All # Docker + API + Frontend
-.\scripts\smoke-test.ps1           # проверка
+copy .env.local.example .env   # если .env ещё нет
+.\scripts\ensure-docker.ps1    # запуск Docker Desktop (до 3 мин)
+.\scripts\start-era-local.ps1 -All
+.\scripts\smoke-test.ps1
 ```
 
 - **Frontend:** http://localhost:5173  
@@ -24,10 +25,10 @@
 ### 3. Настройка `.env`
 
 ```powershell
-copy .env.example .env
+copy .env.local.example .env
 ```
 
-Для локальной разработки в `.env` используйте **localhost** (не `postgres`/`redis`):
+Файл `.env.local.example` уже содержит **localhost** URLs для Docker Compose:
 
 ```env
 DATABASE_URL=postgresql+asyncpg://era:era_secret@localhost:5432/era_db
