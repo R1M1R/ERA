@@ -7,9 +7,10 @@ $Root = Resolve-Path (Join-Path $PSScriptRoot "..")
 
 Write-Host ""
 Write-Host "============================================"
-Write-Host "  ERA - PRODUCT READY"
+Write-Host "  ERA - ПРОДУКТ ГОТОВ / PRODUCT READY"
 Write-Host "============================================"
 Write-Host ""
+Write-Host "  Локально:  http://localhost:5173"
 
 & (Join-Path $PSScriptRoot "product-status.ps1")
 
@@ -30,9 +31,9 @@ if (Test-Path $publicFile) {
 }
 
 Write-Host "Quick start:"
-Write-Host "  Local:   GO.bat  or  http://localhost:5173"
-Write-Host "  Public:  SHARE.bat"
-Write-Host "  Deploy:  .\scripts\deploy-paas.ps1"
+Write-Host "  Local:    GO.bat"
+Write-Host "  Public:   SHARE.bat  (temporary URL)"
+Write-Host "  Forever:  DEPLOY.bat (Render + Vercel)"
 Write-Host ""
 
 if ($OpenBrowser) {

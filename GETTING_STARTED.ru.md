@@ -100,8 +100,9 @@ Vercel → Render API → Neon Postgres + Upstash Redis + Render Celery worker
 
 | Скрипт | Назначение |
 |---|---|
+| **DEPLOY.bat** | Постоянный production (Render + Vercel) |
 | **SHARE.bat** | Публичная ссылка (Cloudflare Tunnel) |
-| **GO.bat** | Перезапуск двойным кликом |
+| **GO.bat** | Локальный запуск |
 | `share-local.ps1` | Публичный URL через Cloudflare Tunnel (без PaaS) |
 | `run-product.ps1` | Запуск + E2E (полный продукт без Docker) |
 | `start-standalone.ps1` | Запуск без Docker (SQLite) |

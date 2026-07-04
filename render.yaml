@@ -37,7 +37,7 @@ services:
       - key: ERA_SERVER_SALT
         generateValue: true
       - key: ERA_DEMO_MODE
-        value: "false"
+        value: "true"
       - key: CORS_ORIGINS
         sync: false
 
@@ -71,4 +71,4 @@ services:
           type: web
           envVarKey: ERA_SERVER_SALT
       - key: ERA_DEMO_MODE
-        value: "false"
+        value: "true"
