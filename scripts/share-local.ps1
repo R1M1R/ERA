@@ -78,8 +78,19 @@ if (-not $cloudflared) {
 
 Write-Host "[ERA] Frontend uses Vite proxy -> API (single public URL)."
 Write-Host "[ERA] Starting tunnel to http://127.0.0.1:5173 ..."
-Write-Host "[ERA] Copy the https://*.trycloudflare.com URL and share it."
+Write-Host "[ERA] URL will be saved to PUBLIC_URL.txt"
 Write-Host "[ERA] Press Ctrl+C to stop the tunnel."
 Write-Host ""
 
-& $cloudflared tunnel --url http://127.0.0.1:5173
+$publicUrlFile = Join-Path $Root "PUBLIC_URL.txt"
+& $cloudflared tunnel --url http://127.0.0.1:5173 2>&1 | ForEach-Object {
+    $line = "$_"
+    Write-Host $line
+    if ($line -match '(https://[a-z0-9-]+\.trycloudflare\.com)') {
+        $matches[1] | Set-Content -Path $publicUrlFile -Encoding utf8
+        Write-Host ""
+        Write-Host "[ERA] PUBLIC URL: $($matches[1])"
+        Write-Host "[ERA] Saved to PUBLIC_URL.txt"
+        Write-Host ""
+    }
+}
