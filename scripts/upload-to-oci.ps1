@@ -7,6 +7,7 @@ param(
     [string]$EnvFile = "",
     [switch]$RunBootstrap,
     [switch]$WithNginx,
+    [switch]$IpOnlyNginx,
     [string]$ApiDomain = "",
     [string]$FrontendDomain = "",
     [string]$Email = ""
@@ -37,7 +38,9 @@ Write-Host "[ERA/OCI] Uploading .env..."
 if ($RunBootstrap) {
     Write-Host "[ERA/OCI] Cloning repo and running bootstrap (may take several minutes)..."
     $nginxArgs = ""
-    if ($WithNginx) {
+    if ($IpOnlyNginx) {
+        $nginxArgs = "--ip-only-nginx"
+    } elseif ($WithNginx) {
         if (-not $ApiDomain -or -not $FrontendDomain) {
             throw "WithNginx requires -ApiDomain and -FrontendDomain"
         }

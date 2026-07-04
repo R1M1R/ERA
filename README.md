@@ -87,10 +87,11 @@ sudo bash scripts/setup-nginx.sh \
 Full guide: **[deploy/oracle-cloud/README.md](deploy/oracle-cloud/README.md)**
 
 ```powershell
-# Windows: prepare SSH key + .env + OCI instructions
-.\scripts\oracle-cloud-prep.ps1
+# Full deploy in one command (IP-only, no domain):
+.\scripts\deploy-all-oci.ps1 -ServerIp YOUR_IP -IpOnly -OpenAiKey sk-...
 
-# After VM is running:
+# Or step by step:
+.\scripts\oracle-cloud-prep.ps1
 .\scripts\upload-to-oci.ps1 -ServerIp YOUR_IP -RunBootstrap
 ```
 

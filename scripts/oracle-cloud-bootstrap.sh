@@ -16,6 +16,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WITH_NGINX=false
+IP_ONLY_NGINX=false
 API_DOMAIN=""
 FRONTEND_DOMAIN=""
 EMAIL=""
@@ -24,12 +25,13 @@ SWAP_GB=2
 while [ $# -gt 0 ]; do
   case "$1" in
     --with-nginx) WITH_NGINX=true; shift ;;
+    --ip-only-nginx) IP_ONLY_NGINX=true; shift ;;
     --api-domain) API_DOMAIN="$2"; shift 2 ;;
     --frontend-domain) FRONTEND_DOMAIN="$2"; shift 2 ;;
     --email) EMAIL="$2"; shift 2 ;;
     --swap-gb) SWAP_GB="$2"; shift 2 ;;
     -h|--help)
-      echo "Usage: bash $0 [--with-nginx --api-domain ... --frontend-domain ... --email ...] [--swap-gb 2]"
+      echo "Usage: bash $0 [--ip-only-nginx | --with-nginx --api-domain ... --frontend-domain ...] [--swap-gb 2]"
       exit 0
       ;;
     *) echo "Unknown option: $1"; exit 1 ;;
@@ -73,7 +75,9 @@ fi
 
 bash "$ROOT/scripts/server-first-deploy.sh" --oci
 
-if [ "$WITH_NGINX" = true ]; then
+if [ "$IP_ONLY_NGINX" = true ]; then
+  sudo bash "$ROOT/scripts/setup-nginx-ip.sh"
+elif [ "$WITH_NGINX" = true ]; then
   if [ -z "$API_DOMAIN" ] || [ -z "$FRONTEND_DOMAIN" ]; then
     echo "[ERA/OCI] --api-domain and --frontend-domain required with --with-nginx"
     exit 1
@@ -89,9 +93,14 @@ echo ""
 echo "[ERA/OCI] Bootstrap complete."
 echo "  Public IP:  ${PUBLIC_IP}"
 echo "  Health:     curl http://127.0.0.1:8000/health"
-if [ "$WITH_NGINX" = true ]; then
+if [ "$IP_ONLY_NGINX" = true ]; then
+  echo "  Site:       http://${PUBLIC_IP}/"
+  echo "  API:        http://${PUBLIC_IP}/health"
+  echo "  Frontend:   .\\scripts\\upload-frontend-to-oci.ps1 -ServerIp ${PUBLIC_IP} -ApiUrl http://${PUBLIC_IP}"
+elif [ "$WITH_NGINX" = true ]; then
   echo "  API:        https://${API_DOMAIN}"
   echo "  Frontend:   https://${FRONTEND_DOMAIN}"
 else
-  echo "  Next: sudo bash scripts/setup-nginx.sh --api-domain api.YOUR_DOMAIN --frontend-domain YOUR_DOMAIN --email you@mail.com"
+  echo "  Next: sudo bash scripts/setup-nginx-ip.sh  (IP-only)"
+  echo "    or: sudo bash scripts/setup-nginx.sh --api-domain api.YOUR_DOMAIN ..."
 fi

@@ -18,22 +18,24 @@
 Если вы работаете с Windows (рекомендуется):
 
 ```powershell
-# 1. Подготовка: SSH-ключ, .env, инструкции для OCI Console
-.\scripts\oracle-cloud-prep.ps1
+# Полный деплой одной командой (IP-only, без домена):
+.\scripts\deploy-all-oci.ps1 -ServerIp ВАШ_IP -IpOnly -OpenAiKey sk-ВАШ_КЛЮЧ
 
-# 2. После создания VM и получения Public IP — загрузка и деплой одной командой:
-.\scripts\upload-to-oci.ps1 -ServerIp ВАШ_IP -RunBootstrap
-
-# Без домена (тест по IP):
+# Или по шагам:
 .\scripts\oracle-cloud-prep.ps1 -UseIpOnly -ServerIp ВАШ_IP
-.\scripts\upload-to-oci.ps1 -ServerIp ВАШ_IP -RunBootstrap
+.\scripts\upload-to-oci.ps1 -ServerIp ВАШ_IP -RunBootstrap -IpOnlyNginx
+.\scripts\upload-frontend-to-oci.ps1 -ServerIp ВАШ_IP -ApiUrl http://ВАШ_IP
+.\scripts\verify-deployment.ps1 -ServerIp ВАШ_IP -IpOnly
 ```
+
+Откройте в браузере: **http://ВАШ_IP/**
 
 С доменом и HTTPS (после DNS):
 
 ```powershell
-.\scripts\upload-to-oci.ps1 -ServerIp ВАШ_IP -RunBootstrap -WithNginx `
-  -ApiDomain api.ваш-домен.com -FrontendDomain ваш-домен.com -Email ваш@email.com
+.\scripts\deploy-all-oci.ps1 -ServerIp ВАШ_IP `
+  -ApiDomain api.ваш-домен.com -FrontendDomain ваш-домен.com `
+  -Email ваш@email.com -OpenAiKey sk-ВАШ_КЛЮЧ
 ```
 
 ---
