@@ -4,12 +4,14 @@ import { useApiHealth } from '../hooks/useApiHealth'
 const STATUS_LABEL = {
   checking: 'Checking API…',
   ok: 'API online',
+  degraded: 'API degraded',
   down: 'API offline',
 } as const
 
 const STATUS_CLASS = {
   checking: 'bg-parchment-500',
   ok: 'bg-emerald-500',
+  degraded: 'bg-amber-500',
   down: 'bg-red-500',
 } as const
 

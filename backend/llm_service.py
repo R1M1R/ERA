@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import random
 from dataclasses import dataclass
 from typing import Any, Final
 
@@ -66,6 +67,36 @@ class HistoryRiddle:
     def embedding_text(self) -> str:
         """Return the text that should be hidden inside the steganographic image."""
         return self.riddle
+
+
+DEMO_RIDDLES: Final[tuple[HistoryRiddle, ...]] = (
+    HistoryRiddle(
+        riddle="В каком году пал Константинополь, став последней точкой Византии?",
+        answer="1453",
+    ),
+    HistoryRiddle(
+        riddle="Какой древний город называли 'Восточной столицей' Римской империи?",
+        answer="Константинополь",
+    ),
+    HistoryRiddle(
+        riddle="Кто построил знаменитый маяк на острове Фарос в Александрии?",
+        answer="Сострат",
+    ),
+)
+
+
+def is_demo_mode() -> bool:
+    """Return True when the app should use built-in riddles instead of OpenAI."""
+    flag = os.getenv("ERA_DEMO_MODE", "").strip().lower()
+    if flag in {"1", "true", "yes", "on"}:
+        return True
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    return not api_key or api_key.startswith("sk-your-") or api_key == "sk-ci-test-key"
+
+
+def generate_demo_riddle() -> HistoryRiddle:
+    """Return a built-in demo riddle for local development and CI."""
+    return random.choice(DEMO_RIDDLES)
 
 
 class HistoryRiddleGenerator:

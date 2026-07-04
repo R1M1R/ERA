@@ -58,6 +58,33 @@ jobs:
           print("steganography ok")
           PY
 
+      - name: Test pipeline result is JSON-serializable
+        working-directory: backend
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          ERA_SERVER_SALT: ci-test-salt
+        run: |
+          python - <<'PY'
+          import json
+          from worker.tasks import build_pipeline_result
+          from backend.llm_service import HistoryRiddle
+
+          result = build_pipeline_result(
+              artifact_id="ci-task",
+              riddle=HistoryRiddle(riddle="CI riddle", answer="answer"),
+              artifact={
+                  "artifact_id": "ci-task",
+                  "image_path": "/tmp/ci.png",
+                  "authenticity_hash": "abc123",
+                  "image_base64": "aGVsbG8=",
+              },
+              db_record={"public_hash": "deadbeef", "image_url": "/artifacts/deadbeef/image"},
+          )
+          json.dumps(result)
+          assert "image_bytes" not in result
+          print("pipeline result serialization ok")
+          PY
+
       - name: Verify PaaS artifact model
         working-directory: backend
         env:

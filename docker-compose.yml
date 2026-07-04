@@ -48,7 +48,8 @@ services:
       DATABASE_URL_SYNC: postgresql+psycopg2://${POSTGRES_USER:-era}:${POSTGRES_PASSWORD:-era_secret}@postgres:5432/${POSTGRES_DB:-era_db}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
-      ERA_SERVER_SALT: ${ERA_SERVER_SALT:-dev-salt-change-me}
+      ERA_SERVER_SALT: ${ERA_SERVER_SALT:-dev-salt-change-me-in-production}
+      ERA_DEMO_MODE: ${ERA_DEMO_MODE:-true}
     volumes:
       - ./backend:/app/backend
       - ./worker:/app/worker

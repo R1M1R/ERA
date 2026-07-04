@@ -18,6 +18,7 @@ from database import init_database
 from repository import get_artifact_by_public_hash, list_artifacts
 from schemas import ArtifactListResponse, GenerateResponse, TaskStatusResponse, VerifyResponse
 from verify_service import verify_artifact_image
+from health_service import collect_health_status
 
 
 @asynccontextmanager
@@ -74,7 +75,7 @@ async def root() -> dict[str, str]:
 
 @app.get("/health")
 async def health() -> dict[str, Any]:
-    return {"status": "ok", "service": "era-api", "version": "0.4.0"}
+    return await collect_health_status()
 
 
 @app.post("/generate", response_model=GenerateResponse, status_code=status.HTTP_202_ACCEPTED)

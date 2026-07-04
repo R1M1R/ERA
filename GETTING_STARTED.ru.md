@@ -86,6 +86,7 @@ Vercel → Render API → Neon Postgres + Upstash Redis + Render Celery worker
 | Проблема | Решение |
 |---|---|
 | Docker pipe error | `.\scripts\ensure-docker.ps1` |
-| API offline (красный) | Запустите API: `uvicorn` в `backend/` |
-| Generate не работает | Celery в Docker + `OPENAI_API_KEY` в `.env` |
+| API offline (красный) | Запустите `.\scripts\start-era-local.ps1 -All` |
+| API degraded (жёлтый) | Postgres/Redis не запущены — `docker compose up -d postgres redis celery-worker` |
+| Generate не работает | Celery в Docker + `ERA_DEMO_MODE=true` или реальный `OPENAI_API_KEY` |
 | CORS ошибка | Добавьте origin фронтенда в `CORS_ORIGINS` |

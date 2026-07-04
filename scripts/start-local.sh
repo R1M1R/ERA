@@ -4,8 +4,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PYTHONPATH="${ROOT}"
 
-echo "[ERA] Starting infrastructure (PostgreSQL + Redis)..."
-docker compose --env-file "${ROOT}/.env" up -d postgres redis
+echo "[ERA] Starting infrastructure (PostgreSQL + Redis + Celery)..."
+docker compose --env-file "${ROOT}/.env" up -d postgres redis celery-worker
 
 cat <<EOF
 

@@ -16,7 +16,12 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from backend.llm_service import HistoryRiddle, HistoryRiddleGenerator  # noqa: E402
+from backend.llm_service import (  # noqa: E402
+    HistoryRiddle,
+    HistoryRiddleGenerator,
+    generate_demo_riddle,
+    is_demo_mode,
+)
 from backend.repository import save_artifact  # noqa: E402
 from backend.steganography import SteganographyGenerator  # noqa: E402
 
@@ -27,6 +32,9 @@ ARTIFACTS_DIR = PROJECT_ROOT / "backend" / "artifacts"
 
 def generate_riddle_payload() -> HistoryRiddle:
     """Call the LLM riddle generator from synchronous Celery worker code."""
+    if is_demo_mode():
+        logger.info("ERA demo mode: using built-in historical riddle")
+        return generate_demo_riddle()
     generator = HistoryRiddleGenerator()
     return asyncio.run(generator.generate_riddle())
 
@@ -48,8 +56,29 @@ def encode_riddle_into_artifact(riddle: HistoryRiddle, artifact_id: str) -> dict
         "artifact_id": artifact_id,
         "image_path": str(image_path),
         "authenticity_hash": authenticity_hash,
-        "image_bytes": image_bytes,
         "image_base64": base64.b64encode(image_bytes).decode("ascii"),
+    }
+
+
+def build_pipeline_result(
+    *,
+    artifact_id: str,
+    riddle: HistoryRiddle,
+    artifact: dict[str, Any],
+    db_record: dict[str, Any],
+) -> dict[str, Any]:
+    """Build a JSON-serializable Celery result payload (no raw bytes)."""
+    return {
+        "task_id": artifact_id,
+        "riddle": riddle.riddle,
+        "answer": riddle.answer,
+        "embedded_text": riddle.embedding_text(),
+        "status": "completed",
+        "database_record": db_record,
+        "artifact_id": artifact["artifact_id"],
+        "image_path": artifact["image_path"],
+        "authenticity_hash": artifact["authenticity_hash"],
+        "image_base64": artifact["image_base64"],
     }
 
 
@@ -92,27 +121,25 @@ def run_generation_pipeline(self) -> dict[str, Any]:
         state="PROGRESS",
         meta={"step": "encode_artifact", "task_id": artifact_id},
     )
-    artifact = encode_riddle_into_artifact(riddle, artifact_id)
+    encoded = encode_riddle_into_artifact(riddle, artifact_id)
+    image_bytes = Path(encoded["image_path"]).read_bytes()
 
     self.update_state(
         state="PROGRESS",
         meta={"step": "persist_metadata", "task_id": artifact_id},
     )
     db_record = save_artifact(
-        image_path=artifact["image_path"],
-        authenticity_hash=artifact["authenticity_hash"],
-        image_bytes=artifact.get("image_bytes"),
+        image_path=encoded["image_path"],
+        authenticity_hash=encoded["authenticity_hash"],
+        image_bytes=image_bytes,
     )
 
-    result = {
-        "task_id": artifact_id,
-        "riddle": riddle.riddle,
-        "answer": riddle.answer,
-        "embedded_text": riddle.embedding_text(),
-        "status": "completed",
-        "database_record": db_record,
-        **artifact,
-    }
+    result = build_pipeline_result(
+        artifact_id=artifact_id,
+        riddle=riddle,
+        artifact=encoded,
+        db_record=db_record,
+    )
     logger.info("Pipeline[%s] completed", artifact_id)
     return result
 
