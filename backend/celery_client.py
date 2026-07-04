@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import ssl
 import sys
 from pathlib import Path
 
@@ -21,13 +22,19 @@ celery_app = Celery(
     backend=RESULT_BACKEND,
 )
 
-celery_app.conf.update(
-    task_serializer="json",
-    accept_content=["json"],
-    result_serializer="json",
-    timezone="UTC",
-    enable_utc=True,
-    task_track_started=True,
-    result_extended=True,
-    imports=("worker.tasks",),
-)
+celery_conf: dict = {
+    "task_serializer": "json",
+    "accept_content": ["json"],
+    "result_serializer": "json",
+    "timezone": "UTC",
+    "enable_utc": True,
+    "task_track_started": True,
+    "result_extended": True,
+    "imports": ("worker.tasks",),
+}
+
+if REDIS_URL.startswith("rediss://"):
+    celery_conf["broker_use_ssl"] = {"ssl_cert_reqs": ssl.CERT_NONE}
+    celery_conf["redis_backend_use_ssl"] = {"ssl_cert_reqs": ssl.CERT_NONE}
+
+celery_app.conf.update(**celery_conf)

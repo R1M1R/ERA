@@ -42,6 +42,18 @@ Linux/macOS: `scripts/start-local.sh` and `make dev-infra`.
 
 ## Production deployment
 
+### Free PaaS (recommended)
+
+**[deploy/paas/README.md](deploy/paas/README.md)** — Render + Neon + Upstash + Vercel ($0).
+
+```text
+Vercel (frontend) → Render (API + Celery) → Neon (Postgres) + Upstash (Redis)
+```
+
+Quick start: connect repo to Render Blueprint (`render.yaml`), then Vercel with `VITE_API_URL`.
+
+## Production — Oracle Cloud (бесплатно)
+
 See **[backend/README_DEPLOY.md](backend/README_DEPLOY.md)** for the full Ubuntu + Docker + Nginx guide.
 
 ### Quick path (3 commands on server)

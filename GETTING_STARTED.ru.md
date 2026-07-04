@@ -39,7 +39,19 @@ ERA_SERVER_SALT=любой-длинный-секрет
 
 ---
 
-## Production — Oracle Cloud (бесплатно)
+## Production — бесплатный PaaS (рекомендуется)
+
+**[deploy/paas/README.md](deploy/paas/README.md)** — Render + Neon + Upstash + Vercel.
+
+```text
+Vercel → Render API → Neon Postgres + Upstash Redis + Render Celery worker
+```
+
+Шаблон env: `.env.paas.example`
+
+---
+
+## Production — Oracle Cloud (VPS)
 
 Полный гайд: [deploy/oracle-cloud/README.md](deploy/oracle-cloud/README.md)  
 Чеклист: [deploy/oracle-cloud/CHECKLIST.md](deploy/oracle-cloud/CHECKLIST.md)

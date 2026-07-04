@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from sqlalchemy import Boolean, DateTime, String
+from sqlalchemy import Boolean, DateTime, LargeBinary, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.database import Base
@@ -19,6 +19,7 @@ class Artifact(Base):
     public_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
     authenticity_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
     image_path: Mapped[str] = mapped_column(String(512), nullable=False)
+    image_bytes: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

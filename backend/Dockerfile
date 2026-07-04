@@ -20,4 +20,4 @@ RUN chmod +x /app/backend/docker-entrypoint.sh
 EXPOSE 8000
 
 ENTRYPOINT ["/app/backend/docker-entrypoint.sh"]
-CMD ["gunicorn", "main:app", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8000", "-w", "4", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-"]
+CMD ["sh", "-c", "gunicorn main:app -k uvicorn.workers.UvicornWorker -b 0.0.0.0:${PORT:-8000} -w ${GUNICORN_WORKERS:-2} --timeout 120 --access-logfile - --error-logfile -"]

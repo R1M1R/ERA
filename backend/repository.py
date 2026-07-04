@@ -25,7 +25,12 @@ def ensure_database_ready() -> None:
     init_database_sync()
 
 
-def save_artifact(*, image_path: str, authenticity_hash: str) -> dict[str, Any]:
+def save_artifact(
+    *,
+    image_path: str,
+    authenticity_hash: str,
+    image_bytes: bytes | None = None,
+) -> dict[str, Any]:
     """Persist a generated artifact after image encoding completes."""
     ensure_database_ready()
     public_hash = secrets.token_hex(16)
@@ -34,7 +39,8 @@ def save_artifact(*, image_path: str, authenticity_hash: str) -> dict[str, Any]:
         record = Artifact(
             public_hash=public_hash,
             authenticity_hash=authenticity_hash,
-            image_path=str(Path(image_path).resolve()),
+            image_path=str(Path(image_path).resolve()) if image_path else f"db://{public_hash}.png",
+            image_bytes=image_bytes,
             is_solved=False,
         )
         session.add(record)

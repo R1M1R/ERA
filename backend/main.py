@@ -6,7 +6,7 @@ from celery.result import AsyncResult
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, Query, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
@@ -111,6 +111,13 @@ async def get_artifact_image(public_hash: str) -> FileResponse:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Artifact not found.")
 
     image_path = Path(artifact.image_path)
+    if artifact.image_bytes:
+        return Response(
+            content=artifact.image_bytes,
+            media_type="image/png",
+            headers={"Content-Disposition": f'inline; filename="era-{public_hash}.png"'},
+        )
+
     if not image_path.is_file():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Artifact image file is missing.")
 

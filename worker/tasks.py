@@ -48,6 +48,7 @@ def encode_riddle_into_artifact(riddle: HistoryRiddle, artifact_id: str) -> dict
         "artifact_id": artifact_id,
         "image_path": str(image_path),
         "authenticity_hash": authenticity_hash,
+        "image_bytes": image_bytes,
         "image_base64": base64.b64encode(image_bytes).decode("ascii"),
     }
 
@@ -100,6 +101,7 @@ def run_generation_pipeline(self) -> dict[str, Any]:
     db_record = save_artifact(
         image_path=artifact["image_path"],
         authenticity_hash=artifact["authenticity_hash"],
+        image_bytes=artifact.get("image_bytes"),
     )
 
     result = {

@@ -9,19 +9,23 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from sqlalchemy import inspect
+from sqlalchemy import inspect, text
 
 from backend.database import Base, init_database_sync, sync_engine
 from backend.models import Artifact
 
 
 def migrate_schema() -> None:
-    """Create the current schema, replacing legacy artifact tables when needed."""
+    """Create the current schema and apply additive migrations."""
     inspector = inspect(sync_engine)
     if inspector.has_table("artifacts"):
         existing_columns = {column["name"] for column in inspector.get_columns("artifacts")}
-        expected_columns = {"id", "public_hash", "authenticity_hash", "image_path", "created_at", "is_solved"}
-        if existing_columns != expected_columns:
+        legacy_columns = {"id", "public_hash", "authenticity_hash", "image_path", "created_at", "is_solved"}
+        if existing_columns == legacy_columns:
+            print("Adding image_bytes column for PaaS artifact storage...")
+            with sync_engine.begin() as connection:
+                connection.execute(text("ALTER TABLE artifacts ADD COLUMN image_bytes BYTEA"))
+        elif "image_bytes" not in existing_columns and existing_columns != legacy_columns | {"image_bytes"}:
             print("Legacy artifacts table detected — recreating schema...")
             Artifact.__table__.drop(sync_engine, checkfirst=True)
 
