@@ -10,7 +10,7 @@
 .\scripts\start-standalone.ps1
 ```
 
-Или двойной клик по **`ERA.bat`** в корне проекта.
+Или двойной клик по **`GO.bat`** в корне проекта.
 
 E2E тест (API должен быть запущен):
 
@@ -102,9 +102,8 @@ Vercel → Render API → Neon Postgres + Upstash Redis + Render Celery worker
 |---|---|
 | **DEPLOY.bat** | Постоянный production (Render + Vercel) |
 | **SHARE.bat** | Публичная ссылка (Cloudflare Tunnel) |
-| **GO.bat** | Локальный запуск |
-| `share-local.ps1` | Публичный URL через Cloudflare Tunnel (без PaaS) |
-| `run-product.ps1` | Запуск + E2E (полный продукт без Docker) |
+| **GO.bat** | Локальный запуск + проверка |
+| `restart-era.ps1` | Перезапуск стека |
 | `start-standalone.ps1` | Запуск без Docker (SQLite) |
 | `e2e-standalone.ps1` | Полный E2E тест standalone |
 | `start-era-local.ps1 -All` | Локальный запуск с Docker |

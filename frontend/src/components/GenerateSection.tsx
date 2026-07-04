@@ -27,7 +27,7 @@ export function GenerateSection({ isSubmitting, isApiReady, error, onSubmit }: G
         </p>
       ) : (
         <p className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
-          API offline — run <span className="font-mono">ERA.bat</span> or{' '}
+          API offline — run <span className="font-mono">GO.bat</span> or{' '}
           <span className="font-mono">.\scripts\restart-era.ps1</span>
         </p>
       )}

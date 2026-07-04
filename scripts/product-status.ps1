@@ -32,7 +32,7 @@ if ($apiUp) {
     }
 } else {
     Write-Host "Start local product: .\scripts\start-standalone.ps1"
-    Write-Host "Or double-click:     ERA.bat"
+    Write-Host "Or double-click:     GO.bat"
 }
 
 Write-Host ""
