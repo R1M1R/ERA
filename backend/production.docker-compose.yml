@@ -1,0 +1,115 @@
+# Production stack for ERA backend.
+#
+# Run from the repository root:
+#   docker compose --env-file .env -f backend/production.docker-compose.yml up -d --build
+#
+# Required host environment variables (set in a local .env file on the server; never commit it):
+#   POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+#   DATABASE_URL, DATABASE_URL_SYNC
+#   REDIS_URL, CELERY_BROKER_URL, CELERY_RESULT_BACKEND
+#   OPENAI_API_KEY, OPENAI_MODEL, ERA_SERVER_SALT
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: era-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - era-backend
+
+  redis:
+    image: redis:7-alpine
+    container_name: era-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - era-backend
+
+  api:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    container_name: era-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      PYTHONPATH: /app
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      DATABASE_URL_SYNC: ${DATABASE_URL_SYNC:?DATABASE_URL_SYNC is required}
+      REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:?CELERY_BROKER_URL is required}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:?CELERY_RESULT_BACKEND is required}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY is required}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      ERA_SERVER_SALT: ${ERA_SERVER_SALT:?ERA_SERVER_SALT is required}
+    volumes:
+      - artifacts_data:/app/backend/artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - era-backend
+
+  celery-worker:
+    build:
+      context: ..
+      dockerfile: worker/Dockerfile
+    container_name: era-celery-worker
+    restart: unless-stopped
+    environment:
+      PYTHONPATH: /app
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      DATABASE_URL_SYNC: ${DATABASE_URL_SYNC:?DATABASE_URL_SYNC is required}
+      REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:?CELERY_BROKER_URL is required}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:?CELERY_RESULT_BACKEND is required}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY is required}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      ERA_SERVER_SALT: ${ERA_SERVER_SALT:?ERA_SERVER_SALT is required}
+    volumes:
+      - artifacts_data:/app/backend/artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks:
+      - era-backend
+
+volumes:
+  postgres_data:
+  redis_data:
+  artifacts_data:
+
+networks:
+  era-backend:
+    driver: bridge

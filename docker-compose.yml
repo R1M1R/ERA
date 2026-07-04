@@ -1,0 +1,62 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: era-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-era}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-era_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-era_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-era} -d ${POSTGRES_DB:-era_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: era-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    container_name: era-celery-worker
+    restart: unless-stopped
+    command: celery -A worker.celery_app worker --loglevel=info
+    working_dir: /app
+    environment:
+      PYTHONPATH: /app
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-era}:${POSTGRES_PASSWORD:-era_secret}@postgres:5432/${POSTGRES_DB:-era_db}
+      DATABASE_URL_SYNC: postgresql+psycopg2://${POSTGRES_USER:-era}:${POSTGRES_PASSWORD:-era_secret}@postgres:5432/${POSTGRES_DB:-era_db}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+    volumes:
+      - ./backend:/app/backend
+      - ./worker:/app/worker
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
