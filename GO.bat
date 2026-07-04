@@ -7,6 +7,7 @@ echo   ERA - Starting fully working product
 echo  ========================================
 echo.
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\restart-era.ps1"
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\product-ready.ps1"
 echo.
 echo  Open http://localhost:5173 and click Generate
 echo.
