@@ -36,6 +36,16 @@ if (-not $SkipStart) {
 
 $cloudflared = Find-Cloudflared
 if (-not $cloudflared) {
+    Write-Host "[ERA] cloudflared not found. Attempting install via winget..."
+    try {
+        winget install --id Cloudflare.cloudflared -e --accept-source-agreements --accept-package-agreements
+        $cloudflared = Find-Cloudflared
+    } catch {
+        Write-Host "[ERA] Auto-install failed: $($_.Exception.Message)"
+    }
+}
+
+if (-not $cloudflared) {
     Write-Host "[ERA] cloudflared not found."
     Write-Host "Install: winget install Cloudflare.cloudflared"
     Write-Host "Or:      https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/download/"

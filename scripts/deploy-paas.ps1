@@ -40,12 +40,11 @@ Write-Host "[3/5] Generate env checklist for Render + Vercel..."
 & (Join-Path $PSScriptRoot "paas-prep.ps1")
 
 Write-Host ""
-Write-Host "[4/5] Render Blueprint steps:"
-Write-Host "  1. Connect GitHub repo R1M1R/ERA"
-Write-Host "  2. Render reads render.yaml from repo root"
-Write-Host "  3. Paste env vars from paas-env-checklist.txt"
-Write-Host "  4. Set OPENAI_API_KEY on era-api AND era-celery"
-Write-Host "  5. Tip: ERA_DEMO_MODE=true works without OpenAI for first test"
+Write-Host "[4/5] Render Blueprint (one-click):"
+Write-Host "  https://render.com/deploy?repo=https://github.com/R1M1R/ERA"
+Write-Host "  Paste env vars from paas-env-checklist.txt"
+Write-Host "  Set OPENAI_API_KEY on era-api AND era-celery"
+Write-Host "  Tip: ERA_DEMO_MODE=true works without OpenAI for first test"
 Write-Host ""
 
 Write-Host "[5/5] After Render + Vercel deploy:"
