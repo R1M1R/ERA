@@ -5,9 +5,7 @@ import type {
   VerifyResponse,
 } from '../types/api'
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ??
-  (import.meta.env.DEV ? '' : 'https://era-api.onrender.com')
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? ''
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const isFormData = init?.body instanceof FormData

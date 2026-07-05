@@ -23,11 +23,10 @@ from backend.llm_service import (  # noqa: E402
     is_demo_mode,
 )
 from backend.repository import save_artifact  # noqa: E402
+from backend.runtime import artifacts_dir  # noqa: E402
 from backend.steganography import SteganographyGenerator  # noqa: E402
 
 logger = logging.getLogger(__name__)
-
-ARTIFACTS_DIR = PROJECT_ROOT / "backend" / "artifacts"
 
 
 def generate_riddle_payload() -> HistoryRiddle:
@@ -41,8 +40,9 @@ def generate_riddle_payload() -> HistoryRiddle:
 
 def encode_riddle_into_artifact(riddle: HistoryRiddle, artifact_id: str) -> dict[str, Any]:
     """Hide the generated riddle text inside a procedural PNG artifact."""
-    ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = ARTIFACTS_DIR / f"{artifact_id}.png"
+    output_dir = artifacts_dir()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / f"{artifact_id}.png"
 
     generator = SteganographyGenerator()
     image_path, authenticity_hash = generator.encode_authenticated_text_to_image(

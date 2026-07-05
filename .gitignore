@@ -4,6 +4,7 @@
 .env.production
 .env.production.generated
 .env.*.local
+.vercel
 
 # Python
 __pycache__/

@@ -1,0 +1,34 @@
+{
+  "buildCommand": "cd frontend && npm ci && npm run build",
+  "installCommand": "cd frontend && npm ci",
+  "outputDirectory": "frontend/dist",
+  "framework": null,
+  "rewrites": [
+    { "source": "/health", "destination": "/api" },
+    { "source": "/generate", "destination": "/api" },
+    { "source": "/status/:path*", "destination": "/api" },
+    { "source": "/artifacts/:path*", "destination": "/api" },
+    { "source": "/artifacts", "destination": "/api" },
+    { "source": "/verify", "destination": "/api" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ],
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 30,
+      "includeFiles": "backend/**,worker/**"
+    }
+  },
+  "env": {
+    "ERA_STANDALONE": "true",
+    "ERA_DEMO_MODE": "true",
+    "ERA_SERVER_SALT": "era-vercel-cloud-salt-v1"
+  }
+}

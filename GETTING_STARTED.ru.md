@@ -5,10 +5,9 @@
 | | Ссылка |
 |---|--------|
 | **GitHub** | **https://github.com/R1M1R/ERA** |
-| **Приложение (24/7)** | **https://frontend-flax-two-11q4abvz2o.vercel.app** |
-| **Включить API в облаке** | Двойной клик **`DEPLOY_CLOUD.bat`** → Render → Apply |
+| **Приложение 24/7 (полный стек)** | **https://frontend-flax-two-11q4abvz2o.vercel.app** |
 
-> Фронтенд уже работает без ноутбука. Backend: один клик на Render (без ключей Neon/Upstash).
+> Frontend + API на Vercel. Generate, Gallery, Verify работают без ноутбука.
 
 ---
 

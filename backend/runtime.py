@@ -6,17 +6,34 @@ import os
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-STANDALONE_DB_PATH = PROJECT_ROOT / "backend" / "era_standalone.db"
+
+
+def is_vercel_runtime() -> bool:
+    return bool(os.getenv("VERCEL"))
+
+
+def standalone_db_path() -> Path:
+    if is_vercel_runtime():
+        return Path("/tmp/era_standalone.db")
+    return PROJECT_ROOT / "backend" / "era_standalone.db"
+
+
+def artifacts_dir() -> Path:
+    if is_vercel_runtime():
+        return Path("/tmp/era-artifacts")
+    return PROJECT_ROOT / "backend" / "artifacts"
 
 
 def is_standalone_mode() -> bool:
     """True when ERA runs without Docker (SQLite + in-process Celery)."""
+    if is_vercel_runtime():
+        return True
     return os.getenv("ERA_STANDALONE", "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def standalone_async_database_url() -> str:
-    return f"sqlite+aiosqlite:///{STANDALONE_DB_PATH.as_posix()}"
+    return f"sqlite+aiosqlite:///{standalone_db_path().as_posix()}"
 
 
 def standalone_sync_database_url() -> str:
-    return f"sqlite:///{STANDALONE_DB_PATH.as_posix()}"
+    return f"sqlite:///{standalone_db_path().as_posix()}"

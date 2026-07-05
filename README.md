@@ -4,42 +4,39 @@
 
 SaaS platform: AI historical riddles → LSB steganography in PNG → server-side verification.
 
-> **Русский:** репозиторий — [github.com/R1M1R/ERA](https://github.com/R1M1R/ERA) · приложение — [frontend-flax-two-11q4abvz2o.vercel.app](https://frontend-flax-two-11q4abvz2o.vercel.app) · backend — [Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA) (один клик, без ключей).
+> **Русский:** репозиторий — [github.com/R1M1R/ERA](https://github.com/R1M1R/ERA) · **приложение 24/7** — [frontend-flax-two-11q4abvz2o.vercel.app](https://frontend-flax-two-11q4abvz2o.vercel.app) (frontend + API на одном домене).
 
 ## Project URL
 
 | | Link |
 |---|------|
 | **Repository** | **https://github.com/R1M1R/ERA** |
-| **Live app (frontend)** | **https://frontend-flax-two-11q4abvz2o.vercel.app** |
-| **Enable full cloud** | **[DEPLOY_CLOUD.bat](DEPLOY_CLOUD.bat)** or [Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA) |
+| **Live app (24/7, full stack)** | **https://frontend-flax-two-11q4abvz2o.vercel.app** |
+| **Optional backend (Render)** | [era-api.onrender.com](https://era-api.onrender.com) — not required |
 
 ## Live deployment status
 
 | Service | URL | Status |
 |---------|-----|--------|
 | **GitHub (source)** | **[github.com/R1M1R/ERA](https://github.com/R1M1R/ERA)** | ✅ Online |
-| **Frontend (Vercel, 24/7)** | **[frontend-flax-two-11q4abvz2o.vercel.app](https://frontend-flax-two-11q4abvz2o.vercel.app)** | ✅ Online |
-| **Backend API (Render)** | [era-api.onrender.com](https://era-api.onrender.com) | ⏳ One-click deploy (2 min) |
-| **Full cloud product** | — | ⏳ Deploy backend once (no keys needed) |
+| **Full app (Vercel, 24/7)** | **[frontend-flax-two-11q4abvz2o.vercel.app](https://frontend-flax-two-11q4abvz2o.vercel.app)** | ✅ Online |
+| **API + Frontend** | same URL (serverless FastAPI + React) | ✅ Generate / Gallery / Verify |
+| **Render (optional)** | [era-api.onrender.com](https://era-api.onrender.com) | optional fallback |
 
-> **24/7 without your laptop:** frontend is already live on Vercel.  
-> **One click** to enable Generate / Gallery / Verify in the cloud (free Render, **no Neon/Upstash keys**):  
-> **[Deploy backend on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA)** → sign in → Apply.  
-> First request after idle may take 30–90 s (Render free tier cold start).
+> **24/7 without your laptop:** the full product runs on Vercel (frontend + API).  
+> No Render, Neon, or Upstash required. Demo mode works out of the box.
 
 ## Links
 
 | Resource | URL |
 |----------|-----|
 | **GitHub (source code)** | **https://github.com/R1M1R/ERA** |
-| **Live frontend (Vercel)** | **https://frontend-flax-two-11q4abvz2o.vercel.app** |
+| **Live app (24/7)** | **https://frontend-flax-two-11q4abvz2o.vercel.app** |
 | **Local app** (this PC) | http://localhost:5173 |
-| **Cloud API** (deploy required) | https://era-api.onrender.com |
-| **One-click backend deploy** | [Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA) |
+| **Optional Render API** | https://era-api.onrender.com |
 | **Frontend deploy** | [Import on Vercel](https://vercel.com/new/clone?repository-url=https://github.com/R1M1R/ERA&project-name=era&root-directory=frontend) |
 
-> **24/7 without your laptop:** Vercel frontend is live; click **[Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA)** once (lite mode, no database keys).  
+> **24/7 without your laptop:** full stack on Vercel (no extra setup).  
 > Local mode (`GO.bat` / `AUTONOMOUS.bat`) works only while this PC is on.
 
 ---
@@ -67,23 +64,21 @@ Full guide: **[GETTING_STARTED.ru.md](GETTING_STARTED.ru.md)**
 
 ## Cloud 24/7 (laptop off)
 
-Stack: **Vercel** (frontend, already live) → **Render** (API, one-click).
-
-### Quick deploy (recommended, ~2 min, no keys)
-
-1. Open **[Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA)**
-2. Sign in with GitHub → **Apply** (uses `render.yaml` lite mode: SQLite + in-process Celery)
-3. Wait until `era-api` is **Live** → open [frontend](https://frontend-flax-two-11q4abvz2o.vercel.app)
-
-CORS and demo mode are preconfigured. Gallery may reset after Render cold start on free tier.
+**Default:** Vercel hosts frontend + API on one URL (already live).
 
 ```powershell
-.\scripts\verify-paas.ps1 -ApiUrl https://era-api.onrender.com -FullE2E
+.\scripts\verify-paas.ps1 -ApiUrl https://frontend-flax-two-11q4abvz2o.vercel.app -FullE2E
 ```
 
-### Full production (persistent Postgres + worker)
+Redeploy from repo root:
 
-For durable gallery data: Neon + Upstash + `render-full.yaml`. See **[deploy/paas/README.md](deploy/paas/README.md)**.
+```powershell
+npx vercel --prod
+```
+
+### Optional: Render backend
+
+For a dedicated Docker API (persistent SQLite on container disk): **[Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA)**. Full Postgres stack: `render-full.yaml`. See **[deploy/paas/README.md](deploy/paas/README.md)**.
 
 ---
 
