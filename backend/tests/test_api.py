@@ -14,6 +14,7 @@ from backend.verify_messages import VERIFY_AUTHENTIC
 def test_health_exposes_operational_flags(api_client) -> None:
     response = api_client.get("/health")
     assert response.status_code == 200
+    assert response.headers.get("X-Request-ID")
     payload = response.json()
     assert payload["status"] == "ok"
     assert payload["standalone_mode"] is True

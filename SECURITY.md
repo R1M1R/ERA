@@ -28,7 +28,8 @@ Never commit `.env`, `.secrets.local`, or production keys to git.
 - Public `/status` responses omit `authenticity_hash`, `image_path`, and `image_base64`
 - Lemon Squeezy webhooks require a valid `X-Signature` HMAC
 - CORS runs with `allow_credentials: false`
-- Security headers via `vercel.json` (`X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`)
+- Every API response includes an `X-Request-ID` header for tracing
+- Security headers via `vercel.json` (`X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, `HSTS`)
 
 ## Reporting issues
 

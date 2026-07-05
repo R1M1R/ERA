@@ -1,13 +1,13 @@
+import type { ApiHealthInfo } from '../hooks/useApiHealth'
 import { useI18n } from '../hooks/useI18n'
-import { useApiHealth } from '../hooks/useApiHealth'
 
 interface StatusDashboardProps {
   artifactTotal: number
+  health: ApiHealthInfo
 }
 
-export function StatusDashboard({ artifactTotal }: StatusDashboardProps) {
+export function StatusDashboard({ artifactTotal, health }: StatusDashboardProps) {
   const { t } = useI18n()
-  const health = useApiHealth()
 
   const checks = [
     { label: t('statusApi'), ok: health.state === 'ok' },

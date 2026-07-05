@@ -59,7 +59,9 @@ function App() {
   const verifyGalleryImage = useCallback(
     async (imageUrl: string) => {
       try {
-        const response = await fetch(resolveArtifactImageUrl(imageUrl))
+        const response = await fetch(resolveArtifactImageUrl(imageUrl), {
+          signal: AbortSignal.timeout(30_000),
+        })
         if (!response.ok) {
           throw new Error(t('galleryImageLoadFailed'))
         }
@@ -94,7 +96,7 @@ function App() {
 
       <SectionNav />
 
-      <StatusDashboard artifactTotal={gallery.total} />
+      <StatusDashboard artifactTotal={gallery.total} health={apiHealth} />
 
       <CloudBanner visible={apiHealth.state === 'down' || apiHealth.state === 'degraded'} />
 

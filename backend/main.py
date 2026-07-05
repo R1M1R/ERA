@@ -38,6 +38,7 @@ from pro_service import (
     verify_lemon_signature,
 )
 from rate_limit import allow_request
+from middleware import RequestIdMiddleware
 
 MAX_VERIFY_BYTES = 10 * 1024 * 1024
 
@@ -64,6 +65,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(RequestIdMiddleware)
 
 
 def _client_key(request: Request) -> str:
