@@ -119,7 +119,7 @@ jobs:
         run: |
           python - <<'PY'
           from models import ProLicense
-          assert "api_key" in ProLicense.__table__.columns
+          assert "api_key_hash" in ProLicense.__table__.columns
           assert "lemon_subscription_id" in ProLicense.__table__.columns
           print("pro_licenses table ok")
           PY
@@ -130,9 +130,11 @@ jobs:
           import pathlib
           lite = pathlib.Path('render.yaml').read_text()
           full = pathlib.Path('render-full.yaml').read_text()
+          security = pathlib.Path('SECURITY.md').read_text()
           assert 'era-api' in lite and 'ERA_STANDALONE' in lite
           assert 'era-api' in full and 'era-celery' in full
-          print('render.yaml + render-full.yaml ok')
+          assert 'ERA_SERVER_SALT' in security
+          print('render.yaml + render-full.yaml + SECURITY.md ok')
           "
 
       - name: Validate production compose file

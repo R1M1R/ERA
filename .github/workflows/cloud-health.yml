@@ -35,6 +35,18 @@ jobs:
           print('Pro status OK')
           "
 
+      - name: Check OpenAPI schema exposes billing routes
+        run: |
+          URL="https://frontend-flax-two-11q4abvz2o.vercel.app"
+          curl -fsS "$URL/openapi.json" | tee openapi.json
+          python3 -c "
+          import json
+          paths = json.load(open('openapi.json')).get('paths', {})
+          for route in ('/health', '/pro/status', '/webhooks/lemonsqueezy'):
+              assert route in paths, paths
+          print('OpenAPI OK')
+          "
+
       - name: Smoke generate and sanitized status
         run: |
           URL="https://frontend-flax-two-11q4abvz2o.vercel.app"

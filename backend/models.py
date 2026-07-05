@@ -17,7 +17,7 @@ class ProLicense(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     email: Mapped[str] = mapped_column(String(320), index=True, nullable=False)
-    api_key: Mapped[str] = mapped_column(String(128), unique=True, index=True, nullable=False)
+    api_key_hash: Mapped[str | None] = mapped_column(String(64), unique=True, index=True, nullable=True)
     lemon_subscription_id: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="active")
     renews_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

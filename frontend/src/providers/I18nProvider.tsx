@@ -1,14 +1,7 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 
-import { translate, type Locale, type TranslationKey } from '../lib/i18n'
-
-interface I18nContextValue {
-  locale: Locale
-  setLocale: (locale: Locale) => void
-  t: (key: TranslationKey) => string
-}
-
-const I18nContext = createContext<I18nContextValue | null>(null)
+import { I18nContext, type I18nContextValue } from '../contexts/i18nContext'
+import { translate, type Locale } from '../lib/i18n'
 
 const STORAGE_KEY = 'era-locale'
 
@@ -24,12 +17,8 @@ function detectLocale(): Locale {
   }
 }
 
-function readStoredLocale(): Locale {
-  return detectLocale()
-}
-
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(readStoredLocale)
+  const [locale, setLocaleState] = useState<Locale>(detectLocale)
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next)
@@ -55,12 +44,4 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, [locale])
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
-}
-
-export function useI18n(): I18nContextValue {
-  const ctx = useContext(I18nContext)
-  if (!ctx) {
-    throw new Error('useI18n must be used within I18nProvider')
-  }
-  return ctx
 }

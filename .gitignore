@@ -38,6 +38,8 @@ Thumbs.db
 
 # Standalone SQLite (local, no Docker)
 backend/era_standalone.db
+backend/.pytest_era.db
+backend/.e2e_standalone.db
 .oci-deploy.local.json
 paas-env-checklist.txt
 logs/

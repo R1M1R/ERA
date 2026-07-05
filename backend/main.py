@@ -33,6 +33,7 @@ from pro_service import (
     get_pro_status,
     handle_lemon_webhook_event,
     is_pro_license_active,
+    parse_pro_api_key,
     should_use_pro_llm,
     verify_lemon_signature,
 )
@@ -124,7 +125,7 @@ async def generate_artifact(
 
     _enforce_rate_limit(request, scope="generate", max_calls=20, window_seconds=60)
 
-    pro_key = x_era_pro_key.strip() if x_era_pro_key else None
+    pro_key = parse_pro_api_key(x_era_pro_key)
     pro_tier = await should_use_pro_llm(pro_key)
     has_license = await is_pro_license_active(pro_key) if pro_key else False
 
@@ -202,7 +203,7 @@ async def pro_status(
     x_era_pro_key: str | None = Header(default=None, alias="X-ERA-Pro-Key"),
 ) -> ProStatusResponse:
     """Return whether the provided Pro API key is active."""
-    payload = await get_pro_status(x_era_pro_key.strip() if x_era_pro_key else None)
+    payload = await get_pro_status(parse_pro_api_key(x_era_pro_key))
     return ProStatusResponse(**payload)
 
 

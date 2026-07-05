@@ -10,6 +10,7 @@ import { getProKey } from './proKey'
 import { parseApiError } from './apiError'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? ''
+const REQUEST_TIMEOUT_MS = 30_000
 
 function proHeaders(): HeadersInit {
   const key = getProKey()
@@ -23,6 +24,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...(init?.headers ?? {}),
     },
+    signal: init?.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     ...init,
   })
 

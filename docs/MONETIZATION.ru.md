@@ -53,7 +53,7 @@ Stripe **не поддерживает** регистрацию продавцо
 
 На Vercel без внешней БД лицензии Pro хранятся в `/tmp` и **сбрасываются** при cold start.
 
-**Рекомендуется:** бесплатный [Neon Postgres](https://neon.tech) → добавьте на Vercel:
+**Рекомендуется:** бесплатный [Neon Postgres](https://neon.tech) → скрипт **`scripts/setup-neon-vercel.ps1`** или вручную:
 
 ```powershell
 npx vercel env add DATABASE_URL production

@@ -4,6 +4,7 @@
   "outputDirectory": "frontend/dist",
   "framework": null,
   "rewrites": [
+    { "source": "/openapi.json", "destination": "/api" },
     { "source": "/health", "destination": "/api" },
     { "source": "/generate", "destination": "/api" },
     { "source": "/status/:path*", "destination": "/api" },

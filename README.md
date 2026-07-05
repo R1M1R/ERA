@@ -46,6 +46,23 @@ Open the live app → section **Pricing** → **Upgrade to Pro** → activate in
 
 React · Vite · TypeScript · FastAPI · Celery · SQLite / PostgreSQL · OpenAI (optional)
 
+## Development
+
+```bash
+# Full quality gate (pytest + lint + build)
+make test
+
+# Local standalone API + frontend
+make dev-api      # terminal 1
+make dev-frontend # terminal 2
+```
+
+OpenAPI schema: `GET /openapi.json` on the running API.
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for secrets, Pro key handling, rate limits, and webhook verification.
+
 ## License
 
 Private project — all rights reserved.

@@ -13,6 +13,9 @@ def is_vercel_runtime() -> bool:
 
 
 def standalone_db_path() -> Path:
+    override = os.getenv("ERA_STANDALONE_DB_PATH", "").strip()
+    if override:
+        return Path(override)
     if is_vercel_runtime():
         return Path("/tmp/era_standalone.db")
     return PROJECT_ROOT / "backend" / "era_standalone.db"

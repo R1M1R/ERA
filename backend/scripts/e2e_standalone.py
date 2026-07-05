@@ -12,13 +12,19 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from backend.verify_messages import VERIFY_AUTHENTIC
+
 
 def configure_standalone_env() -> None:
     os.environ["ERA_STANDALONE"] = "true"
     os.environ["ERA_DEMO_MODE"] = "true"
     os.environ.setdefault("ERA_SERVER_SALT", "e2e-standalone-salt")
-    for key in ("CELERY_BROKER_URL", "CELERY_RESULT_BACKEND", "REDIS_URL"):
+    for key in ("VERCEL", "VERCEL_ENV", "CELERY_BROKER_URL", "CELERY_RESULT_BACKEND", "REDIS_URL"):
         os.environ.pop(key, None)
+    db_path = PROJECT_ROOT / "backend" / ".e2e_standalone.db"
+    os.environ["ERA_STANDALONE_DB_PATH"] = str(db_path)
+    if db_path.exists():
+        db_path.unlink()
 
 
 def _url(base_url: str, path: str) -> str:
@@ -111,7 +117,30 @@ def run_e2e(client, *, base_url: str = "", production: bool = False) -> None:
     verify = verify_response.json()
 
     assert verify.get("verified") is True, verify
+    assert verify.get("message_key") == VERIFY_AUTHENTIC
     print("  verify ... OK")
+
+    pro_status = _request(client, "GET", "/pro/status", base_url, timeout=15)
+    assert pro_status.status_code == 200, pro_status.text
+    assert pro_status.json().get("tier") == "free"
+    print("  pro/status ... OK")
+
+    activate = _request(
+        client,
+        "POST",
+        "/pro/activate",
+        base_url,
+        json={"email": "missing@example.com"},
+        timeout=15,
+    )
+    assert activate.status_code == 404, activate.text
+    print("  pro/activate ... OK")
+
+    if status_payload.get("result"):
+        result = status_payload["result"]
+        assert "authenticity_hash" not in result, result
+        assert "image_path" not in result, result
+        print("  sanitized status ... OK")
 
     label = "production" if production else "standalone"
     print("")

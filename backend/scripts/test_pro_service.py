@@ -20,6 +20,7 @@ from backend.email_utils import normalize_email  # noqa: E402
 from backend.pro_service import (  # noqa: E402
     ACTIVE_STATUSES,
     generate_api_key,
+    hash_api_key,
     handle_lemon_webhook_event,
     upsert_subscription_from_webhook,
     verify_lemon_signature,
@@ -30,6 +31,12 @@ def test_generate_api_key_format() -> None:
     key = generate_api_key()
     assert key.startswith("era_pro_")
     assert len(key) > 20
+
+
+def test_hash_api_key_is_stable_and_peppered() -> None:
+    key = generate_api_key()
+    assert hash_api_key(key) == hash_api_key(key)
+    assert hash_api_key(key) != hash_api_key(f"{key}x")
 
 
 def test_normalize_email() -> None:
@@ -74,11 +81,11 @@ def test_subscription_webhook_roundtrip() -> None:
     assert created is not None
     assert created.email == "buyer@example.com"
     assert created.status == "active"
-    first_key = created.api_key
+    assert created.api_key_hash is None
 
     updated = upsert_subscription_from_webhook(payload)
     assert updated is not None
-    assert updated.api_key == first_key
+    assert updated.api_key_hash is None
 
     paused_payload = {
         "meta": {"event_name": "subscription_paused"},
@@ -99,6 +106,7 @@ def test_subscription_webhook_roundtrip() -> None:
 
 def main() -> None:
     test_generate_api_key_format()
+    test_hash_api_key_is_stable_and_peppered()
     test_normalize_email()
     test_verify_lemon_signature()
     test_paused_subscription_is_not_active()

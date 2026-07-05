@@ -24,6 +24,8 @@ ACTIVATION_PENDING_MESSAGE = (
 )
 
 ACTIVE_STATUSES = frozenset({"active", "on_trial"})
+PRO_KEY_PREFIX = "era_pro_"
+MAX_PRO_KEY_LENGTH = 128
 
 
 def _ensure_tables() -> None:
@@ -33,7 +35,35 @@ def _ensure_tables() -> None:
 
 
 def generate_api_key() -> str:
-    return f"era_pro_{secrets.token_urlsafe(24)}"
+    return f"{PRO_KEY_PREFIX}{secrets.token_urlsafe(24)}"
+
+
+def parse_pro_api_key(raw: str | None) -> str | None:
+    """Return a normalized Pro API key or None when the value is missing or malformed."""
+    if raw is None:
+        return None
+    normalized = raw.strip()
+    if not normalized or len(normalized) > MAX_PRO_KEY_LENGTH:
+        return None
+    if not normalized.startswith(PRO_KEY_PREFIX):
+        return None
+    return normalized
+
+
+def _api_key_pepper() -> str:
+    pepper = os.getenv("ERA_SERVER_SALT", "").strip()
+    if not pepper:
+        raise RuntimeError("ERA_SERVER_SALT must be set to hash Pro API keys")
+    return pepper
+
+
+def hash_api_key(api_key: str) -> str:
+    """Return a stable SHA-256 digest for storing Pro API keys at rest."""
+    normalized = api_key.strip()
+    if not normalized:
+        raise ValueError("api_key must not be empty")
+    material = f"{_api_key_pepper()}:{normalized}".encode()
+    return hashlib.sha256(material).hexdigest()
 
 
 def _parse_datetime(value: str | None) -> datetime | None:
@@ -72,13 +102,22 @@ def _license_is_active(license_row: ProLicense) -> bool:
 
 async def get_license_by_api_key(api_key: str) -> ProLicense | None:
     _ensure_tables()
-    normalized = api_key.strip()
+    normalized = parse_pro_api_key(api_key)
     if not normalized:
         return None
 
+    key_hash = hash_api_key(normalized)
     async with get_async_session() as session:
-        result = await session.execute(select(ProLicense).where(ProLicense.api_key == normalized))
-        return result.scalar_one_or_none()
+        result = await session.execute(
+            select(ProLicense).where(ProLicense.api_key_hash == key_hash)
+        )
+        license_row = result.scalar_one_or_none()
+        if license_row is None:
+            return None
+        stored_hash = license_row.api_key_hash or ""
+        if not hmac.compare_digest(stored_hash, key_hash):
+            return None
+        return license_row
 
 
 async def is_pro_license_active(api_key: str) -> bool:
@@ -91,17 +130,19 @@ async def is_pro_license_active(api_key: str) -> bool:
 
 async def should_use_pro_llm(api_key: str | None) -> bool:
     """Return True when generation should call OpenAI for a paying subscriber."""
-    if not api_key or not is_openai_configured():
+    normalized = parse_pro_api_key(api_key)
+    if not normalized or not is_openai_configured():
         return False
-    return await is_pro_license_active(api_key)
+    return await is_pro_license_active(normalized)
 
 
 async def get_pro_status(api_key: str | None) -> dict[str, Any]:
     openai_for_pro = is_openai_configured()
-    if not api_key:
+    normalized = parse_pro_api_key(api_key)
+    if not normalized:
         return {"active": False, "tier": "free", "openai_for_pro": openai_for_pro}
 
-    license_row = await get_license_by_api_key(api_key)
+    license_row = await get_license_by_api_key(normalized)
     if license_row is None or not _license_is_active(license_row):
         return {"active": False, "tier": "free", "openai_for_pro": openai_for_pro}
 
@@ -133,8 +174,20 @@ async def activate_pro_by_email(email: str) -> dict[str, Any]:
     if not _license_is_active(license_row):
         raise LookupError(ACTIVATION_PENDING_MESSAGE)
 
+    issued_key = generate_api_key()
+    key_hash = hash_api_key(issued_key)
+
+    async with get_async_session() as session:
+        result = await session.execute(select(ProLicense).where(ProLicense.id == license_row.id))
+        row = result.scalar_one_or_none()
+        if row is None or not _license_is_active(row):
+            raise LookupError(ACTIVATION_PENDING_MESSAGE)
+        row.api_key_hash = key_hash
+        row.updated_at = datetime.now(UTC)
+        await session.commit()
+
     return {
-        "api_key": license_row.api_key,
+        "api_key": issued_key,
         "status": license_row.status,
         "renews_at": license_row.renews_at.isoformat() if license_row.renews_at else None,
     }
@@ -175,7 +228,7 @@ def upsert_subscription_from_webhook(payload: dict[str, Any]) -> ProLicense | No
         if license_row is None:
             license_row = ProLicense(
                 email=email,
-                api_key=generate_api_key(),
+                api_key_hash=None,
                 lemon_subscription_id=subscription_id,
                 status=status,
                 renews_at=renews_at,

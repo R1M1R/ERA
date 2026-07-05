@@ -9,7 +9,10 @@ import os
 from backend.email_utils import normalize_email
 from backend.pro_service import (
     ACTIVE_STATUSES,
+    PRO_KEY_PREFIX,
     generate_api_key,
+    hash_api_key,
+    parse_pro_api_key,
     handle_lemon_webhook_event,
     upsert_subscription_from_webhook,
     verify_lemon_signature,
@@ -18,8 +21,24 @@ from backend.pro_service import (
 
 def test_generate_api_key_format() -> None:
     key = generate_api_key()
-    assert key.startswith("era_pro_")
+    assert key.startswith(PRO_KEY_PREFIX)
     assert len(key) > 20
+
+
+def test_parse_pro_api_key_rejects_invalid_values() -> None:
+    assert parse_pro_api_key(None) is None
+    assert parse_pro_api_key("   ") is None
+    assert parse_pro_api_key("sk-not-era") is None
+    assert parse_pro_api_key("era_pro_" + "x" * 200) is None
+    valid = generate_api_key()
+    assert parse_pro_api_key(f"  {valid}  ") == valid
+
+
+def test_hash_api_key_is_stable_and_peppered() -> None:
+    os.environ["ERA_SERVER_SALT"] = "pytest-pepper"
+    key = generate_api_key()
+    assert hash_api_key(key) == hash_api_key(key)
+    assert hash_api_key(key) != hash_api_key(f"{key}x")
 
 
 def test_normalize_email() -> None:
@@ -62,11 +81,11 @@ def test_subscription_webhook_roundtrip() -> None:
     created = upsert_subscription_from_webhook(payload)
     assert created is not None
     assert created.email == "buyer@example.com"
-    first_key = created.api_key
+    assert created.api_key_hash is None
 
     updated = upsert_subscription_from_webhook(payload)
     assert updated is not None
-    assert updated.api_key == first_key
+    assert updated.api_key_hash is None
 
     handle_lemon_webhook_event("subscription_cancelled", payload)
     cancelled = upsert_subscription_from_webhook(
