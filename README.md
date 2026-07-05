@@ -1,6 +1,7 @@
 # ERA — Steganographic Historical Artifacts
 
 [![CI](https://github.com/R1M1R/ERA/actions/workflows/ci.yml/badge.svg)](https://github.com/R1M1R/ERA/actions/workflows/ci.yml)
+[![Cloud health](https://github.com/R1M1R/ERA/actions/workflows/cloud-health.yml/badge.svg)](https://github.com/R1M1R/ERA/actions/workflows/cloud-health.yml)
 
 SaaS platform: AI historical riddles → LSB steganography in PNG → server-side verification.
 
