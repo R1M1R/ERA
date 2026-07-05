@@ -1,5 +1,16 @@
 # ERA на бесплатном PaaS
 
+## Быстрый старт (без ключей, ~2 мин)
+
+1. **[Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA)** — вход через GitHub → Apply  
+2. Откройте **[frontend на Vercel](https://frontend-flax-two-11q4abvz2o.vercel.app)** — Generate / Gallery / Verify работают 24/7
+
+Используется `render.yaml` (lite): SQLite + in-process Celery, demo mode. Галерея может сброситься после cold start на free tier.
+
+---
+
+## Полный production (постоянная БД)
+
 Рекомендуемый стек ($0):
 
 | Сервис | Платформа | Роль |
