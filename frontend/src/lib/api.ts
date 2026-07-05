@@ -1,11 +1,20 @@
 import type {
   ArtifactListResponse,
   GenerateResponse,
+  ProActivateResponse,
+  ProStatusResponse,
   TaskStatusResponse,
   VerifyResponse,
 } from '../types/api'
+import { getProKey } from './proKey'
+import { parseApiError } from './apiError'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? ''
+
+function proHeaders(): HeadersInit {
+  const key = getProKey()
+  return key ? { 'X-ERA-Pro-Key': key } : {}
+}
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const isFormData = init?.body instanceof FormData
@@ -18,8 +27,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   })
 
   if (!response.ok) {
-    const detail = await response.text()
-    throw new Error(detail || `Request failed with status ${response.status}`)
+    throw new Error(await parseApiError(response))
   }
 
   return response.json() as Promise<T>
@@ -28,6 +36,20 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export async function submitGeneration(): Promise<GenerateResponse> {
   return request<GenerateResponse>('/generate', {
     method: 'POST',
+    headers: proHeaders(),
+  })
+}
+
+export async function fetchProStatus(): Promise<ProStatusResponse> {
+  return request<ProStatusResponse>('/pro/status', {
+    headers: proHeaders(),
+  })
+}
+
+export async function activateProByEmail(email: string): Promise<ProActivateResponse> {
+  return request<ProActivateResponse>('/pro/activate', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
   })
 }
 

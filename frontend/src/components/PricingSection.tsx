@@ -42,9 +42,14 @@ export function PricingSection() {
             <li>✓ {t('pricingPro4')}</li>
           </ul>
           {paymentLink ? (
-            <a href={paymentLink} target="_blank" rel="noreferrer" className="btn-primary mt-5 block w-full text-center">
-              {t('pricingUpgrade')}
-            </a>
+            <>
+              <a href={paymentLink} target="_blank" rel="noreferrer" className="btn-primary mt-5 block w-full text-center">
+                {t('pricingUpgrade')}
+              </a>
+              <a href="#pro-section" className="mt-3 block text-center text-xs text-parchment-400 transition hover:text-parchment-200">
+                {t('pricingActivateAfter')}
+              </a>
+            </>
           ) : (
             <a
               href={`mailto:${PRO_CONTACT_EMAIL}?subject=ERA%20Pro`}

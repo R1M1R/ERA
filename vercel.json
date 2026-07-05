@@ -10,6 +10,9 @@
     { "source": "/artifacts/:path*", "destination": "/api" },
     { "source": "/artifacts", "destination": "/api" },
     { "source": "/verify", "destination": "/api" },
+    { "source": "/pro/status", "destination": "/api" },
+    { "source": "/pro/activate", "destination": "/api" },
+    { "source": "/webhooks/lemonsqueezy", "destination": "/api" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [

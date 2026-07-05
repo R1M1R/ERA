@@ -5,6 +5,7 @@ const SECTIONS = [
   { id: 'gallery-section', key: 'navGallery' as const },
   { id: 'decoder-section', key: 'navDecoder' as const },
   { id: 'pricing-section', key: 'navPricing' as const },
+  { id: 'pro-section', key: 'navPro' as const },
 ] as const
 
 export function MobileNav() {
@@ -29,7 +30,9 @@ export function MobileNav() {
                     ? '▦'
                     : section.id === 'pricing-section'
                       ? '◈'
-                      : '◎'}
+                      : section.id === 'pro-section'
+                        ? '★'
+                        : '◎'}
               </span>
               {t(section.key)}
             </a>

@@ -87,13 +87,18 @@ DEMO_RIDDLES: Final[tuple[HistoryRiddle, ...]] = (
 )
 
 
+def is_openai_configured() -> bool:
+    """Return True when a real OpenAI API key is available on the server."""
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    return bool(api_key and not api_key.startswith("sk-your-") and api_key != "sk-ci-test-key")
+
+
 def is_demo_mode() -> bool:
     """Return True when the app should use built-in riddles instead of OpenAI."""
     flag = os.getenv("ERA_DEMO_MODE", "").strip().lower()
     if flag in {"1", "true", "yes", "on"}:
         return True
-    api_key = os.getenv("OPENAI_API_KEY", "").strip()
-    return not api_key or api_key.startswith("sk-your-") or api_key == "sk-ci-test-key"
+    return not is_openai_configured()
 
 
 def generate_demo_riddle() -> HistoryRiddle:

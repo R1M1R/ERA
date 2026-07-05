@@ -77,7 +77,7 @@ SyncSessionLocal = sessionmaker(
 
 async def init_database() -> None:
     """Create database tables if they do not exist (async path for FastAPI)."""
-    from backend.models import Artifact  # noqa: F401
+    from backend.models import Artifact, ProLicense  # noqa: F401
 
     async with async_engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
@@ -85,7 +85,7 @@ async def init_database() -> None:
 
 def init_database_sync() -> None:
     """Create database tables if they do not exist (sync path for Celery/scripts)."""
-    from backend.models import Artifact  # noqa: F401
+    from backend.models import Artifact, ProLicense  # noqa: F401
 
     Base.metadata.create_all(bind=sync_engine)
 

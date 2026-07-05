@@ -6,6 +6,7 @@ import { DecoderSection } from './components/DecoderSection'
 import { GallerySection } from './components/GallerySection'
 import { GenerationProgress } from './components/GenerationProgress'
 import { PricingSection } from './components/PricingSection'
+import { ProSection } from './components/ProSection'
 import { AppFooter } from './components/AppFooter'
 import { CloudBanner } from './components/CloudBanner'
 import { KeyboardHelp } from './components/KeyboardHelp'
@@ -19,6 +20,7 @@ import { useArtifacts } from './hooks/useArtifacts'
 import { useDecoder } from './hooks/useDecoder'
 import { useApiHealth } from './hooks/useApiHealth'
 import { useGeneration } from './hooks/useGeneration'
+import { useProStatus } from './hooks/useProStatus'
 import { resolveArtifactImageUrl } from './lib/api'
 
 interface ToastState {
@@ -49,6 +51,7 @@ function App() {
   }, [refreshGallery, showToast, t])
 
   const generation = useGeneration(onGenerationCompleted)
+  const pro = useProStatus()
   const gallery = useArtifacts({ refreshKey: galleryRefreshKey })
   const decoder = useDecoder()
   const apiHealth = useApiHealth()
@@ -86,6 +89,7 @@ function App() {
         apiHealth={apiHealth.state}
         demoMode={apiHealth.demoMode}
         standaloneMode={apiHealth.standaloneMode}
+        proActive={pro.active}
       />
 
       <SectionNav />
@@ -98,6 +102,8 @@ function App() {
         <GenerateSection
           isSubmitting={generation.isSubmitting}
           isApiReady={apiHealth.state === 'ok'}
+          proActive={pro.active}
+          openaiForPro={pro.openaiForPro}
           error={generation.error}
           onSubmit={generation.submit}
         />
@@ -136,6 +142,8 @@ function App() {
         />
 
         <PricingSection />
+
+        <ProSection pro={pro} />
       </main>
 
       <AppFooter />

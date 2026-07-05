@@ -27,17 +27,20 @@ International SaaS: AI historical riddles sealed in procedural PNG artifacts via
 | **Pro** | $12/mo | Real GPT riddles, commercial license, priority queue |
 | **Enterprise** | Custom | API access, white-label, SLA |
 
-Open the live app → section **Pricing** → **Upgrade to Pro**.
+Open the live app → section **Pricing** → **Upgrade to Pro** → activate in **Pro** with your checkout email.
 
 ## API
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/generate` | Start artifact generation |
+| `POST` | `/generate` | Start artifact generation (`X-ERA-Pro-Key` for Pro tier) |
 | `GET` | `/status/{id}` | Poll task status |
 | `GET` | `/artifacts` | Paginated gallery |
 | `POST` | `/verify` | Verify uploaded PNG |
 | `GET` | `/health` | Health probe |
+| `GET` | `/pro/status` | Check Pro API key |
+| `POST` | `/pro/activate` | Claim Pro key by checkout email |
+| `POST` | `/webhooks/lemonsqueezy` | Lemon Squeezy subscription webhook |
 
 ## Stack
 

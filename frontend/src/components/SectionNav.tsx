@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { useI18n } from '../hooks/useI18n'
 
-const SECTION_IDS = ['generate-section', 'pipeline-section', 'gallery-section', 'decoder-section', 'pricing-section'] as const
+const SECTION_IDS = ['generate-section', 'pipeline-section', 'gallery-section', 'decoder-section', 'pricing-section', 'pro-section'] as const
 
 export function SectionNav() {
   const { t } = useI18n()
@@ -14,6 +14,7 @@ export function SectionNav() {
     { id: 'gallery-section', label: t('navGallery') },
     { id: 'decoder-section', label: t('navDecoder') },
     { id: 'pricing-section', label: t('navPricing') },
+    { id: 'pro-section', label: t('navPro') },
   ]
 
   useEffect(() => {

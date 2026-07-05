@@ -3,6 +3,7 @@ export type TaskStatus = 'queued' | 'running' | 'completed' | 'failed'
 export interface GenerateResponse {
   task_id: string
   status: 'queued'
+  tier?: 'demo' | 'pro'
   mode?: 'autonomous'
 }
 
@@ -54,4 +55,19 @@ export interface VerifyResponse {
   text?: string | null
   authenticity_hash?: string | null
   detail?: string | null
+}
+
+export interface ProActivateResponse {
+  api_key: string
+  status: string
+  renews_at?: string | null
+}
+
+export interface ProStatusResponse {
+  active: boolean
+  tier: 'free' | 'pro'
+  email?: string | null
+  status?: string | null
+  renews_at?: string | null
+  openai_for_pro?: boolean
 }

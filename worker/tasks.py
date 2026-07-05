@@ -21,6 +21,7 @@ from backend.llm_service import (  # noqa: E402
     HistoryRiddleGenerator,
     generate_demo_riddle,
     is_demo_mode,
+    is_openai_configured,
 )
 from backend.repository import save_artifact  # noqa: E402
 from backend.runtime import artifacts_dir  # noqa: E402
@@ -29,8 +30,12 @@ from backend.steganography import SteganographyGenerator  # noqa: E402
 logger = logging.getLogger(__name__)
 
 
-def generate_riddle_payload() -> HistoryRiddle:
+def generate_riddle_payload(*, pro_tier: bool = False) -> HistoryRiddle:
     """Call the LLM riddle generator from synchronous Celery worker code."""
+    if pro_tier and is_openai_configured():
+        logger.info("ERA pro tier: using OpenAI historical riddle")
+        generator = HistoryRiddleGenerator()
+        return asyncio.run(generator.generate_riddle())
     if is_demo_mode():
         logger.info("ERA demo mode: using built-in historical riddle")
         return generate_demo_riddle()
@@ -100,7 +105,7 @@ def task_encode_artifact(riddle_data: dict[str, str], artifact_id: str) -> dict[
 
 
 @celery_app.task(bind=True, name="era.pipeline.run")
-def run_generation_pipeline(self) -> dict[str, Any]:
+def run_generation_pipeline(self, pro_tier: bool = False) -> dict[str, Any]:
     """Orchestrate LLM riddle generation, steganographic encoding, and persistence.
 
     Pipeline:
@@ -115,7 +120,7 @@ def run_generation_pipeline(self) -> dict[str, Any]:
         state="PROGRESS",
         meta={"step": "generate_riddle", "task_id": artifact_id},
     )
-    riddle = generate_riddle_payload()
+    riddle = generate_riddle_payload(pro_tier=pro_tier)
 
     self.update_state(
         state="PROGRESS",
@@ -144,7 +149,7 @@ def run_generation_pipeline(self) -> dict[str, Any]:
     return result
 
 
-def enqueue_generation_pipeline() -> str:
+def enqueue_generation_pipeline(*, pro_tier: bool = False) -> str:
     """Enqueue the orchestrator task and return its Celery task id."""
-    async_result = run_generation_pipeline.delay()
+    async_result = run_generation_pipeline.delay(pro_tier=pro_tier)
     return async_result.id

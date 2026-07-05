@@ -18,10 +18,14 @@ interface GallerySectionProps {
 }
 
 function formatCreatedAt(value: string, locale: string): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return value
+  }
   return new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : undefined, {
     dateStyle: 'medium',
     timeStyle: 'short',
-  }).format(new Date(value))
+  }).format(date)
 }
 
 export function GallerySection({
@@ -93,7 +97,7 @@ export function GallerySection({
                 <img
                   src={resolveArtifactImageUrl(artifact.image_url)}
                   alt={`Artifact ${artifact.public_hash.slice(0, 8)}`}
-                  className="w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                  className="w-full object-cover transition duration-500 group-hover:scale-[1.03] [image-rendering:pixelated]"
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-archive-950/80 via-transparent to-transparent opacity-0 transition group-hover:opacity-100" />

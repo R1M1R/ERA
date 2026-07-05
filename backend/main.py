@@ -4,7 +4,7 @@ from typing import Any
 
 from celery.result import AsyncResult
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, HTTPException, Query, UploadFile, status
+from fastapi import FastAPI, File, Header, HTTPException, Query, Request, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 
@@ -16,9 +16,25 @@ from backend.celery_client import celery_app
 from config import get_cors_origins
 from database import init_database
 from repository import get_artifact_by_public_hash, list_artifacts
-from schemas import ArtifactListResponse, GenerateResponse, TaskStatusResponse, VerifyResponse
+from schemas import (
+    ArtifactListResponse,
+    GenerateResponse,
+    ProActivateRequest,
+    ProActivateResponse,
+    ProStatusResponse,
+    TaskStatusResponse,
+    VerifyResponse,
+)
 from verify_service import verify_artifact_image
 from health_service import collect_health_status
+from pro_service import (
+    activate_pro_by_email,
+    get_pro_status,
+    handle_lemon_webhook_event,
+    is_pro_license_active,
+    should_use_pro_llm,
+    verify_lemon_signature,
+)
 
 
 @asynccontextmanager
@@ -79,12 +95,18 @@ async def health() -> dict[str, Any]:
 
 
 @app.post("/generate", response_model=GenerateResponse, status_code=status.HTTP_202_ACCEPTED)
-async def generate_artifact() -> GenerateResponse:
+async def generate_artifact(
+    x_era_pro_key: str | None = Header(default=None, alias="X-ERA-Pro-Key"),
+) -> GenerateResponse:
     """Queue autonomous LLM riddle generation and steganographic artifact creation."""
     from worker.tasks import enqueue_generation_pipeline
 
-    task_id = enqueue_generation_pipeline()
-    return GenerateResponse(task_id=task_id)
+    pro_key = x_era_pro_key.strip() if x_era_pro_key else None
+    pro_tier = await should_use_pro_llm(pro_key)
+    has_license = await is_pro_license_active(pro_key) if pro_key else False
+
+    task_id = enqueue_generation_pipeline(pro_tier=pro_tier)
+    return GenerateResponse(task_id=task_id, tier="pro" if has_license else "demo")
 
 
 @app.get("/status/{task_id}", response_model=TaskStatusResponse)
@@ -143,3 +165,49 @@ async def verify_artifact(file: UploadFile = File(...)) -> VerifyResponse:
 
     result = await verify_artifact_image(image_bytes)
     return VerifyResponse(**result)
+
+
+@app.get("/pro/status", response_model=ProStatusResponse)
+async def pro_status(
+    x_era_pro_key: str | None = Header(default=None, alias="X-ERA-Pro-Key"),
+) -> ProStatusResponse:
+    """Return whether the provided Pro API key is active."""
+    payload = await get_pro_status(x_era_pro_key.strip() if x_era_pro_key else None)
+    return ProStatusResponse(**payload)
+
+
+@app.post("/pro/activate", response_model=ProActivateResponse)
+async def pro_activate(body: ProActivateRequest) -> ProActivateResponse:
+    """Return the Pro API key for an active Lemon Squeezy subscription email."""
+    try:
+        payload = await activate_pro_by_email(body.email)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc)) from exc
+
+    return ProActivateResponse(**payload)
+
+
+@app.post("/webhooks/lemonsqueezy")
+async def lemon_squeezy_webhook(request: Request) -> dict[str, str]:
+    """Handle Lemon Squeezy subscription lifecycle events."""
+    import json
+
+    body = await request.body()
+    signature = request.headers.get("X-Signature")
+    if not verify_lemon_signature(body, signature):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid webhook signature.")
+
+    try:
+        payload = json.loads(body.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid JSON payload.") from exc
+
+    event_name = str((payload.get("meta") or {}).get("event_name") or "").strip()
+    if not event_name:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing event_name.")
+
+    return handle_lemon_webhook_event(event_name, payload)

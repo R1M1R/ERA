@@ -6,11 +6,20 @@ import { isHostedFrontend } from '../lib/api'
 interface GenerateSectionProps {
   isSubmitting: boolean
   isApiReady: boolean
+  proActive: boolean
+  openaiForPro: boolean
   error: string | null
   onSubmit: () => Promise<void>
 }
 
-export function GenerateSection({ isSubmitting, isApiReady, error, onSubmit }: GenerateSectionProps) {
+export function GenerateSection({
+  isSubmitting,
+  isApiReady,
+  proActive,
+  openaiForPro,
+  error,
+  onSubmit,
+}: GenerateSectionProps) {
   const { t } = useI18n()
 
   useEffect(() => {
@@ -42,11 +51,25 @@ export function GenerateSection({ isSubmitting, isApiReady, error, onSubmit }: G
       </div>
 
       {isApiReady ? (
-        <p className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-          <span className="font-semibold">{t('generateReady')}</span>{' '}
-          <kbd className="rounded border border-emerald-500/40 bg-emerald-500/20 px-1.5 py-0.5 font-mono text-xs">
-            G
-          </kbd>
+        <p
+          className={`mb-4 rounded-xl border px-4 py-3 text-sm ${
+            proActive
+              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'
+              : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'
+          }`}
+        >
+          <span className="font-semibold">
+            {proActive
+              ? openaiForPro
+                ? t('generateProReady')
+                : t('proOpenAiPending')
+              : t('generateReady')}
+          </span>{' '}
+          {!proActive ? (
+            <kbd className="rounded border border-emerald-500/40 bg-emerald-500/20 px-1.5 py-0.5 font-mono text-xs">
+              G
+            </kbd>
+          ) : null}
         </p>
       ) : (
         <p className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">

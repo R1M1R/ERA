@@ -39,7 +39,7 @@ async def collect_health_status() -> dict[str, Any]:
     except Exception:
         checks["redis"] = "error"
 
-    from backend.llm_service import is_demo_mode
+    from backend.llm_service import is_demo_mode, is_openai_configured
 
     demo_mode = is_demo_mode()
     if is_standalone_mode():
@@ -55,4 +55,5 @@ async def collect_health_status() -> dict[str, Any]:
         "demo_mode": demo_mode,
         "standalone_mode": is_standalone_mode(),
         "openai_configured": not demo_mode,
+        "openai_for_pro": is_openai_configured(),
     }

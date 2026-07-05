@@ -85,6 +85,14 @@ jobs:
           print("pipeline result serialization ok")
           PY
 
+      - name: Test Pro license service
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          ERA_STANDALONE: "true"
+          ERA_DEMO_MODE: "true"
+          ERA_SERVER_SALT: ci-test-salt
+        run: python backend/scripts/test_pro_service.py
+
       - name: E2E standalone mode (SQLite + in-process Celery)
         env:
           PYTHONPATH: ${{ github.workspace }}
@@ -102,6 +110,18 @@ jobs:
           from models import Artifact
           assert "image_bytes" in Artifact.__table__.columns
           print("paas image_bytes column ok")
+          PY
+
+      - name: Verify Pro license model
+        working-directory: backend
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python - <<'PY'
+          from models import ProLicense
+          assert "api_key" in ProLicense.__table__.columns
+          assert "lemon_subscription_id" in ProLicense.__table__.columns
+          print("pro_licenses table ok")
           PY
 
       - name: Validate Render blueprints

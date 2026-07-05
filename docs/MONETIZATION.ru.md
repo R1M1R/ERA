@@ -30,17 +30,47 @@ Stripe **не поддерживает** регистрацию продавцо
    ```
 6. На сайте кнопка **Upgrade to Pro** откроет оплату.
 
+### Webhook — автоматическая активация Pro
+
+После оплаты ERA создаёт API-ключ (`era_pro_…`). Пользователь получает его на сайте в секции **Pro** по email с checkout.
+
+1. Lemon Squeezy → **Settings** → **Webhooks** → **+**  
+2. **Callback URL:**
+   ```
+   https://frontend-flax-two-11q4abvz2o.vercel.app/webhooks/lemonsqueezy
+   ```
+3. События: `subscription_created`, `subscription_updated`, `subscription_cancelled`, `subscription_expired`, `subscription_payment_success`  
+4. Скопируйте **Signing secret**  
+5. Добавьте на Vercel:
+   ```powershell
+   npx vercel env add LEMONSQUEEZY_WEBHOOK_SECRET production
+   npx vercel --prod
+   ```
+
+Или запустите **`scripts/setup-lemonsqueezy-webhook.ps1`**.
+
+### OpenAI для Pro-пользователей
+
+Бесплатные пользователи всегда получают **демо-загадки**. Pro с активным ключом получает **реальный GPT**, если на сервере задан ключ:
+
+```powershell
+npx vercel env add OPENAI_API_KEY production
+npx vercel --prod
+```
+
+`ERA_DEMO_MODE=true` на Vercel остаётся — это нормально: демо только для free, Pro обходит через API-ключ.
+
 ### Выплаты в КГ
 
 В настройках Lemon Squeezy укажите **payout method** (банк / Payoneer / Wise — смотрите что доступно в вашем аккаунте).
 
-### Pro-функции на backend
+### Как пользователь активирует Pro
 
-После первых оплат добавьте на Vercel:
-
-- `OPENAI_API_KEY` — реальные загадки вместо demo  
-- (опционально) webhook Lemon Squeezy для автоматической активации Pro
+1. Оплата на Lemon Squeezy  
+2. На сайте → секция **Pro** → ввод email с оплаты → **Получить Pro ключ**  
+3. Ключ сохраняется в браузере; генерация отправляет заголовок `X-ERA-Pro-Key`  
+4. В шапке появляется бейдж **Pro active**
 
 ---
 
-Внутренние скрипты: `MONETIZE.bat`, `scripts/setup-payments.ps1`, секреты в `.secrets.local` (gitignored).
+Внутренние скрипты: `MONETIZE.bat`, `scripts/setup-payments.ps1`, `scripts/setup-lemonsqueezy-webhook.ps1`, секреты в `.secrets.local` (gitignored).
