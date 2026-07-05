@@ -5,7 +5,15 @@
 
 SaaS platform: AI historical riddles → LSB steganography in PNG → server-side verification.
 
-> **Русский:** репозиторий — [github.com/R1M1R/ERA](https://github.com/R1M1R/ERA) · **приложение 24/7** — [frontend-flax-two-11q4abvz2o.vercel.app](https://frontend-flax-two-11q4abvz2o.vercel.app) · **монетизация** — freemium + Stripe Pro ($12/mo)
+## Quick links
+
+| | URL |
+|---|-----|
+| **Live app (24/7)** | **https://frontend-flax-two-11q4abvz2o.vercel.app** |
+| **GitHub** | **https://github.com/R1M1R/ERA** |
+| **Passive income setup** | run **`MONETIZE.bat`** (Stripe Pro $12/mo) |
+
+> **Русский:** всё уже работает в облаке без ноутбука. Для пассивного дохода — **`MONETIZE.bat`** → Stripe → Vercel.
 
 ## Project URL
 
@@ -44,6 +52,13 @@ ERA is built as an **international freemium SaaS**:
 3. Redeploy: `npx vercel --prod`
 
 Pro users get `OPENAI_API_KEY` on the backend (set in Vercel env) — demo mode stays free for everyone else.
+
+### Пассивный доход (пошагово)
+
+1. Зарегистрируйтесь на [stripe.com](https://stripe.com) (поддерживает многие страны)
+2. Запустите **`MONETIZE.bat`** в папке проекта
+3. Создайте Payment Link на $12/мес и вставьте URL в скрипт
+4. Выполните команды Vercel из скрипта → кнопка **Upgrade to Pro** на сайте начнёт принимать оплату
 
 ## Links
 
