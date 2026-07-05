@@ -1,7 +1,9 @@
-/** Stripe Payment Link for Pro tier (set in Vercel env: VITE_STRIPE_PRO_LINK). */
-export function getStripeProLink(): string | null {
-  const link = import.meta.env.VITE_STRIPE_PRO_LINK?.trim()
-  return link || null
+/** Pro checkout URL (Lemon Squeezy, Paddle, Gumroad, or Stripe). */
+export function getProPaymentLink(): string | null {
+  const generic = import.meta.env.VITE_PRO_PAYMENT_LINK?.trim()
+  if (generic) return generic
+  const legacyStripe = import.meta.env.VITE_STRIPE_PRO_LINK?.trim()
+  return legacyStripe || null
 }
 
 export const LIVE_APP_URL = 'https://frontend-flax-two-11q4abvz2o.vercel.app'

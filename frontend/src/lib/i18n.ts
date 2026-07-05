@@ -118,7 +118,7 @@ const translations = {
     pricingEyebrow: 'Monetization',
     pricingTitle: 'Plans for creators & teams',
     pricingDesc:
-      'Start free with demo riddles. Upgrade to Pro for real GPT-4 riddles, commercial rights, and API access — passive income via subscriptions.',
+      'Start free with demo riddles. Upgrade to Pro for real GPT-4 riddles, commercial rights, and priority generation.',
     pricingFreeName: 'Free',
     pricingProName: 'Pro',
     pricingBizName: 'Enterprise',
@@ -139,8 +139,7 @@ const translations = {
     pricingBiz2: 'SLA & dedicated support',
     pricingBiz3: 'Volume API pricing',
     pricingContactSales: 'Contact sales',
-    pricingPassive:
-      'Revenue model: freemium SaaS subscriptions + B2B API. Connect Stripe Payment Link via VITE_STRIPE_PRO_LINK.',
+    pricingPassive: 'Secure checkout · cancel anytime',
     footerLive: 'Live app',
     cloudTitle: 'Cloud API offline',
     cloudDesc:
@@ -264,7 +263,7 @@ const translations = {
     pricingEyebrow: 'Монетизация',
     pricingTitle: 'Тарифы для авторов и команд',
     pricingDesc:
-      'Бесплатный старт с демо-загадками. Pro — реальные GPT-4 загадки, коммерческая лицензия и API. Пассивный доход через подписки.',
+      'Бесплатный старт с демо-загадками. Pro — реальные GPT-4 загадки, коммерческая лицензия и приоритетная генерация.',
     pricingFreeName: 'Free',
     pricingProName: 'Pro',
     pricingBizName: 'Enterprise',
@@ -285,8 +284,7 @@ const translations = {
     pricingBiz2: 'SLA и выделенная поддержка',
     pricingBiz3: 'Объёмное API-ценообразование',
     pricingContactSales: 'Связаться с отделом продаж',
-    pricingPassive:
-      'Модель дохода: freemium подписки + B2B API. Подключите Stripe Payment Link через VITE_STRIPE_PRO_LINK.',
+    pricingPassive: 'Безопасная оплата · отмена в любой момент',
     footerLive: 'Приложение',
     cloudTitle: 'Облачный API офлайн',
     cloudDesc:

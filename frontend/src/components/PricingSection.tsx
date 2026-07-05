@@ -1,9 +1,9 @@
 import { useI18n } from '../hooks/useI18n'
-import { getStripeProLink, PRO_CONTACT_EMAIL } from '../lib/pricing'
+import { getProPaymentLink, PRO_CONTACT_EMAIL } from '../lib/pricing'
 
 export function PricingSection() {
   const { t } = useI18n()
-  const stripeLink = getStripeProLink()
+  const paymentLink = getProPaymentLink()
 
   return (
     <section className="panel animate-fade-in-up" id="pricing-section">
@@ -41,8 +41,8 @@ export function PricingSection() {
             <li>✓ {t('pricingPro3')}</li>
             <li>✓ {t('pricingPro4')}</li>
           </ul>
-          {stripeLink ? (
-            <a href={stripeLink} target="_blank" rel="noreferrer" className="btn-primary mt-5 block w-full text-center">
+          {paymentLink ? (
+            <a href={paymentLink} target="_blank" rel="noreferrer" className="btn-primary mt-5 block w-full text-center">
               {t('pricingUpgrade')}
             </a>
           ) : (

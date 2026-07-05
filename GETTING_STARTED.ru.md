@@ -7,8 +7,7 @@
 | **GitHub** | **https://github.com/R1M1R/ERA** |
 | **Приложение 24/7 (полный стек)** | **https://frontend-flax-two-11q4abvz2o.vercel.app** |
 
-> Frontend + API на Vercel. Generate, Gallery, Verify работают без ноутбука.  
-> **Пассивный доход:** запустите **`MONETIZE.bat`** → Stripe Pro ($12/мес).
+> Frontend + API на Vercel. Generate, Gallery, Verify работают без ноутбука.
 
 ---
 
