@@ -36,8 +36,25 @@ if ($apiUp) {
 }
 
 Write-Host ""
+Write-Host "Live Vercel:"
+try {
+    $live = Invoke-RestMethod -Uri "https://frontend-flax-two-11q4abvz2o.vercel.app/health" -TimeoutSec 10
+    Write-Host "  status:              $($live.status)"
+    Write-Host "  database_persistent: $($live.database_persistent)"
+    Write-Host "  billing_configured:  $($live.billing_configured)"
+    Write-Host "  openai_for_pro:      $($live.openai_for_pro)"
+    if (-not ($live.database_persistent -and $live.billing_configured -and $live.openai_for_pro)) {
+        Write-Host "  -> Run SETUP-PRODUCTION.bat then VERIFY-PRODUCTION.bat"
+    }
+} catch {
+    Write-Host "  unreachable: $($_.Exception.Message)"
+}
+
+Write-Host ""
 Write-Host "Commands:"
-Write-Host "  Verify:  .\scripts\verify-product.ps1"
-Write-Host "  Share:   .\scripts\share-local.ps1"
-Write-Host "  Deploy:  .\scripts\deploy-paas.ps1"
+Write-Host "  Verify local:  .\scripts\verify-product.ps1"
+Write-Host "  Verify live:   .\VERIFY-PRODUCTION.bat"
+Write-Host "  Owner setup:   .\SETUP-PRODUCTION.bat"
+Write-Host "  Share:         .\scripts\share-local.ps1"
+Write-Host "  Deploy:        .\scripts\deploy-paas.ps1"
 Write-Host ""

@@ -59,6 +59,15 @@ make dev-frontend # terminal 2
 
 OpenAPI schema: `GET /openapi.json` on the running API.
 
+### Production owner setup (Vercel)
+
+```batch
+SETUP-PRODUCTION.bat    REM Neon + Lemon Squeezy + checkout link
+VERIFY-PRODUCTION.bat     REM smoke test live deployment
+```
+
+See [SECURITY.md](SECURITY.md) and `docs/MONETIZATION.ru.md`.
+
 ## Security
 
 See [SECURITY.md](SECURITY.md) for secrets, Pro key handling, rate limits, and webhook verification.

@@ -184,6 +184,10 @@ const translations = {
     cloudDesc:
       'The live stack runs on Vercel. If you see this banner, wait a moment and refresh — cold start may take up to 30s.',
     cloudBtn: 'Refresh page',
+    errorBoundaryEyebrow: 'Unexpected error',
+    errorBoundaryTitle: 'Something went wrong',
+    errorBoundaryDesc: 'The interface hit an unexpected error. Reload the page to continue.',
+    errorBoundaryReload: 'Reload page',
   },
   ru: {
     archive: 'Архив ERA',
@@ -368,6 +372,10 @@ const translations = {
     cloudDesc:
       'Стек на Vercel. Если видите баннер — подождите и обновите страницу (cold start до 30 сек).',
     cloudBtn: 'Обновить страницу',
+    errorBoundaryEyebrow: 'Непредвиденная ошибка',
+    errorBoundaryTitle: 'Что-то пошло не так',
+    errorBoundaryDesc: 'Интерфейс столкнулся с ошибкой. Перезагрузите страницу, чтобы продолжить.',
+    errorBoundaryReload: 'Перезагрузить',
   },
 } as const
 

@@ -74,3 +74,20 @@ export interface ProStatusResponse {
   renews_at?: string | null
   openai_for_pro?: boolean
 }
+
+export interface HealthResponse {
+  status: 'ok' | 'degraded' | string
+  service?: string
+  version?: string
+  checks?: {
+    api?: string
+    database?: string
+    redis?: string
+  }
+  demo_mode?: boolean
+  standalone_mode?: boolean
+  openai_configured?: boolean
+  openai_for_pro?: boolean
+  billing_configured?: boolean
+  database_persistent?: boolean
+}

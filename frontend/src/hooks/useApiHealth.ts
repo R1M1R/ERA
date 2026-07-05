@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { getApiBaseUrl } from '../lib/api'
+import type { HealthResponse } from '../types/api'
 
 export type ApiHealthState = 'checking' | 'ok' | 'degraded' | 'down'
 
@@ -8,22 +9,26 @@ export interface ApiHealthInfo {
   state: ApiHealthState
   demoMode: boolean
   standaloneMode: boolean
-}
-
-interface HealthPayload {
-  status?: string
-  demo_mode?: boolean
-  standalone_mode?: boolean
-  checks?: {
-    database?: string
-    redis?: string
-  }
+  billingConfigured: boolean
+  databasePersistent: boolean
+  openaiForPro: boolean
 }
 
 const DEFAULT_INFO: ApiHealthInfo = {
   state: 'checking',
   demoMode: false,
   standaloneMode: false,
+  billingConfigured: false,
+  databasePersistent: false,
+  openaiForPro: false,
+}
+
+function mapHealthState(payload: HealthResponse): ApiHealthState {
+  if (payload.status === 'ok') return 'ok'
+  if (payload.checks?.database === 'error' || payload.checks?.redis === 'error') {
+    return 'down'
+  }
+  return 'degraded'
 }
 
 export function useApiHealth(): ApiHealthInfo {
@@ -34,30 +39,27 @@ export function useApiHealth(): ApiHealthInfo {
 
     async function check() {
       try {
-        const response = await fetch(`${getApiBaseUrl()}/health`)
+        const response = await fetch(`${getApiBaseUrl()}/health`, {
+          signal: AbortSignal.timeout(15_000),
+        })
         if (!response.ok) {
-          if (!cancelled) setInfo({ state: 'down', demoMode: false, standaloneMode: false })
+          if (!cancelled) setInfo({ ...DEFAULT_INFO, state: 'down' })
           return
         }
-        const payload = (await response.json()) as HealthPayload
+        const payload = (await response.json()) as HealthResponse
         if (cancelled) return
 
-        let state: ApiHealthState = 'ok'
-        if (payload.status !== 'ok') {
-          state =
-            payload.checks?.database === 'error' || payload.checks?.redis === 'error'
-              ? 'down'
-              : 'degraded'
-        }
-
         setInfo({
-          state,
+          state: mapHealthState(payload),
           demoMode: payload.demo_mode === true,
           standaloneMode: payload.standalone_mode === true,
+          billingConfigured: payload.billing_configured === true,
+          databasePersistent: payload.database_persistent === true,
+          openaiForPro: payload.openai_for_pro === true,
         })
       } catch {
         if (!cancelled) {
-          setInfo({ state: 'down', demoMode: false, standaloneMode: false })
+          setInfo({ ...DEFAULT_INFO, state: 'down' })
         }
       }
     }
