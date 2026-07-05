@@ -6,7 +6,6 @@ import hashlib
 import hmac
 import logging
 import os
-import re
 import secrets
 from datetime import UTC, datetime
 from typing import Any
@@ -14,13 +13,17 @@ from typing import Any
 from sqlalchemy import select
 
 from backend.database import get_async_session, get_sync_session, init_database_sync
+from backend.email_utils import normalize_email
 from backend.llm_service import is_openai_configured
 from backend.models import ProLicense
 
 logger = logging.getLogger(__name__)
 
-EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-ACTIVE_STATUSES = frozenset({"active", "on_trial", "paused"})
+ACTIVATION_PENDING_MESSAGE = (
+    "If this email has an active subscription, wait a minute after checkout and try again."
+)
+
+ACTIVE_STATUSES = frozenset({"active", "on_trial"})
 
 
 def _ensure_tables() -> None:
@@ -31,14 +34,6 @@ def _ensure_tables() -> None:
 
 def generate_api_key() -> str:
     return f"era_pro_{secrets.token_urlsafe(24)}"
-
-
-def normalize_email(email: str) -> str:
-    """Normalize and validate a checkout email address."""
-    normalized = email.strip().lower()
-    if not normalized or not EMAIL_PATTERN.fullmatch(normalized):
-        raise ValueError("A valid email address is required.")
-    return normalized
 
 
 def _parse_datetime(value: str | None) -> datetime | None:
@@ -133,10 +128,10 @@ async def activate_pro_by_email(email: str) -> dict[str, Any]:
         license_row = result.scalars().first()
 
     if license_row is None:
-        raise LookupError("No Pro subscription found for this email yet. Wait a minute after checkout.")
+        raise LookupError(ACTIVATION_PENDING_MESSAGE)
 
     if not _license_is_active(license_row):
-        raise PermissionError("Pro subscription is not active. Renew or contact support.")
+        raise LookupError(ACTIVATION_PENDING_MESSAGE)
 
     return {
         "api_key": license_row.api_key,

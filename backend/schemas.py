@@ -71,7 +71,7 @@ class ProActivateRequest(BaseModel):
     @field_validator("email")
     @classmethod
     def validate_email(cls, value: str) -> str:
-        from pro_service import normalize_email
+        from email_utils import normalize_email
 
         return normalize_email(value)
 

@@ -31,6 +31,12 @@ def is_standalone_mode() -> bool:
     return os.getenv("ERA_STANDALONE", "").strip().lower() in {"1", "true", "yes", "on"}
 
 
+def has_external_database() -> bool:
+    """True when DATABASE_URL points to a hosted database (e.g. Neon on Vercel)."""
+    url = os.getenv("DATABASE_URL", "").strip()
+    return bool(url) and not url.startswith("sqlite")
+
+
 def standalone_async_database_url() -> str:
     return f"sqlite+aiosqlite:///{standalone_db_path().as_posix()}"
 

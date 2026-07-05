@@ -1,4 +1,5 @@
 import { getStepIndex } from '../lib/pipeline'
+import { resolveArtifactImageUrl } from '../lib/api'
 import { useI18n } from '../hooks/useI18n'
 import { getPipelineSteps } from '../lib/i18n'
 import type { TaskStatusResponse } from '../types/api'
@@ -51,9 +52,11 @@ export function GenerationProgress({
   const activeIndex =
     status?.status === 'completed' ? steps.length - 1 : getStepIndex(status?.step)
 
-  const imageSrc = status?.result?.image_base64
-    ? `data:image/png;base64,${status.result.image_base64}`
-    : null
+  const imageSrc = status?.result?.image_url
+    ? resolveArtifactImageUrl(status.result.image_url)
+    : status?.result?.image_base64
+      ? `data:image/png;base64,${status.result.image_base64}`
+      : null
 
   const percent = progressPercent(status, steps.length)
 

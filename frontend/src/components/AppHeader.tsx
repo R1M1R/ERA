@@ -43,7 +43,7 @@ export function AppHeader({ artifactTotal, apiHealth, demoMode, standaloneMode, 
           >
             {t('headerProActive')}
           </a>
-        ) : demoMode ? (
+        ) : (
           paymentLink ? (
             <a
               href={paymentLink}
@@ -55,13 +55,13 @@ export function AppHeader({ artifactTotal, apiHealth, demoMode, standaloneMode, 
             </a>
           ) : (
             <a
-              href="#pricing-section"
+              href="#pro-section"
               className="rounded-lg border border-parchment-500/40 bg-parchment-500/15 px-3 py-1 text-xs font-semibold text-parchment-100 transition hover:bg-parchment-500/25"
             >
               {t('headerUpgrade')}
             </a>
           )
-        ) : null}
+        )}
         <button
           type="button"
           className="rounded-lg border border-archive-600 bg-archive-800 px-3 py-1 text-xs font-medium text-parchment-300 transition hover:border-parchment-500/40"
@@ -112,7 +112,7 @@ export function AppHeader({ artifactTotal, apiHealth, demoMode, standaloneMode, 
         ) : null}
         {proActive ? (
           <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-emerald-200">
-            Pro
+            {t('headerProActive')}
           </span>
         ) : demoMode ? (
           <span className="rounded-full border border-parchment-500/30 bg-parchment-500/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-parchment-300">

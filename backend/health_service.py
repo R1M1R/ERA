@@ -40,8 +40,10 @@ async def collect_health_status() -> dict[str, Any]:
         checks["redis"] = "error"
 
     from backend.llm_service import is_demo_mode, is_openai_configured
+    from backend.runtime import has_external_database
 
     demo_mode = is_demo_mode()
+    webhook_secret = os.getenv("LEMONSQUEEZY_WEBHOOK_SECRET", "").strip()
     if is_standalone_mode():
         overall = "ok" if checks["database"] == "ok" else "degraded"
     else:
@@ -54,6 +56,8 @@ async def collect_health_status() -> dict[str, Any]:
         "checks": checks,
         "demo_mode": demo_mode,
         "standalone_mode": is_standalone_mode(),
-        "openai_configured": not demo_mode,
+        "openai_configured": is_openai_configured(),
         "openai_for_pro": is_openai_configured(),
+        "billing_configured": bool(webhook_secret),
+        "database_persistent": has_external_database(),
     }

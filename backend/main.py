@@ -27,6 +27,7 @@ from schemas import (
 )
 from verify_service import verify_artifact_image
 from health_service import collect_health_status
+from public_result import sanitize_task_result
 from pro_service import (
     activate_pro_by_email,
     get_pro_status,
@@ -35,6 +36,9 @@ from pro_service import (
     should_use_pro_llm,
     verify_lemon_signature,
 )
+from rate_limit import allow_request
+
+MAX_VERIFY_BYTES = 10 * 1024 * 1024
 
 
 @asynccontextmanager
@@ -55,10 +59,24 @@ CORS_ORIGINS = get_cors_origins()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def _client_key(request: Request) -> str:
+    forwarded = request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+    return forwarded or (request.client.host if request.client else "unknown")
+
+
+def _enforce_rate_limit(request: Request, *, scope: str, max_calls: int, window_seconds: int) -> None:
+    if not allow_request(f"{scope}:{_client_key(request)}", max_calls=max_calls, window_seconds=window_seconds):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many requests. Please try again shortly.",
+            headers={"Retry-After": str(window_seconds)},
+        )
 
 
 def _map_celery_state(async_result: AsyncResult) -> TaskStatusResponse:
@@ -75,6 +93,8 @@ def _map_celery_state(async_result: AsyncResult) -> TaskStatusResponse:
 
     if state == "SUCCESS":
         result = async_result.result if isinstance(async_result.result, dict) else {"value": async_result.result}
+        if isinstance(result, dict):
+            result = sanitize_task_result(result) or result
         return TaskStatusResponse(task_id=async_result.id, status="completed", result=result)
 
     if state == "FAILURE":
@@ -96,10 +116,13 @@ async def health() -> dict[str, Any]:
 
 @app.post("/generate", response_model=GenerateResponse, status_code=status.HTTP_202_ACCEPTED)
 async def generate_artifact(
+    request: Request,
     x_era_pro_key: str | None = Header(default=None, alias="X-ERA-Pro-Key"),
 ) -> GenerateResponse:
     """Queue autonomous LLM riddle generation and steganographic artifact creation."""
     from worker.tasks import enqueue_generation_pipeline
+
+    _enforce_rate_limit(request, scope="generate", max_calls=20, window_seconds=60)
 
     pro_key = x_era_pro_key.strip() if x_era_pro_key else None
     pro_tier = await should_use_pro_llm(pro_key)
@@ -148,8 +171,10 @@ async def get_artifact_image(public_hash: str) -> FileResponse:
 
 
 @app.post("/verify", response_model=VerifyResponse)
-async def verify_artifact(file: UploadFile = File(...)) -> VerifyResponse:
+async def verify_artifact(request: Request, file: UploadFile = File(...)) -> VerifyResponse:
     """Verify proof-of-authenticity for an uploaded artifact image."""
+    _enforce_rate_limit(request, scope="verify", max_calls=30, window_seconds=60)
+
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -161,6 +186,11 @@ async def verify_artifact(file: UploadFile = File(...)) -> VerifyResponse:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Uploaded file is empty.",
+        )
+    if len(image_bytes) > MAX_VERIFY_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="Image exceeds the 10 MB upload limit.",
         )
 
     result = await verify_artifact_image(image_bytes)
@@ -177,16 +207,16 @@ async def pro_status(
 
 
 @app.post("/pro/activate", response_model=ProActivateResponse)
-async def pro_activate(body: ProActivateRequest) -> ProActivateResponse:
+async def pro_activate(request: Request, body: ProActivateRequest) -> ProActivateResponse:
     """Return the Pro API key for an active Lemon Squeezy subscription email."""
+    _enforce_rate_limit(request, scope="pro-activate", max_calls=8, window_seconds=300)
+
     try:
         payload = await activate_pro_by_email(body.email)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    except PermissionError as exc:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc)) from exc
 
     return ProActivateResponse(**payload)
 

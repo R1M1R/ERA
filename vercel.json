@@ -17,6 +17,14 @@
   ],
   "headers": [
     {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "DENY" }
+      ]
+    },
+    {
       "source": "/assets/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
@@ -31,7 +39,6 @@
   },
   "env": {
     "ERA_STANDALONE": "true",
-    "ERA_DEMO_MODE": "true",
-    "ERA_SERVER_SALT": "era-vercel-cloud-salt-v1"
+    "ERA_DEMO_MODE": "true"
   }
 }

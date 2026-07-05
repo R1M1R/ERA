@@ -55,6 +55,7 @@ export function SectionNav() {
           <li key={section.id}>
             <a
               href={`#${section.id}`}
+              aria-current={active === section.id ? 'page' : undefined}
               className={`rounded-lg px-3 py-1.5 text-xs font-medium transition sm:px-4 sm:text-sm ${
                 active === section.id
                   ? 'bg-parchment-500/15 text-parchment-100'

@@ -16,7 +16,6 @@ for path in (ROOT, BACKEND):
 os.environ.setdefault("VERCEL", "1")
 os.environ.setdefault("ERA_STANDALONE", "true")
 os.environ.setdefault("ERA_DEMO_MODE", "true")
-os.environ.setdefault("ERA_SERVER_SALT", "era-vercel-cloud-salt-v1")
 
 from mangum import Mangum  # noqa: E402
 

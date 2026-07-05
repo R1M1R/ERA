@@ -16,10 +16,11 @@ os.environ.setdefault("ERA_STANDALONE", "true")
 os.environ.setdefault("ERA_DEMO_MODE", "true")
 os.environ.setdefault("ERA_SERVER_SALT", "pro-service-test-salt")
 
+from backend.email_utils import normalize_email  # noqa: E402
 from backend.pro_service import (  # noqa: E402
+    ACTIVE_STATUSES,
     generate_api_key,
     handle_lemon_webhook_event,
-    normalize_email,
     upsert_subscription_from_webhook,
     verify_lemon_signature,
 )
@@ -51,6 +52,10 @@ def test_verify_lemon_signature() -> None:
     assert verify_lemon_signature(body, None) is False
 
 
+def test_paused_subscription_is_not_active() -> None:
+    assert "paused" not in ACTIVE_STATUSES
+
+
 def test_subscription_webhook_roundtrip() -> None:
     payload = {
         "meta": {"event_name": "subscription_created"},
@@ -71,10 +76,22 @@ def test_subscription_webhook_roundtrip() -> None:
     assert created.status == "active"
     first_key = created.api_key
 
-    payload["data"]["attributes"]["status"] = "active"
     updated = upsert_subscription_from_webhook(payload)
     assert updated is not None
     assert updated.api_key == first_key
+
+    paused_payload = {
+        "meta": {"event_name": "subscription_paused"},
+        "data": {
+            "type": "subscriptions",
+            "id": "sub-test-001",
+            "attributes": {"status": "paused"},
+        },
+    }
+    handle_lemon_webhook_event("subscription_paused", paused_payload)
+    paused = upsert_subscription_from_webhook(paused_payload)
+    assert paused is not None
+    assert paused.status == "paused"
 
     result = handle_lemon_webhook_event("subscription_cancelled", payload)
     assert result["status"] == "ok"
@@ -84,6 +101,7 @@ def main() -> None:
     test_generate_api_key_format()
     test_normalize_email()
     test_verify_lemon_signature()
+    test_paused_subscription_is_not_active()
     test_subscription_webhook_roundtrip()
     print("pro_service tests ok")
 

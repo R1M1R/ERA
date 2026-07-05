@@ -49,6 +49,28 @@ Stripe **не поддерживает** регистрацию продавцо
 
 Или запустите **`scripts/setup-lemonsqueezy-webhook.ps1`**.
 
+### Персистентная база для Pro (обязательно для биллинга)
+
+На Vercel без внешней БД лицензии Pro хранятся в `/tmp` и **сбрасываются** при cold start.
+
+**Рекомендуется:** бесплатный [Neon Postgres](https://neon.tech) → добавьте на Vercel:
+
+```powershell
+npx vercel env add DATABASE_URL production
+# postgresql+asyncpg://user:pass@ep-xxx.neon.tech/era_db?sslmode=require
+npx vercel --prod
+```
+
+Проверка: `GET /health` → `"database_persistent": true`
+
+### Секрет подлинности (обязательно)
+
+На Vercel задайте уникальный `ERA_SERVER_SALT` (не храните в git):
+
+```powershell
+npx vercel env add ERA_SERVER_SALT production
+```
+
 ### OpenAI для Pro-пользователей
 
 Бесплатные пользователи всегда получают **демо-загадки**. Pro с активным ключом получает **реальный GPT**, если на сервере задан ключ:

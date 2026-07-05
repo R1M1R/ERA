@@ -9,6 +9,7 @@ export interface ProInfo {
   active: boolean
   email: string | null
   openaiForPro: boolean
+  statusError: boolean
   status: ProStatusResponse | null
   refresh: () => Promise<void>
   disconnect: () => void
@@ -17,10 +18,12 @@ export interface ProInfo {
 export function useProStatus(): ProInfo {
   const [loading, setLoading] = useState(true)
   const [status, setStatus] = useState<ProStatusResponse | null>(null)
+  const [statusError, setStatusError] = useState(false)
 
   const refresh = useCallback(async () => {
     if (!getProKey()) {
       setStatus(null)
+      setStatusError(false)
       setLoading(false)
       return
     }
@@ -29,8 +32,10 @@ export function useProStatus(): ProInfo {
     try {
       const payload = await fetchProStatus()
       setStatus(payload)
+      setStatusError(false)
     } catch {
-      setStatus({ active: false, tier: 'free' })
+      setStatus(null)
+      setStatusError(true)
     } finally {
       setLoading(false)
     }
@@ -39,6 +44,7 @@ export function useProStatus(): ProInfo {
   const disconnect = useCallback(() => {
     clearProKey()
     setStatus(null)
+    setStatusError(false)
     setLoading(false)
   }, [])
 
@@ -51,6 +57,7 @@ export function useProStatus(): ProInfo {
     active: status?.active === true,
     email: status?.email ?? null,
     openaiForPro: status?.openai_for_pro === true,
+    statusError,
     status,
     refresh,
     disconnect,

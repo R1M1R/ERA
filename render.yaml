@@ -27,3 +27,5 @@ services:
         value: https://frontend-flax-two-11q4abvz2o.vercel.app,https://frontend-uer-s-projects.vercel.app,https://frontend-r1m1r-uer-s-projects.vercel.app
       - key: OPENAI_API_KEY
         value: ""
+      - key: LEMONSQUEEZY_WEBHOOK_SECRET
+        sync: false

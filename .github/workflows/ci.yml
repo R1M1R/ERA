@@ -85,6 +85,11 @@ jobs:
           print("pipeline result serialization ok")
           PY
 
+      - name: Test public result sanitization
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: python backend/scripts/test_public_result.py
+
       - name: Test Pro license service
         env:
           PYTHONPATH: ${{ github.workspace }}

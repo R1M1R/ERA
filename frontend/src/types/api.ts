@@ -14,8 +14,10 @@ export interface GenerationResult {
   embedded_text?: string
   status: string
   image_path?: string
+  image_url?: string
   image_base64?: string
-  database_record?: ArtifactItem
+  public_hash?: string
+  database_record?: Pick<ArtifactItem, 'public_hash' | 'image_url'> & Record<string, unknown>
 }
 
 export interface TaskStatusResponse {

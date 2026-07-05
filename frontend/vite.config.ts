@@ -15,6 +15,8 @@ export default defineConfig({
       '/status': apiTarget,
       '/artifacts': apiTarget,
       '/verify': apiTarget,
+      '/pro': apiTarget,
+      '/webhooks': apiTarget,
     },
   },
 })

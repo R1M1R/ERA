@@ -2,6 +2,7 @@ import { useI18n } from '../hooks/useI18n'
 
 const SECTIONS = [
   { id: 'generate-section', key: 'navGenerate' as const },
+  { id: 'pipeline-section', key: 'navPipeline' as const },
   { id: 'gallery-section', key: 'navGallery' as const },
   { id: 'decoder-section', key: 'navDecoder' as const },
   { id: 'pricing-section', key: 'navPricing' as const },
@@ -23,16 +24,20 @@ export function MobileNav() {
               href={`#${section.id}`}
               className="flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-[10px] font-medium text-parchment-400 transition active:bg-archive-800 active:text-parchment-100"
             >
-              <span className="text-base">
+              <span className="text-base" aria-hidden="true">
                 {section.id === 'generate-section'
                   ? '✦'
-                  : section.id === 'gallery-section'
-                    ? '▦'
-                    : section.id === 'pricing-section'
-                      ? '◈'
-                      : section.id === 'pro-section'
-                        ? '★'
-                        : '◎'}
+                  : section.id === 'pipeline-section'
+                    ? '⟳'
+                    : section.id === 'gallery-section'
+                      ? '▦'
+                      : section.id === 'decoder-section'
+                        ? '◎'
+                        : section.id === 'pricing-section'
+                          ? '◈'
+                          : section.id === 'pro-section'
+                            ? '★'
+                            : '•'}
               </span>
               {t(section.key)}
             </a>

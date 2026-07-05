@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useI18n } from '../hooks/useI18n'
 
@@ -7,6 +7,7 @@ const STORAGE_KEY = 'era-welcome-seen'
 export function WelcomeModal() {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     try {
@@ -18,14 +19,31 @@ export function WelcomeModal() {
     }
   }, [])
 
-  const dismiss = () => {
+  const dismiss = useCallback(() => {
     setOpen(false)
     try {
       localStorage.setItem(STORAGE_KEY, '1')
     } catch {
       // ignore
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (!open) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') dismiss()
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    document.body.style.overflow = 'hidden'
+    buttonRef.current?.focus()
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = ''
+    }
+  }, [open, dismiss])
 
   if (!open) return null
 
@@ -35,8 +53,12 @@ export function WelcomeModal() {
       role="dialog"
       aria-modal="true"
       aria-label={t('welcomeTitle')}
+      onClick={dismiss}
     >
-      <div className="animate-scale-in panel max-w-lg border-parchment-500/30 shadow-glow">
+      <div
+        className="animate-scale-in panel max-w-lg border-parchment-500/30 shadow-glow"
+        onClick={(event) => event.stopPropagation()}
+      >
         <p className="mb-1 text-xs font-semibold uppercase tracking-[0.3em] text-parchment-500">
           {t('archive')}
         </p>
@@ -69,7 +91,7 @@ export function WelcomeModal() {
           — {t('welcomeShortcut')}
         </p>
 
-        <button type="button" className="btn-primary btn-glow mt-6 w-full" onClick={dismiss}>
+        <button ref={buttonRef} type="button" className="btn-primary btn-glow mt-6 w-full" onClick={dismiss}>
           {t('welcomeStart')}
         </button>
       </div>

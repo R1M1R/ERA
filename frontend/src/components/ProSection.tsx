@@ -70,6 +70,12 @@ export function ProSection({ pro }: ProSectionProps) {
         <p className="mx-auto mt-2 max-w-2xl text-sm text-parchment-300/80">{t('proDesc')}</p>
       </div>
 
+      {pro.statusError ? (
+        <p className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+          {t('proStatusError')}
+        </p>
+      ) : null}
+
       {pro.active ? (
         <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5">
           <p className="text-sm font-semibold text-emerald-200">{t('proActive')}</p>
@@ -101,11 +107,16 @@ export function ProSection({ pro }: ProSectionProps) {
             <h3 className="font-display text-lg text-parchment-100">{t('proStep2')}</h3>
             <p className="mt-2 text-sm text-parchment-300/80">{t('proStep2Desc')}</p>
             <div className="mt-4 flex flex-col gap-2">
+              <label htmlFor="pro-email" className="text-xs font-medium text-parchment-400">
+                {t('proEmailLabel')}
+              </label>
               <input
+                id="pro-email"
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                placeholder="you@example.com"
+                placeholder={t('proEmailPlaceholder')}
+                autoComplete="email"
                 className="rounded-xl border border-archive-600 bg-archive-950 px-4 py-2 text-sm text-parchment-100"
               />
               <button
@@ -123,11 +134,16 @@ export function ProSection({ pro }: ProSectionProps) {
             <h3 className="font-display text-lg text-parchment-100">{t('proStep3')}</h3>
             <p className="mt-2 text-sm text-parchment-300/80">{t('proStep3Desc')}</p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <label htmlFor="pro-key" className="sr-only">
+                {t('proKeyLabel')}
+              </label>
               <input
+                id="pro-key"
                 type="text"
                 value={manualKey}
                 onChange={(event) => setManualKey(event.target.value)}
-                placeholder="era_pro_..."
+                placeholder={t('proKeyPlaceholder')}
+                autoComplete="off"
                 className="min-w-0 flex-1 rounded-xl border border-archive-600 bg-archive-950 px-4 py-2 font-mono text-sm text-parchment-100"
               />
               <button

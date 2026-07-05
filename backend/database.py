@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from backend.runtime import (
+    has_external_database,
     is_standalone_mode,
     standalone_async_database_url,
     standalone_sync_database_url,
@@ -24,6 +25,13 @@ DEFAULT_SYNC_DATABASE_URL = "postgresql+psycopg2://era:era_secret@localhost:5432
 def resolve_async_database_url() -> str:
     """Return the async SQLAlchemy URL used by FastAPI."""
     if is_standalone_mode():
+        if has_external_database():
+            url = os.getenv("DATABASE_URL", "").strip()
+            if url.startswith("postgresql://"):
+                return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+            if url.startswith("postgres://"):
+                return url.replace("postgres://", "postgresql+asyncpg://", 1)
+            return url
         return standalone_async_database_url()
     url = os.getenv("DATABASE_URL", DEFAULT_ASYNC_DATABASE_URL)
     if url.startswith("postgresql://"):
@@ -36,6 +44,12 @@ def resolve_async_database_url() -> str:
 def resolve_sync_database_url() -> str:
     """Return the sync SQLAlchemy URL used by Celery workers."""
     if is_standalone_mode():
+        if has_external_database():
+            explicit = os.getenv("DATABASE_URL_SYNC", "").strip()
+            if explicit:
+                return explicit
+            async_url = resolve_async_database_url()
+            return async_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
         return standalone_sync_database_url()
     explicit = os.getenv("DATABASE_URL_SYNC")
     if explicit:
