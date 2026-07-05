@@ -1,6 +1,7 @@
 param(
     [switch]$SkipFrontend,
-    [switch]$RunE2E
+    [switch]$RunE2E,
+    [switch]$Silent
 )
 
 $ErrorActionPreference = "Stop"
@@ -105,7 +106,9 @@ Write-Host ""
 Write-Host "Generate works without OpenAI (demo mode) and without Docker."
 Write-Host ""
 
-if (-not $SkipFrontend -and (Test-ApiHealthy) -and (Test-PortListening -Port 5173)) {
+$autonomous = $Silent -or ($env:ERA_AUTONOMOUS -eq "true")
+
+if (-not $SkipFrontend -and -not $autonomous -and (Test-ApiHealthy) -and (Test-PortListening -Port 5173)) {
     Start-Process "http://localhost:5173" | Out-Null
     Write-Host "[ERA] Opened http://localhost:5173 in your browser."
     Write-Host ""

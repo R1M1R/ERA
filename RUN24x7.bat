@@ -9,8 +9,7 @@ echo  2. Start API + Frontend
 echo  3. Install auto-start on Windows login
 echo  4. Optional: public tunnel (SHARE.bat)
 echo.
-powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\setup-keys.ps1"
-powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\restart-era.ps1" -SkipVerify
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\start-autonomous.ps1" -WithWatchdog
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\install-auto-start.ps1"
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\product-ready.ps1"
 echo.
