@@ -5,6 +5,7 @@ import { AppHeader } from './components/AppHeader'
 import { DecoderSection } from './components/DecoderSection'
 import { GallerySection } from './components/GallerySection'
 import { GenerationProgress } from './components/GenerationProgress'
+import { PricingSection } from './components/PricingSection'
 import { AppFooter } from './components/AppFooter'
 import { CloudBanner } from './components/CloudBanner'
 import { KeyboardHelp } from './components/KeyboardHelp'
@@ -133,6 +134,8 @@ function App() {
           onVerify={decoder.verify}
           onReset={decoder.reset}
         />
+
+        <PricingSection />
       </main>
 
       <AppFooter />

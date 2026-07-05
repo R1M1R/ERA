@@ -12,14 +12,20 @@ const I18nContext = createContext<I18nContextValue | null>(null)
 
 const STORAGE_KEY = 'era-locale'
 
-function readStoredLocale(): Locale {
+function detectLocale(): Locale {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored === 'ru' || stored === 'en') return stored
+    const lang = navigator.language.toLowerCase()
+    if (lang.startsWith('ru')) return 'ru'
+    return 'en'
   } catch {
-    // ignore
+    return 'en'
   }
-  return 'ru'
+}
+
+function readStoredLocale(): Locale {
+  return detectLocale()
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {

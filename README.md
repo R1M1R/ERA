@@ -26,6 +26,24 @@ SaaS platform: AI historical riddles → LSB steganography in PNG → server-sid
 > **24/7 without your laptop:** the full product runs on Vercel (frontend + API).  
 > No Render, Neon, or Upstash required. Demo mode works out of the box.
 
+## Monetization (passive income)
+
+ERA is built as an **international freemium SaaS**:
+
+| Tier | Price | Revenue |
+|------|-------|---------|
+| **Free** | $0 | User acquisition, viral gallery |
+| **Pro** | $12/mo | Stripe subscriptions — real GPT riddles, commercial license |
+| **Enterprise** | Custom | B2B API, white-label, self-hosted |
+
+**Enable Pro payments:**
+
+1. Create a [Stripe Payment Link](https://dashboard.stripe.com/payment-links) ($12/month subscription)
+2. Add to Vercel env: `VITE_STRIPE_PRO_LINK=https://buy.stripe.com/...`
+3. Redeploy: `npx vercel --prod`
+
+Pro users get `OPENAI_API_KEY` on the backend (set in Vercel env) — demo mode stays free for everyone else.
+
 ## Links
 
 | Resource | URL |

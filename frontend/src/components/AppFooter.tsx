@@ -1,4 +1,5 @@
 import { useI18n } from '../hooks/useI18n'
+import { GITHUB_URL, LIVE_APP_URL } from '../lib/pricing'
 
 export function AppFooter() {
   const { t } = useI18n()
@@ -7,7 +8,7 @@ export function AppFooter() {
     <footer className="mt-12 border-t border-archive-700/60 py-8 text-center">
       <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-parchment-400">
         <a
-          href="https://github.com/R1M1R/ERA"
+          href={GITHUB_URL}
           target="_blank"
           rel="noreferrer"
           className="transition hover:text-parchment-200"
@@ -15,15 +16,20 @@ export function AppFooter() {
           {t('footerGithub')}
         </a>
         <span className="text-archive-600">·</span>
-        <span>
-          {t('footerLocal')}: <span className="font-mono text-parchment-500">GO.bat</span>
-        </span>
+        <a
+          href={LIVE_APP_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="transition hover:text-parchment-200"
+        >
+          {t('footerLive')}
+        </a>
         <span className="text-archive-600">·</span>
-        <span>
-          {t('footerCloud')}: <span className="font-mono text-parchment-500">24x7.bat</span>
-        </span>
+        <a href="#pricing-section" className="transition hover:text-parchment-200">
+          {t('navPricing')}
+        </a>
       </div>
-      <p className="mt-3 text-xs text-archive-600">ERA · LSB steganography · server-side verify</p>
+      <p className="mt-3 text-xs text-archive-600">ERA · International SaaS · LSB steganography</p>
     </footer>
   )
 }
