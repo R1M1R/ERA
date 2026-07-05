@@ -34,7 +34,7 @@ SaaS platform: AI historical riddles → LSB steganography in PNG → server-sid
 | **Live app (24/7)** | **https://frontend-flax-two-11q4abvz2o.vercel.app** |
 | **Local app** (this PC) | http://localhost:5173 |
 | **Optional Render API** | https://era-api.onrender.com |
-| **Frontend deploy** | [Import on Vercel](https://vercel.com/new/clone?repository-url=https://github.com/R1M1R/ERA&project-name=era&root-directory=frontend) |
+| **Redeploy (Vercel)** | `npx vercel --prod` from repo root |
 
 > **24/7 without your laptop:** full stack on Vercel (no extra setup).  
 > Local mode (`GO.bat` / `AUTONOMOUS.bat`) works only while this PC is on.
@@ -48,8 +48,8 @@ SaaS platform: AI historical riddles → LSB steganography in PNG → server-sid
 | **`GO.bat`** | Start API + frontend, open browser |
 | **`AUTONOMOUS.bat`** | Silent start + watchdog (self-heal) |
 | **`STATUS.bat`** | Check API / frontend / watchdog |
-| **`DEPLOY_CLOUD.bat`** | One-click Render backend (24/7, no keys) |
-| **`24x7.bat`** | Local + open cloud deploy pages |
+| **`DEPLOY_CLOUD.bat`** | Optional Render backend (not required) |
+| **`24x7.bat`** | Local setup + cloud status |
 | **`SHARE.bat`** | Temporary public URL (Cloudflare tunnel) |
 
 ```powershell
@@ -86,8 +86,9 @@ For a dedicated Docker API (persistent SQLite on container disk): **[Deploy on R
 
 | Layer | Technology |
 |-------|------------|
-| API | FastAPI, Gunicorn, Uvicorn workers |
-| Workers | Celery, Redis |
+| API (cloud) | FastAPI on Vercel serverless (Mangum) |
+| API (local/Docker) | FastAPI, Gunicorn, Uvicorn workers |
+| Workers | Celery, Redis (or in-process standalone) |
 | Database | PostgreSQL / SQLite (standalone) |
 | AI | OpenAI (demo mode without key) |
 | Frontend | React, Vite, TypeScript, Tailwind CSS |
@@ -96,11 +97,13 @@ For a dedicated Docker API (persistent SQLite on container disk): **[Deploy on R
 
 ```text
 ERA/
+├── api/              # Vercel serverless entry (production)
 ├── backend/          # FastAPI, steganography, LLM
 ├── worker/           # Celery tasks
 ├── frontend/         # React SPA
+├── vercel.json       # Vercel full-stack deploy config
 ├── scripts/          # GO.bat, autonomous, deploy helpers
-├── render.yaml       # Render Blueprint (API + worker)
+├── render.yaml       # Optional Render Blueprint (lite)
 └── .github/workflows # CI
 ```
 
