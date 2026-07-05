@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { useI18n } from '../hooks/useI18n'
 import { resolveArtifactImageUrl } from '../lib/api'
 import type { ArtifactItem } from '../types/api'
 import { ImageLightbox } from './ImageLightbox'
@@ -16,8 +17,8 @@ interface GallerySectionProps {
   onVerifyImage?: (imageUrl: string) => void
 }
 
-function formatCreatedAt(value: string): string {
-  return new Intl.DateTimeFormat(undefined, {
+function formatCreatedAt(value: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : undefined, {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value))
@@ -34,23 +35,22 @@ export function GallerySection({
   onReload,
   onVerifyImage,
 }: GallerySectionProps) {
+  const { t, locale } = useI18n()
   const [lightbox, setLightbox] = useState<ArtifactItem | null>(null)
 
   return (
     <section className="panel" id="gallery-section">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="font-display text-2xl text-parchment-50">Gallery</h2>
-          <p className="mt-1 text-sm text-parchment-200/70">
-            Masonry archive of steganographic artifacts. Click to preview, verify, or download.
-          </p>
+          <h2 className="font-display text-2xl text-parchment-50">{t('galleryTitle')}</h2>
+          <p className="mt-1 text-sm text-parchment-200/70">{t('galleryDesc')}</p>
         </div>
         <div className="flex items-center gap-3">
           <span className="rounded-full border border-archive-600 bg-archive-800 px-3 py-1 text-xs font-medium text-parchment-300">
-            {total} artifacts
+            {total} {t('galleryCount')}
           </span>
           <button type="button" className="btn-secondary" onClick={onReload} disabled={isLoading}>
-            {isLoading ? 'Loading…' : 'Refresh'}
+            {isLoading ? t('galleryLoading') : t('galleryRefresh')}
           </button>
         </div>
       </div>
@@ -72,12 +72,10 @@ export function GallerySection({
         </div>
       ) : items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-archive-700 bg-archive-950/40 px-6 py-16 text-center">
-          <p className="font-display text-xl text-parchment-400">The archive is empty</p>
-          <p className="mt-2 text-sm text-archive-600">
-            Generate your first artifact to populate the gallery.
-          </p>
+          <p className="font-display text-xl text-parchment-400">{t('galleryEmpty')}</p>
+          <p className="mt-2 text-sm text-archive-600">{t('galleryEmptyHint')}</p>
           <a href="#generate-section" className="btn-primary mt-6 inline-flex">
-            Generate now
+            {t('galleryGenerateNow')}
           </a>
         </div>
       ) : (
@@ -107,17 +105,19 @@ export function GallerySection({
                         : 'bg-parchment-500/20 text-parchment-200'
                     }`}
                   >
-                    {artifact.is_solved ? 'Solved' : 'Unsolved'}
+                    {artifact.is_solved ? t('solved') : t('unsolved')}
                   </span>
                 </div>
                 <span className="absolute bottom-3 left-3 rounded bg-black/50 px-2 py-1 text-[10px] text-parchment-300 opacity-0 backdrop-blur transition group-hover:opacity-100">
-                  Click to expand
+                  {t('clickExpand')}
                 </span>
               </button>
 
               <div className="space-y-2 p-4">
                 <p className="font-mono text-xs text-parchment-500">#{artifact.public_hash.slice(0, 12)}</p>
-                <p className="text-sm text-parchment-200/80">{formatCreatedAt(artifact.created_at)}</p>
+                <p className="text-sm text-parchment-200/80">
+                  {formatCreatedAt(artifact.created_at, locale)}
+                </p>
                 <div className="grid grid-cols-2 gap-2">
                   <a
                     href={resolveArtifactImageUrl(artifact.image_url)}
@@ -125,7 +125,7 @@ export function GallerySection({
                     className="btn-secondary justify-center text-xs"
                     onClick={(event) => event.stopPropagation()}
                   >
-                    Download
+                    {t('download')}
                   </a>
                   {onVerifyImage ? (
                     <button
@@ -133,7 +133,7 @@ export function GallerySection({
                       className="btn-primary justify-center text-xs"
                       onClick={() => onVerifyImage(artifact.image_url)}
                     >
-                      Verify
+                      {t('verify')}
                     </button>
                   ) : null}
                 </div>
@@ -151,10 +151,10 @@ export function GallerySection({
             disabled={page <= 1 || isLoading}
             onClick={() => onPageChange(page - 1)}
           >
-            Previous
+            {t('previous')}
           </button>
           <span className="font-mono text-sm text-parchment-400">
-            Page {page} / {pages}
+            {t('page')} {page} / {pages}
           </span>
           <button
             type="button"
@@ -162,7 +162,7 @@ export function GallerySection({
             disabled={page >= pages || isLoading}
             onClick={() => onPageChange(page + 1)}
           >
-            Next
+            {t('next')}
           </button>
         </div>
       ) : null}
@@ -172,7 +172,7 @@ export function GallerySection({
           src={resolveArtifactImageUrl(lightbox.image_url)}
           alt={`Artifact ${lightbox.public_hash}`}
           hash={lightbox.public_hash}
-          createdAt={formatCreatedAt(lightbox.created_at)}
+          createdAt={formatCreatedAt(lightbox.created_at, locale)}
           onClose={() => setLightbox(null)}
           onVerify={
             onVerifyImage

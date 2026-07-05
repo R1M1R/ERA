@@ -6,6 +6,7 @@ import { DecoderSection } from './components/DecoderSection'
 import { GallerySection } from './components/GallerySection'
 import { GenerationProgress } from './components/GenerationProgress'
 import { AppFooter } from './components/AppFooter'
+import { CloudBanner } from './components/CloudBanner'
 import { SectionNav } from './components/SectionNav'
 import { Toast } from './components/Toast'
 import { useI18n } from './hooks/useI18n'
@@ -83,6 +84,8 @@ function App() {
       />
 
       <SectionNav />
+
+      <CloudBanner />
 
       <main className="grid gap-8">
         <GenerateSection

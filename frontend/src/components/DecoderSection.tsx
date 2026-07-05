@@ -1,5 +1,6 @@
 import { useCallback, useState, type DragEvent } from 'react'
 
+import { useI18n } from '../hooks/useI18n'
 import { useTypewriter } from '../hooks/useTypewriter'
 import type { VerifyResponse } from '../types/api'
 
@@ -14,19 +15,25 @@ interface DecoderSectionProps {
   onReset: () => void
 }
 
-function VerificationBadge({ verification }: { verification: VerifyResponse | null }) {
-  if (!verification) {
-    return null
-  }
+function VerificationBadge({
+  verification,
+  verifiedLabel,
+  fakeLabel,
+}: {
+  verification: VerifyResponse | null
+  verifiedLabel: string
+  fakeLabel: string
+}) {
+  if (!verification) return null
 
   if (verification.verified) {
     return (
-      <div className="flex items-center gap-3 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 animate-fade-in">
+      <div className="flex animate-fade-in items-center gap-3 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3">
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/20 text-lg text-emerald-300">
           ✓
         </span>
         <div>
-          <p className="text-sm font-semibold text-emerald-200">Verified by server</p>
+          <p className="text-sm font-semibold text-emerald-200">{verifiedLabel}</p>
           <p className="text-xs text-emerald-300/80">{verification.message}</p>
         </div>
       </div>
@@ -34,12 +41,12 @@ function VerificationBadge({ verification }: { verification: VerifyResponse | nu
   }
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 animate-fade-in">
+    <div className="flex animate-fade-in items-center gap-3 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3">
       <span className="flex h-9 w-9 items-center justify-center rounded-full bg-red-500/20 text-lg text-red-300">
         ✕
       </span>
       <div>
-        <p className="text-sm font-semibold text-red-200">Fake or corrupted</p>
+        <p className="text-sm font-semibold text-red-200">{fakeLabel}</p>
         <p className="text-xs text-red-300/80">{verification.detail ?? verification.message}</p>
       </div>
     </div>
@@ -56,6 +63,7 @@ export function DecoderSection({
   onVerify,
   onReset,
 }: DecoderSectionProps) {
+  const { t } = useI18n()
   const [isDragging, setIsDragging] = useState(false)
   const { displayedText, isComplete } = useTypewriter(decodedText ?? '', {
     enabled: Boolean(decodedText && verification?.verified),
@@ -67,9 +75,7 @@ export function DecoderSection({
       event.preventDefault()
       setIsDragging(false)
       const file = event.dataTransfer.files[0]
-      if (file) {
-        onFileSelect(file)
-      }
+      if (file) onFileSelect(file)
     },
     [onFileSelect],
   )
@@ -87,10 +93,8 @@ export function DecoderSection({
     <section className="panel" id="decoder-section">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h2 className="font-display text-2xl text-parchment-50">Interactive decoder</h2>
-          <p className="mt-1 text-sm text-parchment-200/70">
-            Upload or drop a PNG. Server extracts the hidden payload and validates the authenticity seal.
-          </p>
+          <h2 className="font-display text-2xl text-parchment-50">{t('decoderTitle')}</h2>
+          <p className="mt-1 text-sm text-parchment-200/70">{t('decoderDesc')}</p>
         </div>
         <span className="rounded-full border border-archive-600 bg-archive-800 px-3 py-1 text-xs font-medium text-parchment-300">
           POST /verify
@@ -118,9 +122,9 @@ export function DecoderSection({
             />
             <span className="text-3xl text-parchment-500">⬆</span>
             <span className="mt-2 text-sm font-medium text-parchment-100">
-              {isDragging ? 'Release to decode' : 'Drop artifact or click to browse'}
+              {isDragging ? t('dropRelease') : t('dropBrowse')}
             </span>
-            <span className="mt-2 text-xs text-archive-600">PNG recommended · auto-verify on upload</span>
+            <span className="mt-2 text-xs text-archive-600">{t('dropHint')}</span>
           </label>
 
           {previewUrl ? (
@@ -128,7 +132,7 @@ export function DecoderSection({
               <img src={previewUrl} alt="Uploaded artifact preview" className="max-h-72 w-full object-contain" />
               {isVerifying ? (
                 <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                  <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-parchment-500/25 to-transparent animate-scan" />
+                  <div className="absolute inset-x-0 top-0 h-1/3 animate-scan bg-gradient-to-b from-parchment-500/25 to-transparent" />
                 </div>
               ) : null}
             </div>
@@ -144,19 +148,23 @@ export function DecoderSection({
               {isVerifying ? (
                 <span className="flex items-center gap-2">
                   <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-archive-950/30 border-t-archive-950" />
-                  Verifying…
+                  {t('verifying')}
                 </span>
               ) : (
-                'Verify again'
+                t('verifyAgain')
               )}
             </button>
             <button type="button" className="btn-secondary" onClick={onReset}>
-              Reset
+              {t('reset')}
             </button>
           </div>
 
           <div className="mt-4 space-y-3">
-            <VerificationBadge verification={verification} />
+            <VerificationBadge
+              verification={verification}
+              verifiedLabel={t('verifiedServer')}
+              fakeLabel={t('fakeCorrupted')}
+            />
             {error && !verification?.verified ? (
               <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
                 {error}
@@ -168,17 +176,17 @@ export function DecoderSection({
         <div className="rounded-xl border border-archive-700 bg-[#120f0d] p-5 shadow-inner">
           <div className="mb-4 flex items-center justify-between gap-2">
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-parchment-500">
-              Recovered chronicle
+              {t('recoveredChronicle')}
             </p>
             <div className="flex items-center gap-2">
               {decodedText && verification?.verified && isComplete ? (
                 <button type="button" className="btn-secondary px-3 py-1 text-xs" onClick={() => void copyChronicle()}>
-                  Copy
+                  {t('copy')}
                 </button>
               ) : null}
               {decodedText && verification?.verified ? (
                 <span className="font-mono text-xs text-emerald-400">
-                  {isComplete ? 'complete' : 'receiving…'}
+                  {isComplete ? t('complete') : t('receiving')}
                 </span>
               ) : null}
             </div>
@@ -199,11 +207,11 @@ export function DecoderSection({
                 ) : null}
               </>
             ) : isVerifying ? (
-              <span className="animate-pulse-slow">Running server-side authenticity verification…</span>
+              <span className="animate-pulse-slow">{t('verifyingServer')}</span>
             ) : verification && !verification.verified ? (
-              'Authenticity check failed. Hidden text will not be revealed.'
+              t('authFailed')
             ) : (
-              'Awaiting artifact upload…'
+              t('awaitingUpload')
             )}
           </div>
         </div>
