@@ -6,7 +6,11 @@ SaaS platform: AI historical riddles → LSB steganography in PNG → server-sid
 
 ## Project URL
 
-**https://github.com/R1M1R/ERA**
+| | Link |
+|---|------|
+| **Repository** | **https://github.com/R1M1R/ERA** |
+| **Live app (frontend)** | **https://frontend-flax-two-11q4abvz2o.vercel.app** |
+| **Enable full cloud** | **[DEPLOY_CLOUD.bat](DEPLOY_CLOUD.bat)** or [Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA) |
 
 ## Live deployment status
 
@@ -45,7 +49,8 @@ SaaS platform: AI historical riddles → LSB steganography in PNG → server-sid
 | **`GO.bat`** | Start API + frontend, open browser |
 | **`AUTONOMOUS.bat`** | Silent start + watchdog (self-heal) |
 | **`STATUS.bat`** | Check API / frontend / watchdog |
-| **`24x7.bat`** | Cloud deploy wizard (Neon + Upstash + Render + Vercel) |
+| **`DEPLOY_CLOUD.bat`** | One-click Render backend (24/7, no keys) |
+| **`24x7.bat`** | Local + open cloud deploy pages |
 | **`SHARE.bat`** | Temporary public URL (Cloudflare tunnel) |
 
 ```powershell

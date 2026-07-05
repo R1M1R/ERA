@@ -33,27 +33,24 @@ Write-Host ""
 Write-Host "[3/3] 24/7 status"
 Write-Host ""
 Write-Host "  LOCAL (now):     http://localhost:5173  - works while this PC runs"
-Write-Host "  CLOUD (24/7):    Render one-click (no Neon/Upstash) OR full PaaS with render-full.yaml"
+Write-Host "  CLOUD (24/7):    DEPLOY_CLOUD.bat -> Render one-click (no Neon/Upstash)"
+Write-Host ""
+
+Write-Host "  Quick cloud deploy:"
+Write-Host "    Double-click DEPLOY_CLOUD.bat"
+Write-Host "    Or open: https://render.com/deploy?repo=https://github.com/R1M1R/ERA"
 Write-Host ""
 
 if ($hasNeon -and $hasRedis) {
-    Write-Host "  Production keys found in .secrets.local"
-    Write-Host "  Next: double-click DEPLOY.bat or open:"
-    Write-Host "  https://render.com/deploy?repo=https://github.com/R1M1R/ERA"
+    Write-Host "  Full PaaS keys found in .secrets.local (render-full.yaml)"
+    Write-Host "  Use DEPLOY.bat for Postgres + Celery worker"
 } else {
-    Write-Host "  Missing cloud keys (cannot deploy 24/7 automatically):"
-    if (-not $hasNeon) { Write-Host "    - DATABASE_URL  (Neon: https://neon.tech)" }
-    if (-not $hasRedis) { Write-Host "    - REDIS_URL     (Upstash: https://upstash.com)" }
-    Write-Host ""
-    Write-Host "  Copy .secrets.local.example -> .secrets.local, paste keys, re-run setup-24x7.ps1"
-    Write-Host "  Or run DEPLOY.bat for guided wizard (~15 min, free tier)"
+    Write-Host "  Lite mode needs no .secrets.local (SQLite on Render)"
 }
 
 if ($OpenDeployPages) {
     Start-Process "https://render.com/deploy?repo=https://github.com/R1M1R/ERA"
-    Start-Process "https://neon.tech"
-    Start-Process "https://upstash.com"
-    Start-Process "https://vercel.com/new"
+    Start-Process "https://frontend-flax-two-11q4abvz2o.vercel.app"
 }
 
 Write-Host ""

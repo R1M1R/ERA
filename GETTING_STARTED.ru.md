@@ -1,5 +1,17 @@
 # ERA — Быстрый старт
 
+## Проект в интернете
+
+| | Ссылка |
+|---|--------|
+| **GitHub** | **https://github.com/R1M1R/ERA** |
+| **Приложение (24/7)** | **https://frontend-flax-two-11q4abvz2o.vercel.app** |
+| **Включить API в облаке** | Двойной клик **`DEPLOY_CLOUD.bat`** → Render → Apply |
+
+> Фронтенд уже работает без ноутбука. Backend: один клик на Render (без ключей Neon/Upstash).
+
+---
+
 # Локальная разработка (Windows)
 
 ## Вариант A — без Docker (рекомендуется)
