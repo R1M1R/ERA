@@ -91,7 +91,7 @@ function App() {
 
       <StatusDashboard artifactTotal={gallery.total} />
 
-      <CloudBanner />
+      <CloudBanner visible={apiHealth.state === 'down' || apiHealth.state === 'degraded'} />
 
       <main className="grid gap-8">
         <GenerateSection

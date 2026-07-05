@@ -59,6 +59,16 @@ export function getApiBaseUrl(): string {
   return API_BASE_URL
 }
 
+export function isHostedFrontend(): boolean {
+  if (import.meta.env.DEV) return false
+  try {
+    const host = window.location.hostname
+    return host !== 'localhost' && host !== '127.0.0.1'
+  } catch {
+    return false
+  }
+}
+
 export function resolveArtifactImageUrl(imageUrl: string): string {
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
     return imageUrl

@@ -4,6 +4,8 @@
 
 SaaS platform: AI historical riddles → LSB steganography in PNG → server-side verification.
 
+> **Русский:** репозиторий — [github.com/R1M1R/ERA](https://github.com/R1M1R/ERA) · приложение — [frontend-flax-two-11q4abvz2o.vercel.app](https://frontend-flax-two-11q4abvz2o.vercel.app) · backend — [Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA) (один клик, без ключей).
+
 ## Project URL
 
 | | Link |

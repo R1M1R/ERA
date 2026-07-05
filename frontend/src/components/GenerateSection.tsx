@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 
 import { useI18n } from '../hooks/useI18n'
+import { isHostedFrontend } from '../lib/api'
 
 interface GenerateSectionProps {
   isSubmitting: boolean
@@ -49,7 +50,7 @@ export function GenerateSection({ isSubmitting, isApiReady, error, onSubmit }: G
         </p>
       ) : (
         <p className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
-          {t('generateOffline')}
+          {isHostedFrontend() ? t('generateOfflineCloud') : t('generateOffline')}
         </p>
       )}
 
