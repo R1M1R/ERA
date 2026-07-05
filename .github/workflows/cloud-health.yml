@@ -1,0 +1,36 @@
+name: Cloud health (live)
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  verify-live:
+    if: github.repository == 'R1M1R/ERA'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check live ERA stack
+        run: |
+          URL="https://frontend-flax-two-11q4abvz2o.vercel.app"
+          echo "GET $URL/health"
+          curl -fsS "$URL/health" | tee health.json
+          python3 -c "
+          import json, sys
+          data = json.load(open('health.json'))
+          assert data.get('status') == 'ok', data
+          print('Live health OK')
+          "
+      - name: Smoke generate
+        run: |
+          URL="https://frontend-flax-two-11q4abvz2o.vercel.app"
+          TASK=$(curl -fsS -X POST "$URL/generate" | python3 -c "import json,sys; print(json.load(sys.stdin)['task_id'])")
+          echo "task_id=$TASK"
+          for i in $(seq 1 30); do
+            STATUS=$(curl -fsS "$URL/status/$TASK" | python3 -c "import json,sys; print(json.load(sys.stdin).get('status',''))")
+            echo "status=$STATUS"
+            [ "$STATUS" = "completed" ] && exit 0
+            [ "$STATUS" = "failed" ] && exit 1
+            sleep 2
+          done
+          exit 1

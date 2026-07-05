@@ -66,6 +66,7 @@ Pro users get `OPENAI_API_KEY` on the backend (set in Vercel env) — demo mode 
 | **`GO.bat`** | Start API + frontend, open browser |
 | **`AUTONOMOUS.bat`** | Silent start + watchdog (self-heal) |
 | **`STATUS.bat`** | Check API / frontend / watchdog |
+| **`MONETIZE.bat`** | Stripe Pro setup (passive income) |
 | **`DEPLOY_CLOUD.bat`** | Optional Render backend (not required) |
 | **`24x7.bat`** | Local setup + cloud status |
 | **`SHARE.bat`** | Temporary public URL (Cloudflare tunnel) |
