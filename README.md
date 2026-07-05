@@ -4,6 +4,23 @@
 
 SaaS platform: AI historical riddles → LSB steganography in PNG → server-side verification.
 
+## Project URL
+
+**https://github.com/R1M1R/ERA**
+
+## Live deployment status
+
+| Service | URL | Status |
+|---------|-----|--------|
+| Source code | [github.com/R1M1R/ERA](https://github.com/R1M1R/ERA) | ✅ Online |
+| Frontend (Vercel, 24/7) | [frontend-flax-two-11q4abvz2o.vercel.app](https://frontend-flax-two-11q4abvz2o.vercel.app) | ✅ Online |
+| Backend API (Render) | [era-api.onrender.com](https://era-api.onrender.com) | ⏳ Deploy required |
+| Full cloud product | — | ⏳ Needs Neon + Upstash keys |
+
+> **Without your laptop:** frontend is already 24/7 on Vercel.  
+> **Generate/Gallery/Verify** in the cloud work after you deploy the backend (free, ~10 min):  
+> **[Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA)** + paste `DATABASE_URL` and `REDIS_URL` from [Neon](https://neon.tech) and [Upstash](https://upstash.com).
+
 ## Links
 
 | Resource | URL |
