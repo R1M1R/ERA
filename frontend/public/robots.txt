@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://frontend-flax-two-11q4abvz2o.vercel.app/sitemap.xml

@@ -4,7 +4,7 @@
 
 SaaS platform: AI historical riddles → LSB steganography in PNG → server-side verification.
 
-> **Русский:** репозиторий — [github.com/R1M1R/ERA](https://github.com/R1M1R/ERA) · **приложение 24/7** — [frontend-flax-two-11q4abvz2o.vercel.app](https://frontend-flax-two-11q4abvz2o.vercel.app) (frontend + API на одном домене).
+> **Русский:** репозиторий — [github.com/R1M1R/ERA](https://github.com/R1M1R/ERA) · **приложение 24/7** — [frontend-flax-two-11q4abvz2o.vercel.app](https://frontend-flax-two-11q4abvz2o.vercel.app) · **монетизация** — freemium + Stripe Pro ($12/mo)
 
 ## Project URL
 

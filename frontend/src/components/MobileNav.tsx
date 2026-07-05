@@ -4,6 +4,7 @@ const SECTIONS = [
   { id: 'generate-section', key: 'navGenerate' as const },
   { id: 'gallery-section', key: 'navGallery' as const },
   { id: 'decoder-section', key: 'navDecoder' as const },
+  { id: 'pricing-section', key: 'navPricing' as const },
 ] as const
 
 export function MobileNav() {
@@ -22,7 +23,13 @@ export function MobileNav() {
               className="flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-[10px] font-medium text-parchment-400 transition active:bg-archive-800 active:text-parchment-100"
             >
               <span className="text-base">
-                {section.id === 'generate-section' ? '✦' : section.id === 'gallery-section' ? '▦' : '◎'}
+                {section.id === 'generate-section'
+                  ? '✦'
+                  : section.id === 'gallery-section'
+                    ? '▦'
+                    : section.id === 'pricing-section'
+                      ? '◈'
+                      : '◎'}
               </span>
               {t(section.key)}
             </a>

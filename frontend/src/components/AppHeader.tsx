@@ -1,4 +1,5 @@
 import { getApiBaseUrl } from '../lib/api'
+import { getStripeProLink } from '../lib/pricing'
 import type { ApiHealthState } from '../hooks/useApiHealth'
 import { useI18n } from '../hooks/useI18n'
 import type { TranslationKey } from '../lib/i18n'
@@ -29,9 +30,30 @@ export function AppHeader({ artifactTotal, apiHealth, demoMode, standaloneMode }
           ? 'apiDegraded'
           : 'apiChecking'
 
+  const stripeLink = getStripeProLink()
+
   return (
     <header className="mb-2 text-center">
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex items-center justify-end gap-2">
+        {demoMode ? (
+          stripeLink ? (
+            <a
+              href={stripeLink}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-lg border border-parchment-500/40 bg-parchment-500/15 px-3 py-1 text-xs font-semibold text-parchment-100 transition hover:bg-parchment-500/25"
+            >
+              {t('headerUpgrade')}
+            </a>
+          ) : (
+            <a
+              href="#pricing-section"
+              className="rounded-lg border border-parchment-500/40 bg-parchment-500/15 px-3 py-1 text-xs font-semibold text-parchment-100 transition hover:bg-parchment-500/25"
+            >
+              {t('headerUpgrade')}
+            </a>
+          )
+        ) : null}
         <button
           type="button"
           className="rounded-lg border border-archive-600 bg-archive-800 px-3 py-1 text-xs font-medium text-parchment-300 transition hover:border-parchment-500/40"
