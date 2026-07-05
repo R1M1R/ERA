@@ -93,6 +93,13 @@ const translations = {
     cloudDesc: 'Deploy to Render + Vercel (free tier). Run 24x7.bat on your PC for guided setup.',
     cloudBtn: 'Deploy guide',
     cloudLocal: 'Auto-start on login',
+    welcomeTitle: 'Welcome to ERA',
+    welcomeDesc: 'Create steganographic artifacts with hidden historical riddles in three steps.',
+    welcomeStep1: 'Click Generate — AI crafts a riddle and seals it into a PNG (~5 sec).',
+    welcomeStep2: 'Browse the Gallery — preview, download, or verify any artifact.',
+    welcomeStep3: 'Use the Decoder — upload a PNG to extract and verify hidden text.',
+    welcomeShortcut: 'quick generate from anywhere',
+    welcomeStart: 'Start exploring',
   },
   ru: {
     archive: 'Архив ERA',
@@ -186,6 +193,13 @@ const translations = {
     cloudDesc: 'Деплой на Render + Vercel (бесплатно). Запустите 24x7.bat для пошаговой настройки.',
     cloudBtn: 'Гайд по деплою',
     cloudLocal: 'Автозапуск при входе',
+    welcomeTitle: 'Добро пожаловать в ERA',
+    welcomeDesc: 'Создавайте стеганографические артефакты со скрытыми историческими загадками за 3 шага.',
+    welcomeStep1: 'Нажмите «Сгенерировать» — ИИ создаст загадку и запечатает её в PNG (~5 сек).',
+    welcomeStep2: 'Откройте Галерею — просмотр, скачивание и верификация артефактов.',
+    welcomeStep3: 'Используйте Декодер — загрузите PNG для извлечения и проверки скрытого текста.',
+    welcomeShortcut: 'быстрая генерация из любого места',
+    welcomeStart: 'Начать',
   },
 } as const
 

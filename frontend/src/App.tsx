@@ -7,6 +7,8 @@ import { GallerySection } from './components/GallerySection'
 import { GenerationProgress } from './components/GenerationProgress'
 import { AppFooter } from './components/AppFooter'
 import { CloudBanner } from './components/CloudBanner'
+import { MobileNav } from './components/MobileNav'
+import { WelcomeModal } from './components/WelcomeModal'
 import { SectionNav } from './components/SectionNav'
 import { Toast } from './components/Toast'
 import { useI18n } from './hooks/useI18n'
@@ -75,7 +77,7 @@ function App() {
   }, [generation.taskId])
 
   return (
-    <div className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto min-h-screen max-w-6xl px-4 py-8 pb-20 sm:px-6 sm:pb-8 lg:px-8">
       <AppHeader
         artifactTotal={gallery.total}
         apiHealth={apiHealth.state}
@@ -134,6 +136,9 @@ function App() {
       {toast ? (
         <Toast message={toast.message} variant={toast.variant} onDismiss={() => setToast(null)} />
       ) : null}
+
+      <WelcomeModal />
+      <MobileNav />
     </div>
   )
 }

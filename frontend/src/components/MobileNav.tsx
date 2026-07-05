@@ -1,0 +1,34 @@
+import { useI18n } from '../hooks/useI18n'
+
+const SECTIONS = [
+  { id: 'generate-section', key: 'navGenerate' as const },
+  { id: 'gallery-section', key: 'navGallery' as const },
+  { id: 'decoder-section', key: 'navDecoder' as const },
+] as const
+
+export function MobileNav() {
+  const { t } = useI18n()
+
+  return (
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-archive-700/80 bg-archive-950/95 px-2 py-2 backdrop-blur-md sm:hidden"
+      aria-label="Mobile navigation"
+    >
+      <ul className="flex items-center justify-around">
+        {SECTIONS.map((section) => (
+          <li key={section.id}>
+            <a
+              href={`#${section.id}`}
+              className="flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-[10px] font-medium text-parchment-400 transition active:bg-archive-800 active:text-parchment-100"
+            >
+              <span className="text-base">
+                {section.id === 'generate-section' ? '✦' : section.id === 'gallery-section' ? '▦' : '◎'}
+              </span>
+              {t(section.key)}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
