@@ -1,4 +1,4 @@
-﻿amqp==5.3.1
+amqp==5.3.1
 annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.14.1
@@ -43,6 +43,6 @@ tzdata==2026.2
 tzlocal==5.4.4
 uvicorn==0.50.0
 pytest==8.4.1
-gunicorn==23.0.0
+gunicorn==26.0.0
 vine==5.1.0
 wcwidth==0.8.2
