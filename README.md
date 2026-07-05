@@ -9,9 +9,9 @@ SaaS platform: AI historical riddles → LSB steganography in PNG → server-sid
 | Resource | URL |
 |----------|-----|
 | **GitHub (source code)** | **https://github.com/R1M1R/ERA** |
+| **Live frontend (Vercel)** | **https://frontend-flax-two-11q4abvz2o.vercel.app** |
 | **Local app** (this PC) | http://localhost:5173 |
-| **Cloud API** (after deploy) | https://era-api.onrender.com |
-| **Cloud frontend** (after deploy) | https://era.vercel.app *(set in Vercel)* |
+| **Cloud API** (deploy required) | https://era-api.onrender.com |
 | **One-click backend deploy** | [Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA) |
 | **Frontend deploy** | [Import on Vercel](https://vercel.com/new/clone?repository-url=https://github.com/R1M1R/ERA&project-name=era&root-directory=frontend) |
 
