@@ -33,7 +33,7 @@ Write-Host ""
 Write-Host "[3/3] 24/7 status"
 Write-Host ""
 Write-Host "  LOCAL (now):     http://localhost:5173  - works while this PC runs"
-Write-Host "  CLOUD (24/7):    needs Neon + Upstash + Render + Vercel"
+Write-Host "  CLOUD (24/7):    Render one-click (no Neon/Upstash) OR full PaaS with render-full.yaml"
 Write-Host ""
 
 if ($hasNeon -and $hasRedis) {

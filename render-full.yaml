@@ -1,0 +1,74 @@
+# Render Blueprint — ERA Full (Postgres + Celery worker)
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Before deploy:
+#   1. Create Neon Postgres (free) → paste DATABASE_URL
+#   2. Create Upstash Redis (free) → paste CELERY_BROKER_URL (rediss://)
+#   3. In Render: New Blueprint → select this file (render-full.yaml)
+#   4. Deploy frontend on Vercel with VITE_API_URL=https://<era-api>.onrender.com
+
+services:
+  - type: web
+    name: era-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHONPATH
+        value: /app
+      - key: GUNICORN_WORKERS
+        value: "1"
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_URL_SYNC
+        sync: false
+      - key: CELERY_BROKER_URL
+        sync: false
+      - key: CELERY_RESULT_BACKEND
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: ERA_SERVER_SALT
+        generateValue: true
+      - key: ERA_DEMO_MODE
+        value: "true"
+      - key: CORS_ORIGINS
+        sync: false
+
+  - type: worker
+    name: era-celery
+    runtime: docker
+    dockerfilePath: ./worker/Dockerfile
+    dockerContext: .
+    plan: free
+    dockerCommand: celery -A worker.celery_app worker --loglevel=info --concurrency=1
+    envVars:
+      - key: PYTHONPATH
+        value: /app
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_URL_SYNC
+        sync: false
+      - key: CELERY_BROKER_URL
+        sync: false
+      - key: CELERY_RESULT_BACKEND
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: ERA_SERVER_SALT
+        fromService:
+          name: era-api
+          type: web
+          envVarKey: ERA_SERVER_SALT
+      - key: ERA_DEMO_MODE
+        value: "true"

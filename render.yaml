@@ -1,11 +1,8 @@
-# Render Blueprint — ERA on free PaaS
-# Docs: https://render.com/docs/blueprint-spec
+# Render Blueprint — ERA Lite (24/7 cloud, zero external keys)
+# One-click: https://render.com/deploy?repo=https://github.com/R1M1R/ERA
 #
-# Before deploy:
-#   1. Create Neon Postgres (free) → paste DATABASE_URL
-#   2. Create Upstash Redis (free) → paste CELERY_BROKER_URL (rediss://)
-#   3. Deploy this blueprint, fill env vars in Render dashboard
-#   4. Deploy frontend on Vercel with VITE_API_URL=https://<era-api>.onrender.com
+# Uses ERA_STANDALONE (SQLite + in-process Celery). No Neon or Upstash required.
+# Gallery data may reset after Render cold start (free tier). For persistent DB use render-full.yaml.
 
 services:
   - type: web
@@ -20,55 +17,13 @@ services:
         value: /app
       - key: GUNICORN_WORKERS
         value: "1"
-      - key: DATABASE_URL
-        sync: false
-      - key: DATABASE_URL_SYNC
-        sync: false
-      - key: CELERY_BROKER_URL
-        sync: false
-      - key: CELERY_RESULT_BACKEND
-        sync: false
-      - key: REDIS_URL
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
-      - key: OPENAI_MODEL
-        value: gpt-4o-mini
+      - key: ERA_STANDALONE
+        value: "true"
+      - key: ERA_DEMO_MODE
+        value: "true"
       - key: ERA_SERVER_SALT
         generateValue: true
-      - key: ERA_DEMO_MODE
-        value: "true"
       - key: CORS_ORIGINS
-        sync: false
-
-  - type: worker
-    name: era-celery
-    runtime: docker
-    dockerfilePath: ./worker/Dockerfile
-    dockerContext: .
-    plan: free
-    dockerCommand: celery -A worker.celery_app worker --loglevel=info --concurrency=1
-    envVars:
-      - key: PYTHONPATH
-        value: /app
-      - key: DATABASE_URL
-        sync: false
-      - key: DATABASE_URL_SYNC
-        sync: false
-      - key: CELERY_BROKER_URL
-        sync: false
-      - key: CELERY_RESULT_BACKEND
-        sync: false
-      - key: REDIS_URL
-        sync: false
+        value: https://frontend-flax-two-11q4abvz2o.vercel.app,https://frontend-uer-s-projects.vercel.app,https://frontend-r1m1r-uer-s-projects.vercel.app
       - key: OPENAI_API_KEY
-        sync: false
-      - key: OPENAI_MODEL
-        value: gpt-4o-mini
-      - key: ERA_SERVER_SALT
-        fromService:
-          name: era-api
-          type: web
-          envVarKey: ERA_SERVER_SALT
-      - key: ERA_DEMO_MODE
-        value: "true"
+        value: ""

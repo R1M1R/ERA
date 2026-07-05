@@ -12,14 +12,15 @@ SaaS platform: AI historical riddles → LSB steganography in PNG → server-sid
 
 | Service | URL | Status |
 |---------|-----|--------|
-| Source code | [github.com/R1M1R/ERA](https://github.com/R1M1R/ERA) | ✅ Online |
-| Frontend (Vercel, 24/7) | [frontend-flax-two-11q4abvz2o.vercel.app](https://frontend-flax-two-11q4abvz2o.vercel.app) | ✅ Online |
-| Backend API (Render) | [era-api.onrender.com](https://era-api.onrender.com) | ⏳ Deploy required |
-| Full cloud product | — | ⏳ Needs Neon + Upstash keys |
+| **GitHub (source)** | **[github.com/R1M1R/ERA](https://github.com/R1M1R/ERA)** | ✅ Online |
+| **Frontend (Vercel, 24/7)** | **[frontend-flax-two-11q4abvz2o.vercel.app](https://frontend-flax-two-11q4abvz2o.vercel.app)** | ✅ Online |
+| **Backend API (Render)** | [era-api.onrender.com](https://era-api.onrender.com) | ⏳ One-click deploy (2 min) |
+| **Full cloud product** | — | ⏳ Deploy backend once (no keys needed) |
 
-> **Without your laptop:** frontend is already 24/7 on Vercel.  
-> **Generate/Gallery/Verify** in the cloud work after you deploy the backend (free, ~10 min):  
-> **[Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA)** + paste `DATABASE_URL` and `REDIS_URL` from [Neon](https://neon.tech) and [Upstash](https://upstash.com).
+> **24/7 without your laptop:** frontend is already live on Vercel.  
+> **One click** to enable Generate / Gallery / Verify in the cloud (free Render, **no Neon/Upstash keys**):  
+> **[Deploy backend on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA)** → sign in → Apply.  
+> First request after idle may take 30–90 s (Render free tier cold start).
 
 ## Links
 
@@ -32,7 +33,7 @@ SaaS platform: AI historical riddles → LSB steganography in PNG → server-sid
 | **One-click backend deploy** | [Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA) |
 | **Frontend deploy** | [Import on Vercel](https://vercel.com/new/clone?repository-url=https://github.com/R1M1R/ERA&project-name=era&root-directory=frontend) |
 
-> **24/7 without your laptop** requires **cloud deploy** (Render + Neon + Upstash + Vercel, free tier).  
+> **24/7 without your laptop:** Vercel frontend is live; click **[Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA)** once (lite mode, no database keys).  
 > Local mode (`GO.bat` / `AUTONOMOUS.bat`) works only while this PC is on.
 
 ---
@@ -59,34 +60,23 @@ Full guide: **[GETTING_STARTED.ru.md](GETTING_STARTED.ru.md)**
 
 ## Cloud 24/7 (laptop off)
 
-Stack: **Vercel** (frontend) → **Render** (API + Celery) → **Neon** (Postgres) + **Upstash** (Redis).
+Stack: **Vercel** (frontend, already live) → **Render** (API, one-click).
 
-### Step 1 — Free databases (5 min)
-
-1. [neon.tech](https://neon.tech) → create project → copy `DATABASE_URL`
-2. [upstash.com](https://upstash.com) → Redis → copy `rediss://...` URL
-
-### Step 2 — Backend on Render
+### Quick deploy (recommended, ~2 min, no keys)
 
 1. Open **[Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA)**
-2. Paste env vars from `.\scripts\paas-prep.ps1` or `.secrets.local`
-3. Set on **era-api** and **era-celery**: `DATABASE_URL`, `REDIS_URL`, `ERA_DEMO_MODE=true` (or real `OPENAI_API_KEY`)
+2. Sign in with GitHub → **Apply** (uses `render.yaml` lite mode: SQLite + in-process Celery)
+3. Wait until `era-api` is **Live** → open [frontend](https://frontend-flax-two-11q4abvz2o.vercel.app)
 
-### Step 3 — Frontend on Vercel
-
-1. [Import repo](https://vercel.com/new/clone?repository-url=https://github.com/R1M1R/ERA&project-name=era&root-directory=frontend)
-2. Env: `VITE_API_URL=https://YOUR-API.onrender.com`
-3. Deploy
-
-### Step 4 — CORS
-
-On Render `era-api`: `CORS_ORIGINS=https://YOUR-APP.vercel.app` → redeploy.
+CORS and demo mode are preconfigured. Gallery may reset after Render cold start on free tier.
 
 ```powershell
 .\scripts\verify-paas.ps1 -ApiUrl https://era-api.onrender.com -FullE2E
 ```
 
-Details: **[deploy/paas/README.md](deploy/paas/README.md)** · **[deploy/paas/CHECKLIST.md](deploy/paas/CHECKLIST.md)**
+### Full production (persistent Postgres + worker)
+
+For durable gallery data: Neon + Upstash + `render-full.yaml`. See **[deploy/paas/README.md](deploy/paas/README.md)**.
 
 ---
 

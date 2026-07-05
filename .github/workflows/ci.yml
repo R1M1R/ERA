@@ -104,13 +104,15 @@ jobs:
           print("paas image_bytes column ok")
           PY
 
-      - name: Validate render.yaml
+      - name: Validate Render blueprints
         run: |
           python -c "
           import pathlib
-          text = pathlib.Path('render.yaml').read_text()
-          assert 'era-api' in text and 'era-celery' in text
-          print('render.yaml ok')
+          lite = pathlib.Path('render.yaml').read_text()
+          full = pathlib.Path('render-full.yaml').read_text()
+          assert 'era-api' in lite and 'ERA_STANDALONE' in lite
+          assert 'era-api' in full and 'era-celery' in full
+          print('render.yaml + render-full.yaml ok')
           "
 
       - name: Validate production compose file
