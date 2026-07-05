@@ -2,134 +2,119 @@
 
 [![CI](https://github.com/R1M1R/ERA/actions/workflows/ci.yml/badge.svg)](https://github.com/R1M1R/ERA/actions/workflows/ci.yml)
 
-SaaS platform that autonomously generates historical riddles via LLM, seals them into procedural PNG artifacts using LSB steganography, and verifies authenticity server-side.
+SaaS platform: AI historical riddles → LSB steganography in PNG → server-side verification.
+
+## Links
+
+| Resource | URL |
+|----------|-----|
+| **GitHub (source code)** | **https://github.com/R1M1R/ERA** |
+| **Local app** (this PC) | http://localhost:5173 |
+| **Cloud API** (after deploy) | https://era-api.onrender.com |
+| **Cloud frontend** (after deploy) | https://era.vercel.app *(set in Vercel)* |
+| **One-click backend deploy** | [Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA) |
+| **Frontend deploy** | [Import on Vercel](https://vercel.com/new/clone?repository-url=https://github.com/R1M1R/ERA&project-name=era&root-directory=frontend) |
+
+> **24/7 without your laptop** requires **cloud deploy** (Render + Neon + Upstash + Vercel, free tier).  
+> Local mode (`GO.bat` / `AUTONOMOUS.bat`) works only while this PC is on.
+
+---
+
+## Quick start (Windows, no Docker)
+
+| Launcher | Purpose |
+|----------|---------|
+| **`GO.bat`** | Start API + frontend, open browser |
+| **`AUTONOMOUS.bat`** | Silent start + watchdog (self-heal) |
+| **`STATUS.bat`** | Check API / frontend / watchdog |
+| **`24x7.bat`** | Cloud deploy wizard (Neon + Upstash + Render + Vercel) |
+| **`SHARE.bat`** | Temporary public URL (Cloudflare tunnel) |
+
+```powershell
+git clone https://github.com/R1M1R/ERA.git
+cd ERA
+.\GO.bat
+```
+
+Full guide: **[GETTING_STARTED.ru.md](GETTING_STARTED.ru.md)**
+
+---
+
+## Cloud 24/7 (laptop off)
+
+Stack: **Vercel** (frontend) → **Render** (API + Celery) → **Neon** (Postgres) + **Upstash** (Redis).
+
+### Step 1 — Free databases (5 min)
+
+1. [neon.tech](https://neon.tech) → create project → copy `DATABASE_URL`
+2. [upstash.com](https://upstash.com) → Redis → copy `rediss://...` URL
+
+### Step 2 — Backend on Render
+
+1. Open **[Deploy on Render](https://render.com/deploy?repo=https://github.com/R1M1R/ERA)**
+2. Paste env vars from `.\scripts\paas-prep.ps1` or `.secrets.local`
+3. Set on **era-api** and **era-celery**: `DATABASE_URL`, `REDIS_URL`, `ERA_DEMO_MODE=true` (or real `OPENAI_API_KEY`)
+
+### Step 3 — Frontend on Vercel
+
+1. [Import repo](https://vercel.com/new/clone?repository-url=https://github.com/R1M1R/ERA&project-name=era&root-directory=frontend)
+2. Env: `VITE_API_URL=https://YOUR-API.onrender.com`
+3. Deploy
+
+### Step 4 — CORS
+
+On Render `era-api`: `CORS_ORIGINS=https://YOUR-APP.vercel.app` → redeploy.
+
+```powershell
+.\scripts\verify-paas.ps1 -ApiUrl https://era-api.onrender.com -FullE2E
+```
+
+Details: **[deploy/paas/README.md](deploy/paas/README.md)** · **[deploy/paas/CHECKLIST.md](deploy/paas/CHECKLIST.md)**
+
+---
 
 ## Stack
 
 | Layer | Technology |
-|---|---|
+|-------|------------|
 | API | FastAPI, Gunicorn, Uvicorn workers |
 | Workers | Celery, Redis |
-| Database | PostgreSQL, SQLAlchemy (asyncpg) |
-| AI | OpenAI |
+| Database | PostgreSQL / SQLite (standalone) |
+| AI | OpenAI (demo mode without key) |
 | Frontend | React, Vite, TypeScript, Tailwind CSS |
 
 ## Repository structure
 
 ```text
 ERA/
-├── backend/          # FastAPI app, steganography, LLM service
+├── backend/          # FastAPI, steganography, LLM
 ├── worker/           # Celery tasks
 ├── frontend/         # React SPA
-├── deploy/nginx/     # Nginx configs for production
-└── .github/workflows # CI/CD
+├── scripts/          # GO.bat, autonomous, deploy helpers
+├── render.yaml       # Render Blueprint (API + worker)
+└── .github/workflows # CI
 ```
 
-## Quick start (local development)
-
-**Без Docker** (рекомендуется) — двойной клик **`GO.bat`** или:
-
-```powershell
-.\scripts\restart-era.ps1
-```
-
-**С Docker:**
+## Local with Docker
 
 ```powershell
 .\scripts\ensure-docker.ps1
 .\scripts\start-era-local.ps1 -All
-.\scripts\smoke-test.ps1
-```
-
-**[GETTING_STARTED.ru.md](GETTING_STARTED.ru.md)** — полный гайд.
-
-## Production deployment
-
-### Free PaaS (recommended)
-
-**[deploy/paas/README.md](deploy/paas/README.md)** — Render + Neon + Upstash + Vercel ($0).
-
-```text
-Vercel (frontend) → Render (API + Celery) → Neon (Postgres) + Upstash (Redis)
-```
-
-Quick start: connect repo to Render Blueprint (`render.yaml`), then Vercel with `VITE_API_URL`.
-
-```powershell
-.\scripts\paas-prep.ps1    # generate env checklist for Render + Vercel
-.\scripts\verify-paas.ps1 -ApiUrl https://era-api.onrender.com
-```
-
-Checklist: [deploy/paas/CHECKLIST.md](deploy/paas/CHECKLIST.md)
-
-## Production — Oracle Cloud (бесплатно)
-
-See **[backend/README_DEPLOY.md](backend/README_DEPLOY.md)** for the full Ubuntu + Docker + Nginx guide.
-
-### Quick path (3 commands on server)
-
-```bash
-# 1. Bootstrap backend
-bash scripts/server-first-deploy.sh
-
-# 2. Nginx + TLS (replace domains and email)
-sudo bash scripts/setup-nginx.sh \
-  --api-domain api.your-domain.com \
-  --frontend-domain your-domain.com \
-  --email you@example.com
-
-# 3. Deploy frontend from GitHub Actions
-# Actions → Deploy Frontend → set VITE_API_URL=https://api.your-domain.com
-```
-
-### Generate production `.env` locally (Windows)
-
-```powershell
-.\scripts\generate-prod-env.ps1 -ApiDomain api.your-domain.com -FrontendDomain your-domain.com -OpenAiKey sk-...
-# Copy .env.production.generated to server as ~/ERA/.env
-```
-
-### Alternative: Vercel for frontend only
-
-1. Import repo in Vercel, set root directory to `frontend`
-2. Add env var `VITE_API_URL=https://api.your-domain.com`
-3. Deploy — `frontend/vercel.json` handles SPA routing
-
-### Oracle Cloud Always Free (recommended $0 VPS)
-
-Full guide: **[deploy/oracle-cloud/README.md](deploy/oracle-cloud/README.md)**
-
-```powershell
-# Full deploy in one command (IP-only, no domain):
-.\scripts\deploy-all-oci.ps1 -ServerIp YOUR_IP -IpOnly -OpenAiKey sk-...
-
-# Checklist: deploy/oracle-cloud/CHECKLIST.md
-# GitHub Actions secrets: .\scripts\setup-github-actions.ps1 -ServerIp YOUR_IP
-```
-
-```bash
-# On OCI Ubuntu instance after creating VM.Standard.A1.Flex:
-git clone https://github.com/R1M1R/ERA.git ~/ERA
-# copy .env to ~/ERA/.env first
-bash ~/ERA/scripts/oracle-cloud-bootstrap.sh
-```
-
-```bash
-git clone https://github.com/R1M1R/ERA.git
-cd ERA
-cp .env.example .env
-docker compose --env-file .env -f backend/production.docker-compose.yml up -d --build
 ```
 
 ## API endpoints
 
 | Method | Path | Description |
-|---|---|---|
-| `POST` | `/generate` | Queue autonomous artifact generation |
-| `GET` | `/status/{id}` | Poll generation status |
+|--------|------|-------------|
+| `POST` | `/generate` | Queue artifact generation |
+| `GET` | `/status/{id}` | Poll task status |
 | `GET` | `/artifacts` | Paginated gallery |
-| `POST` | `/verify` | Proof-of-authenticity check |
+| `POST` | `/verify` | Authenticity check |
 | `GET` | `/health` | Health probe |
+
+## Production — Oracle Cloud VPS
+
+See **[deploy/oracle-cloud/README.md](deploy/oracle-cloud/README.md)** and **[backend/README_DEPLOY.md](backend/README_DEPLOY.md)**.
 
 ## License
 

@@ -1,0 +1,50 @@
+name: Deploy PaaS (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: "Render API URL for VITE_API_URL"
+        required: true
+        default: "https://era-api.onrender.com"
+
+jobs:
+  build-frontend:
+    if: github.repository == 'R1M1R/ERA'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend for production API
+        working-directory: frontend
+        env:
+          VITE_API_URL: ${{ inputs.api_url }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload frontend dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: era-frontend-dist
+          path: frontend/dist/
+          retention-days: 7
+
+  verify-api:
+    if: github.repository == 'R1M1R/ERA'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Render API health
+        run: |
+          echo "Checking ${{ inputs.api_url }}/health"
+          curl -fsS "${{ inputs.api_url }}/health" || {
+            echo "::warning::API not reachable. Complete Render deploy first:"
+            echo "https://render.com/deploy?repo=https://github.com/R1M1R/ERA"
+            exit 0
+          }
