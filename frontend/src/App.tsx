@@ -7,7 +7,9 @@ import { GallerySection } from './components/GallerySection'
 import { GenerationProgress } from './components/GenerationProgress'
 import { AppFooter } from './components/AppFooter'
 import { CloudBanner } from './components/CloudBanner'
+import { KeyboardHelp } from './components/KeyboardHelp'
 import { MobileNav } from './components/MobileNav'
+import { StatusDashboard } from './components/StatusDashboard'
 import { WelcomeModal } from './components/WelcomeModal'
 import { SectionNav } from './components/SectionNav'
 import { Toast } from './components/Toast'
@@ -87,6 +89,8 @@ function App() {
 
       <SectionNav />
 
+      <StatusDashboard artifactTotal={gallery.total} />
+
       <CloudBanner />
 
       <main className="grid gap-8">
@@ -139,6 +143,7 @@ function App() {
 
       <WelcomeModal />
       <MobileNav />
+      <KeyboardHelp />
     </div>
   )
 }
