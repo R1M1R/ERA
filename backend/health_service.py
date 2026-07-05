@@ -44,6 +44,10 @@ async def collect_health_status() -> dict[str, Any]:
 
     demo_mode = is_demo_mode()
     webhook_secret = os.getenv("LEMONSQUEEZY_WEBHOOK_SECRET", "").strip()
+    database_persistent = has_external_database()
+    billing_configured = bool(webhook_secret)
+    openai_for_pro = is_openai_configured()
+    production_ready = database_persistent and billing_configured and openai_for_pro
     if is_standalone_mode():
         overall = "ok" if checks["database"] == "ok" else "degraded"
     else:
@@ -57,7 +61,8 @@ async def collect_health_status() -> dict[str, Any]:
         "demo_mode": demo_mode,
         "standalone_mode": is_standalone_mode(),
         "openai_configured": is_openai_configured(),
-        "openai_for_pro": is_openai_configured(),
-        "billing_configured": bool(webhook_secret),
-        "database_persistent": has_external_database(),
+        "openai_for_pro": openai_for_pro,
+        "billing_configured": billing_configured,
+        "database_persistent": database_persistent,
+        "production_ready": production_ready,
     }

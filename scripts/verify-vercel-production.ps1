@@ -56,6 +56,8 @@ $ok = (Test-Endpoint "GET /health" "/health" -Assert {
 if ($health) {
     Write-Host ""
     Write-Host "  Health flags:"
+    $ready = $health.production_ready
+    Write-Host "    $(if ($ready) { '[OK]' } else { '[--]' }) production_ready = $ready"
     foreach ($flag in @(
             @{ Name = "database_persistent"; Hint = "Run scripts/setup-neon-vercel.ps1" },
             @{ Name = "billing_configured"; Hint = "Run scripts/setup-lemonsqueezy-webhook.ps1" },
@@ -113,7 +115,7 @@ try {
 
 Write-Host ""
 if ($ok) {
-    $ready = $health.database_persistent -and $health.billing_configured -and $health.openai_for_pro
+    $ready = $health.production_ready
     if ($ready) {
         Write-Host "[ERA] Production fully configured and operational."
     } else {

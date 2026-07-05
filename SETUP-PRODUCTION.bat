@@ -20,4 +20,7 @@ echo.
 echo  Verify:
 echo    VERIFY-PRODUCTION.bat
 echo.
+echo  After filling .secrets.local:
+echo    SYNC-VERCEL.bat
+echo.
 pause

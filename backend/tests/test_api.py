@@ -21,6 +21,7 @@ def test_health_exposes_operational_flags(api_client) -> None:
     assert "openai_for_pro" in payload
     assert "billing_configured" in payload
     assert "database_persistent" in payload
+    assert "production_ready" in payload
 
 
 def test_openapi_documents_core_routes(api_client) -> None:

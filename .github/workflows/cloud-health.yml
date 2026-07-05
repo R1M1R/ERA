@@ -30,6 +30,7 @@ jobs:
           import json
           data = json.load(open('health.json'))
           flags = {
+              'production_ready': 'Complete owner setup: SETUP-PRODUCTION.bat + SYNC-VERCEL.bat',
               'database_persistent': 'Set DATABASE_URL on Vercel (scripts/setup-neon-vercel.ps1)',
               'billing_configured': 'Set LEMONSQUEEZY_WEBHOOK_SECRET on Vercel',
               'openai_for_pro': 'Set OPENAI_API_KEY on Vercel for Pro GPT riddles',

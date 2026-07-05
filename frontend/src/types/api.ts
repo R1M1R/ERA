@@ -90,4 +90,5 @@ export interface HealthResponse {
   openai_for_pro?: boolean
   billing_configured?: boolean
   database_persistent?: boolean
+  production_ready?: boolean
 }

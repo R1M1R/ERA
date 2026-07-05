@@ -12,6 +12,7 @@ export interface ApiHealthInfo {
   billingConfigured: boolean
   databasePersistent: boolean
   openaiForPro: boolean
+  productionReady: boolean
 }
 
 const DEFAULT_INFO: ApiHealthInfo = {
@@ -21,6 +22,7 @@ const DEFAULT_INFO: ApiHealthInfo = {
   billingConfigured: false,
   databasePersistent: false,
   openaiForPro: false,
+  productionReady: false,
 }
 
 function mapHealthState(payload: HealthResponse): ApiHealthState {
@@ -56,6 +58,7 @@ export function useApiHealth(): ApiHealthInfo {
           billingConfigured: payload.billing_configured === true,
           databasePersistent: payload.database_persistent === true,
           openaiForPro: payload.openai_for_pro === true,
+          productionReady: payload.production_ready === true,
         })
       } catch {
         if (!cancelled) {
