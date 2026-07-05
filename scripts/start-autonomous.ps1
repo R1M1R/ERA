@@ -54,17 +54,29 @@ if (Test-StackHealthy) {
 
 if ($WithWatchdog) {
     $watchdogScript = Join-Path $PSScriptRoot "watchdog.ps1"
-    $already = Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" -ErrorAction SilentlyContinue |
-        Where-Object { $_.CommandLine -like "*watchdog.ps1*" }
-    if (-not $already) {
-        Start-Process powershell -ArgumentList @(
-            "-NoProfile", "-ExecutionPolicy", "Bypass",
-            "-WindowStyle", "Hidden",
-            "-File", $watchdogScript
-        ) -WorkingDirectory $Root.Path | Out-Null
-        Write-Log "Watchdog started in background"
+    $pidFile = Join-Path $Root "logs\watchdog.pid"
+    $watchdogRunning = $false
+
+    if (Test-Path $pidFile) {
+        $savedPid = Get-Content $pidFile -ErrorAction SilentlyContinue
+        if ($savedPid -match '^\d+$') {
+            $proc = Get-Process -Id ([int]$savedPid) -ErrorAction SilentlyContinue
+            $watchdogRunning = $null -ne $proc
+        }
+    }
+
+    if (-not $watchdogRunning) {
+        $launcher = Join-Path $PSScriptRoot "watchdog-launcher.cmd"
+        $wd = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "`"$launcher`"" -WindowStyle Hidden -PassThru
+        Start-Sleep -Seconds 2
+        if (Test-Path $pidFile) {
+            $savedPid = (Get-Content $pidFile -ErrorAction SilentlyContinue).Trim()
+            Write-Log "Watchdog started (pid $savedPid, launcher $($wd.Id))"
+        } else {
+            Write-Log "Watchdog launcher started (pid $($wd.Id)), waiting for PID file..."
+        }
     } else {
-        Write-Log "Watchdog already running"
+        Write-Log "Watchdog already running (pid $savedPid)"
     }
 }
 

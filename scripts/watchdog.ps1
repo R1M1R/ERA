@@ -5,12 +5,19 @@ param(
 $ErrorActionPreference = "Continue"
 $Root = Resolve-Path (Join-Path $PSScriptRoot "..")
 $LogFile = Join-Path $Root "logs\era-watchdog.log"
+$PidFile = Join-Path $Root "logs\watchdog.pid"
 
 function Write-Log([string]$Message) {
     $line = "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] $Message"
     $logDir = Split-Path $LogFile -Parent
     if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Force -Path $logDir | Out-Null }
     Add-Content -Path $LogFile -Value $line -Encoding UTF8
+}
+
+try {
+    Set-Content -Path $PidFile -Value $PID -Encoding ASCII -NoNewline
+} catch {
+    Write-Log "Could not write PID file: $_"
 }
 
 function Test-Healthy {
@@ -23,7 +30,7 @@ function Test-Healthy {
     }
 }
 
-Write-Log "Watchdog started (interval ${IntervalSec}s)"
+Write-Log "Watchdog started pid=$PID (interval ${IntervalSec}s)"
 
 $tick = 0
 while ($true) {
