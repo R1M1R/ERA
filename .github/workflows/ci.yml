@@ -91,6 +91,8 @@ jobs:
           ERA_STANDALONE: "true"
           ERA_DEMO_MODE: "true"
           ERA_SERVER_SALT: ci-test-salt
+          DATABASE_URL: ""
+          DATABASE_URL_SYNC: ""
         run: pytest backend/tests -q
 
       - name: E2E standalone mode (SQLite + in-process Celery)
@@ -99,6 +101,8 @@ jobs:
           ERA_STANDALONE: "true"
           ERA_DEMO_MODE: "true"
           ERA_SERVER_SALT: ci-test-salt
+          DATABASE_URL: ""
+          DATABASE_URL_SYNC: ""
         run: python backend/scripts/e2e_standalone.py
 
       - name: Verify PaaS artifact model

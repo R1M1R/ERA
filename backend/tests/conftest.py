@@ -21,7 +21,15 @@ for path in (str(PROJECT_ROOT), str(BACKEND_DIR)):
 os.environ.setdefault("ERA_STANDALONE", "true")
 os.environ.setdefault("ERA_DEMO_MODE", "true")
 os.environ.setdefault("ERA_SERVER_SALT", "pytest-era-salt")
-for key in ("VERCEL", "VERCEL_ENV", "CELERY_BROKER_URL", "CELERY_RESULT_BACKEND", "REDIS_URL"):
+for key in (
+    "VERCEL",
+    "VERCEL_ENV",
+    "DATABASE_URL",
+    "DATABASE_URL_SYNC",
+    "CELERY_BROKER_URL",
+    "CELERY_RESULT_BACKEND",
+    "REDIS_URL",
+):
     os.environ.pop(key, None)
 
 TEST_DB_PATH = BACKEND_DIR / ".pytest_era.db"

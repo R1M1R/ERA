@@ -19,7 +19,15 @@ def configure_standalone_env() -> None:
     os.environ["ERA_STANDALONE"] = "true"
     os.environ["ERA_DEMO_MODE"] = "true"
     os.environ.setdefault("ERA_SERVER_SALT", "e2e-standalone-salt")
-    for key in ("VERCEL", "VERCEL_ENV", "CELERY_BROKER_URL", "CELERY_RESULT_BACKEND", "REDIS_URL"):
+    for key in (
+        "VERCEL",
+        "VERCEL_ENV",
+        "DATABASE_URL",
+        "DATABASE_URL_SYNC",
+        "CELERY_BROKER_URL",
+        "CELERY_RESULT_BACKEND",
+        "REDIS_URL",
+    ):
         os.environ.pop(key, None)
     db_path = PROJECT_ROOT / "backend" / ".e2e_standalone.db"
     os.environ["ERA_STANDALONE_DB_PATH"] = str(db_path)
