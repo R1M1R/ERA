@@ -61,7 +61,7 @@ function App() {
       try {
         const response = await fetch(resolveArtifactImageUrl(imageUrl))
         if (!response.ok) {
-          throw new Error('Failed to load artifact image.')
+          throw new Error(t('galleryImageLoadFailed'))
         }
         const blob = await response.blob()
         const file = new File([blob], 'era-artifact.png', { type: blob.type || 'image/png' })
@@ -69,7 +69,7 @@ function App() {
         document.getElementById('decoder-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         showToast(t('toastDecoder'), 'info')
       } catch (loadError) {
-        const message = loadError instanceof Error ? loadError.message : 'Failed to load image.'
+        const message = loadError instanceof Error ? loadError.message : t('galleryImageLoadFailed')
         showToast(message, 'error')
       }
     },

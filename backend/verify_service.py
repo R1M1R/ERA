@@ -13,6 +13,30 @@ from backend.steganography import (
     SteganographyGenerator,
     compute_authenticity_hash,
 )
+from backend.verify_messages import (
+    VERIFY_AUTHENTIC,
+    VERIFY_FAKE_CORRUPTED,
+    VERIFY_FAKE_HASH_MISMATCH,
+    VERIFY_FAKE_NOT_IN_ARCHIVE,
+)
+
+
+def _fake_response(
+    *,
+    message_key: str,
+    detail: str,
+    text: str | None = None,
+    authenticity_hash: str | None = None,
+) -> dict[str, str | bool | None]:
+    return {
+        "status": "fake",
+        "message_key": message_key,
+        "message": message_key,
+        "text": text,
+        "authenticity_hash": authenticity_hash,
+        "verified": False,
+        "detail": detail,
+    }
 
 
 async def verify_artifact_image(image_bytes: bytes) -> dict[str, str | bool | None]:
@@ -23,53 +47,43 @@ async def verify_artifact_image(image_bytes: bytes) -> dict[str, str | bool | No
         image = Image.open(BytesIO(image_bytes)).convert("RGB")
         payload = generator.decode_authenticated_payload_from_image(image)
     except SteganographyError as exc:
-        return {
-            "status": "fake",
-            "message": "Fake / Corrupted Data",
-            "text": None,
-            "authenticity_hash": None,
-            "verified": False,
-            "detail": str(exc),
-        }
+        return _fake_response(
+            message_key=VERIFY_FAKE_CORRUPTED,
+            detail=str(exc),
+        )
 
     try:
         expected_hash = compute_authenticity_hash(payload.text)
     except SteganographyError as exc:
-        return {
-            "status": "fake",
-            "message": "Fake / Corrupted Data",
-            "text": None,
-            "authenticity_hash": payload.authenticity_hash,
-            "verified": False,
-            "detail": str(exc),
-        }
+        return _fake_response(
+            message_key=VERIFY_FAKE_CORRUPTED,
+            detail=str(exc),
+            authenticity_hash=payload.authenticity_hash,
+        )
 
     display_text = presentation_riddle(payload.text)
 
     if payload.authenticity_hash != expected_hash:
-        return {
-            "status": "fake",
-            "message": "Fake / Corrupted Data",
-            "text": display_text,
-            "authenticity_hash": payload.authenticity_hash,
-            "verified": False,
-            "detail": "Embedded authenticity hash does not match server recomputation.",
-        }
+        return _fake_response(
+            message_key=VERIFY_FAKE_HASH_MISMATCH,
+            detail="Embedded authenticity hash does not match server recomputation.",
+            text=display_text,
+            authenticity_hash=payload.authenticity_hash,
+        )
 
     db_record = await get_artifact_by_authenticity_hash(payload.authenticity_hash)
     if db_record is None:
-        return {
-            "status": "fake",
-            "message": "Fake / Corrupted Data",
-            "text": display_text,
-            "authenticity_hash": payload.authenticity_hash,
-            "verified": False,
-            "detail": "Authenticity hash was not found in the ERA archive.",
-        }
+        return _fake_response(
+            message_key=VERIFY_FAKE_NOT_IN_ARCHIVE,
+            detail="Authenticity hash was not found in the ERA archive.",
+            text=display_text,
+            authenticity_hash=payload.authenticity_hash,
+        )
 
     return {
         "status": "authentic",
-        "message": "Подлинный артефакт",
+        "message_key": VERIFY_AUTHENTIC,
+        "message": VERIFY_AUTHENTIC,
         "text": display_text,
         "authenticity_hash": payload.authenticity_hash,
         "verified": True,

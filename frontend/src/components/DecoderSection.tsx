@@ -2,7 +2,26 @@ import { useCallback, useState, type DragEvent } from 'react'
 
 import { useI18n } from '../hooks/useI18n'
 import { useTypewriter } from '../hooks/useTypewriter'
+import type { TranslationKey } from '../lib/i18n'
 import type { VerifyResponse } from '../types/api'
+
+const VERIFY_MESSAGE_KEYS = new Set<TranslationKey>([
+  'verify_authentic',
+  'verify_fake_corrupted',
+  'verify_fake_hash_mismatch',
+  'verify_fake_not_in_archive',
+])
+
+function resolveVerifyMessage(
+  verification: VerifyResponse,
+  t: (key: TranslationKey) => string,
+): string {
+  const key = verification.message_key
+  if (key && VERIFY_MESSAGE_KEYS.has(key as TranslationKey)) {
+    return t(key as TranslationKey)
+  }
+  return verification.detail ?? verification.message
+}
 
 interface DecoderSectionProps {
   previewUrl: string | null
@@ -19,10 +38,12 @@ function VerificationBadge({
   verification,
   verifiedLabel,
   fakeLabel,
+  message,
 }: {
   verification: VerifyResponse | null
   verifiedLabel: string
   fakeLabel: string
+  message: string
 }) {
   if (!verification) return null
 
@@ -34,7 +55,7 @@ function VerificationBadge({
         </span>
         <div>
           <p className="text-sm font-semibold text-emerald-200">{verifiedLabel}</p>
-          <p className="text-xs text-emerald-300/80">{verification.message}</p>
+          <p className="text-xs text-emerald-300/80">{message}</p>
         </div>
       </div>
     )
@@ -47,7 +68,7 @@ function VerificationBadge({
       </span>
       <div>
         <p className="text-sm font-semibold text-red-200">{fakeLabel}</p>
-        <p className="text-xs text-red-300/80">{verification.detail ?? verification.message}</p>
+        <p className="text-xs text-red-300/80">{message}</p>
       </div>
     </div>
   )
@@ -164,6 +185,7 @@ export function DecoderSection({
               verification={verification}
               verifiedLabel={t('verifiedServer')}
               fakeLabel={t('fakeCorrupted')}
+              message={verification ? resolveVerifyMessage(verification, t) : ''}
             />
             {error && !verification?.verified ? (
               <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">

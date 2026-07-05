@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { fetchTaskStatus } from '../lib/api'
+import { useI18n } from './useI18n'
 import type { TaskStatusResponse } from '../types/api'
 
 const DEFAULT_INTERVAL_MS = 1500
@@ -20,6 +21,7 @@ export function useTaskPolling(
   taskId: string | null,
   options: UseTaskPollingOptions = {},
 ): UseTaskPollingResult {
+  const { t } = useI18n()
   const { intervalMs = DEFAULT_INTERVAL_MS, onCompleted } = options
   const [status, setStatus] = useState<TaskStatusResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -57,10 +59,7 @@ export function useTaskPolling(
 
         setIsPolling(false)
 
-        if (
-          nextStatus.status === 'completed' &&
-          completedTaskIdRef.current !== taskId
-        ) {
+        if (nextStatus.status === 'completed' && completedTaskIdRef.current !== taskId) {
           completedTaskIdRef.current = taskId
           onCompleted?.()
         }
@@ -69,7 +68,7 @@ export function useTaskPolling(
           return
         }
 
-        const message = pollError instanceof Error ? pollError.message : 'Failed to fetch task status.'
+        const message = pollError instanceof Error ? pollError.message : t('taskStatusFailed')
         setError(message)
         setIsPolling(false)
       }
@@ -83,7 +82,7 @@ export function useTaskPolling(
         window.clearTimeout(timeoutId)
       }
     }
-  }, [taskId, intervalMs, onCompleted])
+  }, [taskId, intervalMs, onCompleted, t])
 
   return { status, error, isPolling }
 }

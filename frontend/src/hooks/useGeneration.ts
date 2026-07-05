@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 
 import { submitGeneration } from '../lib/api'
+import { useI18n } from './useI18n'
 import type { TaskStatusResponse } from '../types/api'
 import { useTaskPolling } from './useTaskPolling'
 
@@ -15,6 +16,7 @@ interface UseGenerationResult {
 }
 
 export function useGeneration(onCompleted?: () => void): UseGenerationResult {
+  const { t } = useI18n()
   const [taskId, setTaskId] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,12 +33,12 @@ export function useGeneration(onCompleted?: () => void): UseGenerationResult {
       const response = await submitGeneration()
       setTaskId(response.task_id)
     } catch (submitError) {
-      const message = submitError instanceof Error ? submitError.message : 'Failed to queue generation.'
+      const message = submitError instanceof Error ? submitError.message : t('generationQueueFailed')
       setError(message)
     } finally {
       setIsSubmitting(false)
     }
-  }, [])
+  }, [t])
 
   const reset = useCallback(() => {
     setTaskId(null)

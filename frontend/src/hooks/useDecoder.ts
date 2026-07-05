@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { verifyArtifact } from '../lib/api'
+import { useI18n } from './useI18n'
 import type { VerifyResponse } from '../types/api'
 
 interface UseDecoderResult {
@@ -16,6 +17,7 @@ interface UseDecoderResult {
 }
 
 export function useDecoder(): UseDecoderResult {
+  const { t } = useI18n()
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [decodedText, setDecodedText] = useState<string | null>(null)
@@ -53,7 +55,7 @@ export function useDecoder(): UseDecoderResult {
   const verify = useCallback(async () => {
     const targetFile = latestFileRef.current
     if (!targetFile) {
-      setError('Upload an artifact image to verify.')
+      setError(t('decoderUploadRequired'))
       return
     }
 
@@ -71,17 +73,17 @@ export function useDecoder(): UseDecoderResult {
         setError(null)
       } else {
         setDecodedText(result.text ?? null)
-        setError(result.message || 'Fake / Corrupted Data')
+        setError(t('fakeCorrupted'))
       }
     } catch (verifyError) {
-      const message = verifyError instanceof Error ? verifyError.message : 'Verification failed.'
+      const message = verifyError instanceof Error ? verifyError.message : t('decoderVerifyFailed')
       setVerification(null)
       setDecodedText(null)
       setError(message)
     } finally {
       setIsVerifying(false)
     }
-  }, [])
+  }, [t])
 
   useEffect(() => {
     if (!file) {

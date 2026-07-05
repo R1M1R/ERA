@@ -53,6 +53,7 @@ export interface ArtifactListResponse {
 export interface VerifyResponse {
   status: 'authentic' | 'fake'
   message: string
+  message_key?: string | null
   verified: boolean
   text?: string | null
   authenticity_hash?: string | null

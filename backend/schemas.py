@@ -57,6 +57,7 @@ class VerifyResponse(BaseModel):
 
     status: Literal["authentic", "fake"]
     message: str
+    message_key: str | None = None
     verified: bool
     text: str | None = None
     authenticity_hash: str | None = None

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { fetchArtifacts } from '../lib/api'
+import { useI18n } from './useI18n'
 import type { ArtifactItem } from '../types/api'
 
 interface UseArtifactsOptions {
@@ -20,6 +21,7 @@ interface UseArtifactsResult {
 }
 
 export function useArtifacts(options: UseArtifactsOptions = {}): UseArtifactsResult {
+  const { t } = useI18n()
   const { pageSize = 12, refreshKey = 0 } = options
   const [page, setPage] = useState(1)
   const [items, setItems] = useState<ArtifactItem[]>([])
@@ -51,7 +53,7 @@ export function useArtifacts(options: UseArtifactsOptions = {}): UseArtifactsRes
         setTotal(response.total)
       } catch (loadError) {
         if (!cancelled) {
-          const message = loadError instanceof Error ? loadError.message : 'Failed to load artifacts.'
+          const message = loadError instanceof Error ? loadError.message : t('galleryLoadFailed')
           setError(message)
         }
       } finally {
@@ -66,7 +68,7 @@ export function useArtifacts(options: UseArtifactsOptions = {}): UseArtifactsRes
     return () => {
       cancelled = true
     }
-  }, [page, pageSize, refreshKey, reloadToken])
+  }, [page, pageSize, refreshKey, reloadToken, t])
 
   return {
     items,

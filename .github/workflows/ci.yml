@@ -85,18 +85,13 @@ jobs:
           print("pipeline result serialization ok")
           PY
 
-      - name: Test public result sanitization
-        env:
-          PYTHONPATH: ${{ github.workspace }}
-        run: python backend/scripts/test_public_result.py
-
-      - name: Test Pro license service
+      - name: Run backend pytest suite
         env:
           PYTHONPATH: ${{ github.workspace }}
           ERA_STANDALONE: "true"
           ERA_DEMO_MODE: "true"
           ERA_SERVER_SALT: ci-test-salt
-        run: python backend/scripts/test_pro_service.py
+        run: pytest backend/tests -q
 
       - name: E2E standalone mode (SQLite + in-process Celery)
         env:
@@ -160,6 +155,10 @@ jobs:
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint
 
       - name: Build frontend
         working-directory: frontend

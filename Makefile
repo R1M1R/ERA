@@ -1,4 +1,4 @@
-.PHONY: dev-infra dev-api dev-worker dev-frontend build-frontend prod-config prod-up prod-config-oci
+.PHONY: dev-infra dev-api dev-worker dev-frontend build-frontend test prod-config prod-up prod-config-oci
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 export PYTHONPATH := $(ROOT)
@@ -19,6 +19,10 @@ dev-frontend:
 
 build-frontend:
 	cd frontend && VITE_API_URL=$(VITE_API_URL) npm run build
+
+test:
+	pytest backend/tests -q
+	cd frontend && npm run lint && npm run build
 
 prod-config:
 	docker compose --env-file $(ROOT)/.env -f backend/production.docker-compose.yml config

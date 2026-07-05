@@ -1,5 +1,5 @@
-import { getStepIndex } from '../lib/pipeline'
 import { resolveArtifactImageUrl } from '../lib/api'
+import { getStepIndex } from '../lib/pipeline'
 import { useI18n } from '../hooks/useI18n'
 import { getPipelineSteps } from '../lib/i18n'
 import type { TaskStatusResponse } from '../types/api'
