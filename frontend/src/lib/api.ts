@@ -1,6 +1,7 @@
 import type {
   ArtifactListResponse,
   GenerateResponse,
+  HealthResponse,
   ProActivateResponse,
   ProStatusResponse,
   TaskStatusResponse,
@@ -33,6 +34,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   return response.json() as Promise<T>
+}
+
+export async function fetchHealth(): Promise<HealthResponse> {
+  return request<HealthResponse>('/health')
 }
 
 export async function submitGeneration(): Promise<GenerateResponse> {

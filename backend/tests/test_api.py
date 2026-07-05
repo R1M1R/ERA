@@ -30,6 +30,14 @@ def test_openapi_documents_core_routes(api_client) -> None:
     paths = response.json()["paths"]
     for route in ("/health", "/generate", "/verify", "/pro/status", "/pro/activate", "/webhooks/lemonsqueezy"):
         assert route in paths, f"missing {route}"
+    tagged = {
+        operation.get("tags", [])[0]
+        for path_item in paths.values()
+        for operation in path_item.values()
+        if operation.get("tags")
+    }
+    assert "Health" in tagged
+    assert "Pro" in tagged
 
 
 def test_pro_status_without_key_is_free_tier(api_client) -> None:
@@ -49,6 +57,12 @@ def test_pro_activate_unknown_email_uses_generic_message(api_client) -> None:
 def test_pro_activate_rejects_invalid_email(api_client) -> None:
     response = api_client.post("/pro/activate", json={"email": "not-an-email"})
     assert response.status_code == 422
+    assert response.headers.get("X-Request-ID")
+
+
+def test_health_production_ready_false_in_standalone_tests(api_client) -> None:
+    payload = api_client.get("/health").json()
+    assert payload["production_ready"] is False
 
 
 def test_webhook_rejects_invalid_signature(api_client) -> None:

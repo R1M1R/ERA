@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { getApiBaseUrl } from '../lib/api'
+import { fetchHealth } from '../lib/api'
 import type { HealthResponse } from '../types/api'
 
 export type ApiHealthState = 'checking' | 'ok' | 'degraded' | 'down'
@@ -41,14 +41,7 @@ export function useApiHealth(): ApiHealthInfo {
 
     async function check() {
       try {
-        const response = await fetch(`${getApiBaseUrl()}/health`, {
-          signal: AbortSignal.timeout(15_000),
-        })
-        if (!response.ok) {
-          if (!cancelled) setInfo({ ...DEFAULT_INFO, state: 'down' })
-          return
-        }
-        const payload = (await response.json()) as HealthResponse
+        const payload: HealthResponse = await fetchHealth()
         if (cancelled) return
 
         setInfo({

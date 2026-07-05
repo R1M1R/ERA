@@ -17,6 +17,8 @@ os.environ.setdefault("VERCEL", "1")
 os.environ.setdefault("ERA_STANDALONE", "true")
 os.environ.setdefault("ERA_DEMO_MODE", "true")
 
+import logging_config  # noqa: F401
+
 from mangum import Mangum  # noqa: E402
 
 from main import app  # noqa: E402

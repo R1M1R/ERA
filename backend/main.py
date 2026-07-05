@@ -58,6 +58,14 @@ app = FastAPI(
     description="SaaS API for generating steganographic historical artifacts",
     version="0.4.0",
     lifespan=lifespan,
+    openapi_tags=[
+        {"name": "Health", "description": "Service health and readiness probes."},
+        {"name": "Generation", "description": "Artifact generation pipeline."},
+        {"name": "Gallery", "description": "Public artifact archive."},
+        {"name": "Verification", "description": "Proof-of-authenticity checks."},
+        {"name": "Pro", "description": "Pro subscription licensing."},
+        {"name": "Webhooks", "description": "Payment provider callbacks."},
+    ],
 )
 
 CORS_ORIGINS = get_cors_origins()
@@ -126,12 +134,12 @@ async def root() -> dict[str, str]:
     return {"message": "ERA API is running"}
 
 
-@app.get("/health")
+@app.get("/health", tags=["Health"])
 async def health() -> dict[str, Any]:
     return await collect_health_status()
 
 
-@app.post("/generate", response_model=GenerateResponse, status_code=status.HTTP_202_ACCEPTED)
+@app.post("/generate", response_model=GenerateResponse, status_code=status.HTTP_202_ACCEPTED, tags=["Generation"])
 async def generate_artifact(
     request: Request,
     x_era_pro_key: str | None = Header(default=None, alias="X-ERA-Pro-Key"),
@@ -149,14 +157,14 @@ async def generate_artifact(
     return GenerateResponse(task_id=task_id, tier="pro" if has_license else "demo")
 
 
-@app.get("/status/{task_id}", response_model=TaskStatusResponse)
+@app.get("/status/{task_id}", response_model=TaskStatusResponse, tags=["Generation"])
 async def get_generation_status(task_id: str) -> TaskStatusResponse:
     """Return the current status and result of a generation job."""
     async_result = AsyncResult(task_id, app=celery_app)
     return _map_celery_state(async_result)
 
 
-@app.get("/artifacts", response_model=ArtifactListResponse)
+@app.get("/artifacts", response_model=ArtifactListResponse, tags=["Gallery"])
 async def get_artifacts(
     page: int = Query(1, ge=1, description="Page number starting from 1."),
     page_size: int = Query(12, ge=1, le=100, description="Number of artifacts per page."),
@@ -166,7 +174,7 @@ async def get_artifacts(
     return ArtifactListResponse(**payload)
 
 
-@app.get("/artifacts/{public_hash}/image")
+@app.get("/artifacts/{public_hash}/image", tags=["Gallery"])
 async def get_artifact_image(public_hash: str) -> FileResponse:
     """Serve the PNG file associated with a public artifact hash."""
     artifact = await get_artifact_by_public_hash(public_hash)
@@ -187,7 +195,7 @@ async def get_artifact_image(public_hash: str) -> FileResponse:
     return FileResponse(image_path, media_type="image/png", filename=f"era-{public_hash}.png")
 
 
-@app.post("/verify", response_model=VerifyResponse)
+@app.post("/verify", response_model=VerifyResponse, tags=["Verification"])
 async def verify_artifact(request: Request, file: UploadFile = File(...)) -> VerifyResponse:
     """Verify proof-of-authenticity for an uploaded artifact image."""
     _enforce_rate_limit(request, scope="verify", max_calls=30, window_seconds=60)
@@ -214,7 +222,7 @@ async def verify_artifact(request: Request, file: UploadFile = File(...)) -> Ver
     return VerifyResponse(**result)
 
 
-@app.get("/pro/status", response_model=ProStatusResponse)
+@app.get("/pro/status", response_model=ProStatusResponse, tags=["Pro"])
 async def pro_status(
     x_era_pro_key: str | None = Header(default=None, alias="X-ERA-Pro-Key"),
 ) -> ProStatusResponse:
@@ -223,7 +231,7 @@ async def pro_status(
     return ProStatusResponse(**payload)
 
 
-@app.post("/pro/activate", response_model=ProActivateResponse)
+@app.post("/pro/activate", response_model=ProActivateResponse, tags=["Pro"])
 async def pro_activate(request: Request, body: ProActivateRequest) -> ProActivateResponse:
     """Return the Pro API key for an active Lemon Squeezy subscription email."""
     _enforce_rate_limit(request, scope="pro-activate", max_calls=8, window_seconds=300)
@@ -238,7 +246,7 @@ async def pro_activate(request: Request, body: ProActivateRequest) -> ProActivat
     return ProActivateResponse(**payload)
 
 
-@app.post("/webhooks/lemonsqueezy")
+@app.post("/webhooks/lemonsqueezy", tags=["Webhooks"])
 async def lemon_squeezy_webhook(request: Request) -> dict[str, str]:
     """Handle Lemon Squeezy subscription lifecycle events."""
     import json

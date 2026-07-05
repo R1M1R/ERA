@@ -1,5 +1,6 @@
 param(
-    [string]$WebhookSecret = ""
+    [string]$WebhookSecret = "",
+    [switch]$SyncVercel
 )
 
 $ErrorActionPreference = "Stop"
@@ -56,6 +57,10 @@ Write-Host "  cd `"$Root`""
 Write-Host "  echo $WebhookSecret | npx vercel env add LEMONSQUEEZY_WEBHOOK_SECRET production"
 Write-Host "  npx vercel --prod"
 Write-Host ""
+
+if ($SyncVercel) {
+    & (Join-Path $PSScriptRoot "sync-vercel-env.ps1") -Deploy
+}
 
 $open = Read-Host "Open Lemon Squeezy webhooks page? [Y/n]"
 if ($open -ne 'n' -and $open -ne 'N') {

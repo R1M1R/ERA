@@ -1,5 +1,6 @@
 param(
-    [string]$DatabaseUrl = ""
+    [string]$DatabaseUrl = "",
+    [switch]$SyncVercel
 )
 
 $ErrorActionPreference = "Stop"
@@ -67,6 +68,10 @@ Write-Host "  npx vercel --prod"
 Write-Host ""
 Write-Host "Verify: GET $liveUrl/health -> database_persistent: true"
 Write-Host ""
+
+if ($SyncVercel) {
+    & (Join-Path $PSScriptRoot "sync-vercel-env.ps1") -Deploy
+}
 
 $open = Read-Host "Open Neon console? [Y/n]"
 if ($open -ne 'n' -and $open -ne 'N') {
