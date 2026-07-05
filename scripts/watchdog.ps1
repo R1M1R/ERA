@@ -25,8 +25,13 @@ function Test-Healthy {
 
 Write-Log "Watchdog started (interval ${IntervalSec}s)"
 
+$tick = 0
 while ($true) {
     Start-Sleep -Seconds $IntervalSec
+    $tick++
+    if ($tick % 10 -eq 0) {
+        Write-Log "Heartbeat: watchdog alive"
+    }
     if (Test-Healthy) {
         continue
     }
