@@ -180,6 +180,16 @@ const translations = {
     headerProActive: 'Pro active',
     generateProReady: 'Pro AI enabled — real GPT riddles for your generations.',
     footerLive: 'Live app',
+    betaBadge: 'Beta test',
+    betaTitle: 'ERA is in public beta — not a finished product yet',
+    betaDesc:
+      'Features may change, break, or reset. Use the free tier to explore; report issues on GitHub.',
+    betaDescProUnavailable:
+      'Paid Pro checkout is temporarily disabled while billing and GPT infrastructure are being finalized.',
+    betaProWarning:
+      'Do not purchase Pro yet — you may not receive real GPT riddles or a persistent license until we announce general availability.',
+    pricingProUnavailable: 'Pro checkout opens after beta',
+    pricingProUnavailableHint: 'Free tier works · we will enable Pro when production is ready',
     cloudTitle: 'Cloud API offline',
     cloudDesc:
       'The live stack runs on Vercel. If you see this banner, wait a moment and refresh — cold start may take up to 30s.',
@@ -368,6 +378,16 @@ const translations = {
     headerProActive: 'Pro активен',
     generateProReady: 'Pro ИИ включён — реальные GPT-загадки для ваших генераций.',
     footerLive: 'Приложение',
+    betaBadge: 'Бета-тест',
+    betaTitle: 'ERA в режиме публичного бета-теста — продукт ещё не завершён',
+    betaDesc:
+      'Функции могут меняться, ломаться или сбрасываться. Пользуйтесь бесплатным тарифом; баги — на GitHub.',
+    betaDescProUnavailable:
+      'Оплата Pro временно отключена: биллинг и GPT-инфраструктура ещё настраиваются.',
+    betaProWarning:
+      'Не покупайте Pro сейчас — реальные GPT-загадки и постоянная лицензия появятся после объявления GA.',
+    pricingProUnavailable: 'Pro откроется после беты',
+    pricingProUnavailableHint: 'Бесплатный тариф работает · Pro включим, когда production будет готов',
     cloudTitle: 'Облачный API офлайн',
     cloudDesc:
       'Стек на Vercel. Если видите баннер — подождите и обновите страницу (cold start до 30 сек).',

@@ -4,15 +4,18 @@ import { useI18n } from '../hooks/useI18n'
 import { activateProByEmail, fetchProStatus } from '../lib/api'
 import { getProPaymentLink } from '../lib/pricing'
 import { setProKey, clearProKey } from '../lib/proKey'
+import { isProCheckoutEnabled } from '../lib/betaMode'
 import type { ProInfo } from '../hooks/useProStatus'
 
 interface ProSectionProps {
   pro: ProInfo
+  productionReady: boolean
 }
 
-export function ProSection({ pro }: ProSectionProps) {
+export function ProSection({ pro, productionReady }: ProSectionProps) {
   const { t } = useI18n()
   const paymentLink = getProPaymentLink()
+  const checkoutEnabled = isProCheckoutEnabled(productionReady)
   const [email, setEmail] = useState('')
   const [manualKey, setManualKey] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -76,6 +79,12 @@ export function ProSection({ pro }: ProSectionProps) {
         </p>
       ) : null}
 
+      {!checkoutEnabled ? (
+        <p className="mb-4 rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+          {t('betaProWarning')}
+        </p>
+      ) : null}
+
       {pro.active ? (
         <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5">
           <p className="text-sm font-semibold text-emerald-200">{t('proActive')}</p>
@@ -96,11 +105,13 @@ export function ProSection({ pro }: ProSectionProps) {
           <article className="rounded-2xl border border-archive-600 bg-archive-900/50 p-5">
             <h3 className="font-display text-lg text-parchment-100">{t('proStep1')}</h3>
             <p className="mt-2 text-sm text-parchment-300/80">{t('proStep1Desc')}</p>
-            {paymentLink ? (
+            {checkoutEnabled && paymentLink ? (
               <a href={paymentLink} target="_blank" rel="noreferrer" className="btn-primary mt-4 inline-block">
                 {t('pricingUpgrade')}
               </a>
-            ) : null}
+            ) : (
+              <p className="mt-4 text-sm text-amber-100/90">{t('pricingProUnavailable')}</p>
+            )}
           </article>
 
           <article className="rounded-2xl border border-parchment-500/30 bg-parchment-500/5 p-5">

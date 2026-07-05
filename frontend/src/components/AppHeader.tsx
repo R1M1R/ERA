@@ -1,3 +1,4 @@
+import { isBetaNoticeEnabled, isProCheckoutEnabled } from '../lib/betaMode'
 import { getApiBaseUrl } from '../lib/api'
 import { getProPaymentLink } from '../lib/pricing'
 import type { ApiHealthState } from '../hooks/useApiHealth'
@@ -17,9 +18,17 @@ interface AppHeaderProps {
   demoMode: boolean
   standaloneMode: boolean
   proActive: boolean
+  productionReady: boolean
 }
 
-export function AppHeader({ artifactTotal, apiHealth, demoMode, standaloneMode, proActive }: AppHeaderProps) {
+export function AppHeader({
+  artifactTotal,
+  apiHealth,
+  demoMode,
+  standaloneMode,
+  proActive,
+  productionReady,
+}: AppHeaderProps) {
   const { t, locale, setLocale } = useI18n()
 
   const statusKey: TranslationKey =
@@ -32,10 +41,16 @@ export function AppHeader({ artifactTotal, apiHealth, demoMode, standaloneMode, 
           : 'apiChecking'
 
   const paymentLink = getProPaymentLink()
+  const checkoutEnabled = isProCheckoutEnabled(productionReady)
 
   return (
     <header className="mb-2 text-center">
       <div className="mb-4 flex items-center justify-end gap-2">
+        {isBetaNoticeEnabled() ? (
+          <span className="rounded-lg border border-amber-400/50 bg-amber-500/15 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-100">
+            {t('betaBadge')}
+          </span>
+        ) : null}
         {proActive ? (
           <a
             href="#pro-section"
@@ -43,24 +58,22 @@ export function AppHeader({ artifactTotal, apiHealth, demoMode, standaloneMode, 
           >
             {t('headerProActive')}
           </a>
+        ) : checkoutEnabled && paymentLink ? (
+          <a
+            href={paymentLink}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-lg border border-parchment-500/40 bg-parchment-500/15 px-3 py-1 text-xs font-semibold text-parchment-100 transition hover:bg-parchment-500/25"
+          >
+            {t('headerUpgrade')}
+          </a>
         ) : (
-          paymentLink ? (
-            <a
-              href={paymentLink}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-lg border border-parchment-500/40 bg-parchment-500/15 px-3 py-1 text-xs font-semibold text-parchment-100 transition hover:bg-parchment-500/25"
-            >
-              {t('headerUpgrade')}
-            </a>
-          ) : (
-            <a
-              href="#pro-section"
-              className="rounded-lg border border-parchment-500/40 bg-parchment-500/15 px-3 py-1 text-xs font-semibold text-parchment-100 transition hover:bg-parchment-500/25"
-            >
-              {t('headerUpgrade')}
-            </a>
-          )
+          <a
+            href="#pricing-section"
+            className="rounded-lg border border-amber-500/35 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-100 transition hover:bg-amber-500/20"
+          >
+            {t('pricingProUnavailable')}
+          </a>
         )}
         <button
           type="button"

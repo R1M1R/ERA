@@ -8,6 +8,7 @@ import { GenerationProgress } from './components/GenerationProgress'
 import { PricingSection } from './components/PricingSection'
 import { ProSection } from './components/ProSection'
 import { AppFooter } from './components/AppFooter'
+import { BetaNoticeBanner } from './components/BetaNoticeBanner'
 import { CloudBanner } from './components/CloudBanner'
 import { KeyboardHelp } from './components/KeyboardHelp'
 import { MobileNav } from './components/MobileNav'
@@ -92,9 +93,12 @@ function App() {
         demoMode={apiHealth.demoMode}
         standaloneMode={apiHealth.standaloneMode}
         proActive={pro.active}
+        productionReady={apiHealth.productionReady}
       />
 
       <SectionNav />
+
+      <BetaNoticeBanner productionReady={apiHealth.productionReady} />
 
       <StatusDashboard artifactTotal={gallery.total} health={apiHealth} />
 
@@ -143,9 +147,9 @@ function App() {
           onReset={decoder.reset}
         />
 
-        <PricingSection />
+        <PricingSection productionReady={apiHealth.productionReady} />
 
-        <ProSection pro={pro} />
+        <ProSection pro={pro} productionReady={apiHealth.productionReady} />
       </main>
 
       <AppFooter />

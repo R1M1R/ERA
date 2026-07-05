@@ -1,9 +1,15 @@
 import { useI18n } from '../hooks/useI18n'
+import { isProCheckoutEnabled } from '../lib/betaMode'
 import { getProPaymentLink, PRO_CONTACT_EMAIL } from '../lib/pricing'
 
-export function PricingSection() {
+interface PricingSectionProps {
+  productionReady: boolean
+}
+
+export function PricingSection({ productionReady }: PricingSectionProps) {
   const { t } = useI18n()
   const paymentLink = getProPaymentLink()
+  const checkoutEnabled = isProCheckoutEnabled(productionReady)
 
   return (
     <section className="panel animate-fade-in-up" id="pricing-section">
@@ -41,7 +47,7 @@ export function PricingSection() {
             <li>✓ {t('pricingPro3')}</li>
             <li>✓ {t('pricingPro4')}</li>
           </ul>
-          {paymentLink ? (
+          {checkoutEnabled && paymentLink ? (
             <>
               <a href={paymentLink} target="_blank" rel="noreferrer" className="btn-primary mt-5 block w-full text-center">
                 {t('pricingUpgrade')}
@@ -50,13 +56,18 @@ export function PricingSection() {
                 {t('pricingActivateAfter')}
               </a>
             </>
-          ) : (
+          ) : checkoutEnabled ? (
             <a
               href={`mailto:${PRO_CONTACT_EMAIL}?subject=ERA%20Pro`}
               className="btn-primary mt-5 block w-full text-center"
             >
               {t('pricingContactPro')}
             </a>
+          ) : (
+            <div className="mt-5 rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-3 text-center">
+              <p className="text-sm font-medium text-amber-100">{t('pricingProUnavailable')}</p>
+              <p className="mt-1 text-xs text-amber-100/75">{t('pricingProUnavailableHint')}</p>
+            </div>
           )}
         </article>
 

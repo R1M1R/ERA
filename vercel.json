@@ -42,6 +42,7 @@
   },
   "env": {
     "ERA_STANDALONE": "true",
-    "ERA_DEMO_MODE": "true"
+    "ERA_DEMO_MODE": "true",
+    "VITE_APP_BETA_MODE": "true"
   }
 }
